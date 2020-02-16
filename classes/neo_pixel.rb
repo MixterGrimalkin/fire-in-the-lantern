@@ -14,10 +14,10 @@ class NeoPixel
 
   attr_reader :pixel_count, :output, :contents, :started
 
-  def set(pixel, rgb)
+  def set(pixel, color)
     raise PixelOutOfRangeError unless (0..pixel_count).include? pixel
 
-    contents[pixel] = rgb
+    contents[pixel] = color
   end
 
   def set_range(start, width, color)
@@ -73,7 +73,7 @@ class NeoPixel
     show buffer
   end
 
-  priv36ate
+  private
 
   def show(buffer)
 

@@ -82,7 +82,6 @@ RSpec.describe NeoPixel do
     before do
       neo_pixel.set 0, white
       neo_pixel.set 1, cyan
-      # 2, black
       neo_pixel.set 3, yellow
       expect(neo_pixel).to receive(:show).with(buffer)
     end
