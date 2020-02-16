@@ -1,0 +1,26 @@
+<html>
+<head>
+    <title>Neopix-Lantern UI</title>
+    <script src="jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+<h1>Hello</h1>
+
+</body>
+
+<script>
+    $(function () {
+//        setInterval(function() {
+            $.ajax({
+                url: 'http://localhost:4567/data',
+                crossDomain: true,
+                success: function(resp) {
+                    console.log(resp);
+                }
+            }, 50)
+//        })
+    });
+</script>
+
+</html>
