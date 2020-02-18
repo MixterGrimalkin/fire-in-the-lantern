@@ -2,6 +2,10 @@ require_relative 'neo_pixel'
 
 class NeoPixelStdOut < NeoPixel
 
+  def initialize(pixel_count)
+    super(pixel_count, mode: :rgb)
+  end
+
   def show(buffer)
     output = ''
     buffer.each_slice(3) do |rgb|

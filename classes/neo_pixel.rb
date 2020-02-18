@@ -4,15 +4,14 @@ require_relative '../support/color_constants'
 class NeoPixel
   include ::ColorConstants
 
-  def initialize(pixel_count, output: :rgb)
+  def initialize(pixel_count, mode: :rgb)
     @pixel_count = pixel_count
-    @output = output
+    @mode = mode
     @contents = [BLACK] * pixel_count
     @started = false
-    render
   end
 
-  attr_reader :pixel_count, :output, :contents, :started
+  attr_reader :pixel_count, :mode, :contents, :started
 
   def set(pixel, color)
     raise PixelOutOfRangeError unless (0..pixel_count).include? pixel
@@ -26,14 +25,26 @@ class NeoPixel
     end
   end
 
+  def fill(color = BLACK)
+    set_range 0, pixel_count, color
+  end
+
   def all_on
-    set_range 0, pixel_count, WHITE
+    fill WHITE
     render
   end
 
   def all_off
-    set_range 0, pixel_count, BLACK
+    fill
     render
+  end
+
+  def rgb_count
+    if mode == :rgbw
+      ((pixel_count * 4) / 3.0).ceil
+    else
+      pixel_count
+    end
   end
 
   def start(period = 0.01)
@@ -56,7 +67,7 @@ class NeoPixel
 
   def render
     buffer = contents.collect do |color|
-      case output
+      case mode
         when :rgb
           [color.red, color.green, color.blue]
         when :grb
@@ -64,7 +75,7 @@ class NeoPixel
         when :rgbw
           [color.red, color.green, color.blue, color.white || 0]
         else
-          raise BadOutputMode, output.to_s
+          raise BadOutputMode, mode.to_s
       end
     end.flatten
     while buffer.size % 3 != 0
@@ -72,8 +83,6 @@ class NeoPixel
     end
     show buffer
   end
-
-  private
 
   def show(buffer)
 

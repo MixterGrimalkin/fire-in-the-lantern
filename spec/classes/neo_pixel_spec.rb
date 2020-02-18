@@ -3,18 +3,18 @@ require_relative '../../support/color'
 
 RSpec.describe NeoPixel do
 
+  subject(:neo_pixel) { NeoPixel.new 4, mode: mode }
+
+  let(:mode) { :rgb }
+
   let(:black) { Color.new 0, 0, 0 }
   let(:yellow) { Color.new 200, 255, 0 }
   let(:white) { Color.new 255, 255, 255, 255 }
   let(:cyan) { Color.new 0, 200, 255 }
 
-  let(:mode) { :rgb }
-
-  let(:neo_pixel) { NeoPixel.new 4, output: mode }
-
   context '.initialize' do
-    it 'initializes and renders in OFF state' do
-      expect_any_instance_of(NeoPixel).to receive(:show).once
+    it 'initializes in OFF state without rendering' do
+      expect_any_instance_of(NeoPixel).not_to receive(:show)
       expect(neo_pixel.contents).to eq [black, black, black, black]
       expect(neo_pixel.started).to eq false
     end
@@ -44,7 +44,7 @@ RSpec.describe NeoPixel do
 
   context '.all_on and .all_off' do
     it 'renders all ON and OFF' do
-      expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
+      expect_any_instance_of(NeoPixel).to receive(:show).twice
       neo_pixel.all_on
       expect(neo_pixel.contents).to eq [white, white, white, white]
       neo_pixel.all_off
@@ -52,9 +52,17 @@ RSpec.describe NeoPixel do
     end
   end
 
+  context '.fill' do
+    it 'fills contents but does not render' do
+      expect(neo_pixel).not_to receive(:show)
+      neo_pixel.fill yellow
+      expect(neo_pixel.contents).to eq [yellow, yellow, yellow, yellow]
+    end
+  end
+
   context '.start and .stop' do
     it 'starts and stops the rendering thread' do
-      expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
+      expect_any_instance_of(NeoPixel).to receive(:show).twice
       neo_pixel.start 0.25
       expect(neo_pixel.started).to eq true
       sleep 0.5
@@ -91,6 +99,7 @@ RSpec.describe NeoPixel do
         [255,255,255, 0,200,255, 0,0,0, 200,255,0]
       end
       it 'renders RGB' do
+        expect(neo_pixel.rgb_count).to eq 4
         neo_pixel.render
       end
     end
@@ -100,6 +109,7 @@ RSpec.describe NeoPixel do
         [255,255,255, 200,0,255, 0,0,0, 255,200,0]
       end
       it 'renders GRB' do
+        expect(neo_pixel.rgb_count).to eq 4
         neo_pixel.render
       end
     end
@@ -109,6 +119,7 @@ RSpec.describe NeoPixel do
         [255,255,255, 255,0,200, 255,0,0, 0,0,0, 200,255,0, 0,0,0]
       end
       it 'renders RGBW' do
+        expect(neo_pixel.rgb_count).to eq 6
         neo_pixel.render
       end
     end
