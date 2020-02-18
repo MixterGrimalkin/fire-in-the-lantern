@@ -9,4 +9,5 @@ group :development, :test do
   gem 'sinatra-cross_origin'
   gem 'rack-cors', :require => 'rack/cors'
   gem 'rspec'
+  gem 'byebug'
 end
