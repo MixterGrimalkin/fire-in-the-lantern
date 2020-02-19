@@ -1,4 +1,5 @@
 require_relative 'pixel'
+require_relative 'pixel_group'
 
 class Pixelator
 
@@ -6,13 +7,32 @@ class Pixelator
     @neo_pixel = neo_pixel
     @pixels = []
     pixel_count.times { |i| @pixels << Pixel.new(i) }
-    @groups = {}
+    @groups = {all: PixelGroup.new(@pixels)}
+    @started = false
   end
 
-  attr_reader :neo_pixel, :pixels
+  attr_reader :neo_pixel, :pixels, :started
 
   def pixel_count
     @neo_pixel.pixel_count
+  end
+
+  def start(period = 0.01)
+    raise NotAllowed if @started
+
+    @started = true
+    Thread.new do
+      while @started
+        render
+        sleep period
+      end
+    end
+  end
+
+  def stop
+    raise NotAllowed unless @started
+
+    @started = false
   end
 
   def render
@@ -20,17 +40,26 @@ class Pixelator
     neo_pixel.render
   end
 
-  def []=(key, criteria)
-    return unless key.is_a? Symbol
+  def group(group_def)
+    return unless group_def.is_a?(Hash) && group_def.size == 1
 
-    @groups[key] = pixels.select do |p|
-      case criteria
-        when Range, Array
-          criteria.include?(p.number)
-        when Proc
-          criteria.call p
-      end
-    end
+    key, criteria = group_def.first[0], group_def.first[1]
+
+    @groups[key] =
+        PixelGroup.new(pixels.select do |p|
+          case criteria
+            when Range, Array
+              criteria.include?(p.number)
+            when Proc
+              criteria.call p
+          end
+        end)
+  end
+
+  def []=(key, group)
+    return unless key.is_a?(Symbol) and group.is_a?(PixelGroup)
+
+    @groups[key] = group
   end
 
   def [](key)
@@ -43,3 +72,5 @@ class Pixelator
   end
 
 end
+
+NotAllowed = Class.new(StandardError)
