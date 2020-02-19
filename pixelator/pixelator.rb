@@ -1,6 +1,6 @@
 require_relative 'pixel'
 
-class PixelSet
+class Pixelator
 
   def initialize(neo_pixel)
     @neo_pixel = neo_pixel

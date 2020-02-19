@@ -1,11 +1,11 @@
 require_relative 'neo_pixel'
 require 'net/http'
 
-class NeoPixelHttp < NeoPixel
+class HttpNeoPixel < NeoPixel
 
-  def initialize(pixel_count)
+  def initialize(pixel_count, host: 'localhost', port: 4567)
     super(pixel_count, mode: :rgb)
-    @uri = URI('http://localhost:4567/data')
+    @uri = URI("http://#{host}:#{port}/data")
   end
 
   def show(buffer)

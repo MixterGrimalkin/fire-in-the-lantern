@@ -1,10 +1,10 @@
-require_relative '../../classes/neo_pixel'
-require_relative '../../classes/pixel_set'
+require_relative '../../neo_pixel/neo_pixel'
+require_relative '../../pixelator/pixelator'
 require 'byebug'
 
-RSpec.describe PixelSet do
+RSpec.describe Pixelator do
 
-  subject(:pixel_set) { PixelSet.new NeoPixel.new(10) }
+  subject(:pixel_set) { Pixelator.new NeoPixel.new(10) }
 
   let(:neo_pixel) { pixel_set.neo_pixel }
   let(:px) { pixel_set.pixels }

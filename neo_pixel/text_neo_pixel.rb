@@ -1,6 +1,6 @@
 require_relative 'neo_pixel'
 
-class NeoPixelStdOut < NeoPixel
+class TextNeoPixel < NeoPixel
 
   def show(buffer)
     output = ''

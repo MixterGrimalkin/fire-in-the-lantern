@@ -1,13 +1,13 @@
 require_relative 'neo_pixel'
-require_relative 'neo_pixel_std_out'
+require_relative 'text_neo_pixel'
 require 'osc-ruby'
 
-class NeoPixelOsc < NeoPixel
+class OscNeoPixel < NeoPixel
 
   def initialize(pixel_count, mode: :rgb, host: 'localhost', port: 3333)
     super(pixel_count, mode: mode)
     @client = OSC::Client.new(host, port)
-    @text_out = NeoPixelStdOut.new(pixel_count)
+    @text_out = TextNeoPixel.new(pixel_count)
     @echo = false
   end
 

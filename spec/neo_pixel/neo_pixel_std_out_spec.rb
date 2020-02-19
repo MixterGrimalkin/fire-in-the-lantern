@@ -1,8 +1,8 @@
-require_relative '../../classes/neo_pixel_std_out'
+require_relative '../../neo_pixel/text_neo_pixel'
 
-RSpec.describe NeoPixelStdOut do
+RSpec.describe TextNeoPixel do
 
-  let(:neo_pixel) { NeoPixelStdOut.new 4 }
+  let(:neo_pixel) { TextNeoPixel.new 4 }
 
   it 'renders' do
     expect{ neo_pixel.render }.to output("....\n").to_stdout

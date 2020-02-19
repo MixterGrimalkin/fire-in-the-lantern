@@ -1,10 +1,10 @@
-require_relative '../../classes/neo_pixel'
-require_relative '../../classes/pixel'
-require_relative '../../classes/pixel_set'
+require_relative '../../neo_pixel/neo_pixel'
+require_relative '../../pixelator/pixel'
+require_relative '../../pixelator/pixelator'
 
 RSpec.describe Pixel do
 
-  let(:pixel_set) { PixelSet.new NeoPixel.new(10) }
+  let(:pixel_set) { Pixelator.new NeoPixel.new(10) }
   let(:neo_pixel) { pixel_set.neo_pixel }
   let(:px) { 8 }
 
