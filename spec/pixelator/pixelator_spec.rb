@@ -45,10 +45,15 @@ RSpec.describe Pixelator do
   it 'combines groups' do
     pixelator.group left: (0..4)
     pixelator.group right: (5..9)
-    sum_group = pixelator[:left] + pixelator[:right]
-    expect(sum_group.pixels).to eq px
-    pixelator[:sum] = sum_group
-    expect(pixelator[:sum]).to eq sum_group
+    pixelator[:sum] = pixelator[:left] + pixelator[:right]
+    expect(pixelator[:sum].pixels).to eq px
+  end
+
+  it 'subtracts groups' do
+    pixelator.group left: (0..4)
+    pixelator.group right: (5..9)
+    pixelator[:diff] = pixelator[:all] - pixelator[:right]
+    expect(pixelator[:diff]).to eq pixelator[:left]
   end
 
   it 'renders to NeoPixel' do

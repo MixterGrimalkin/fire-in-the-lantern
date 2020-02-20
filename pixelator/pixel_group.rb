@@ -8,8 +8,16 @@ class PixelGroup
 
   attr_reader :pixels
 
+  def ==(other)
+    pixels == other.pixels
+  end
+
   def +(other)
     PixelGroup.new(pixels + other.pixels)
+  end
+
+  def -(other)
+    PixelGroup.new(pixels - other.pixels)
   end
 
   def set(color, brightness = 1.0)
