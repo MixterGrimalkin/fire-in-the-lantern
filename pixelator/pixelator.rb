@@ -1,5 +1,5 @@
 require_relative 'pixel'
-require_relative 'pixel_group'
+require_relative 'pixel_layer'
 
 class Pixelator
 
@@ -7,7 +7,7 @@ class Pixelator
     @neo_pixel = neo_pixel
     @pixels = []
     pixel_count.times { |i| @pixels << Pixel.new(i) }
-    @groups = {all: PixelGroup.new(@pixels)}
+    @layers = {all: PixelLayer.new(@pixels)}
     @started = false
   end
 
@@ -40,13 +40,13 @@ class Pixelator
     neo_pixel.render
   end
 
-  def group(group_def)
-    return unless group_def.is_a?(Hash) && group_def.size == 1
+  def layer(layer_def)
+    return unless layer_def.is_a?(Hash) && layer_def.size == 1
 
-    key, criteria = group_def.first[0], group_def.first[1]
+    key, criteria = layer_def.first[0], layer_def.first[1]
 
-    group =
-        PixelGroup.new(pixels.select do |p|
+    layer =
+        PixelLayer.new(pixels.select do |p|
           case criteria
             when Range, Array
               criteria.include?(p.number)
@@ -55,15 +55,15 @@ class Pixelator
           end
         end)
 
-    self.class.send(:define_method, key.to_sym, proc { group })
+    self.class.send(:define_method, key.to_sym, proc { layer })
 
-    @groups[key] = group
+    @layers[key] = layer
   end
 
-  def []=(key, group)
-    return unless key.is_a?(Symbol) and group.is_a?(PixelGroup)
+  def []=(key, layer)
+    return unless key.is_a?(Symbol) and layer.is_a?(PixelLayer)
 
-    @groups[key] = group
+    @layers[key] = layer
   end
 
   def [](key)
@@ -71,7 +71,7 @@ class Pixelator
       when Integer
         @pixels[key]
       when Symbol
-        @groups[key]
+        @layers[key]
     end
   end
 

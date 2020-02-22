@@ -25,38 +25,38 @@ RSpec.describe Pixelator do
   end
 
   it 'defines a Group by range' do
-    pixelator.group mid_four: (4..7)
+    pixelator.layer mid_four: (4..7)
     expect(pixelator[:mid_four].pixels)
         .to eq [px[4], px[5], px[6], px[7]]
   end
 
   it 'defines a Group by array' do
-    pixelator.group those_three: [1, 6, 9]
+    pixelator.layer those_three: [1, 6, 9]
     expect(pixelator[:those_three].pixels)
         .to eq [px[1], px[6], px[9]]
   end
 
   it 'defines a Group by proc' do
-    pixelator.group evens: proc { |p| p.number % 2 == 0 }
+    pixelator.layer evens: proc { |p| p.number % 2 == 0 }
     expect(pixelator[:evens].pixels)
         .to eq [px[0], px[2], px[4], px[6], px[8]]
   end
 
   it 'defines a method' do
-    pixelator.group odds: proc { |p| p.number % 2 != 0 }
+    pixelator.layer odds: proc { |p| p.number % 2 != 0 }
     expect(pixelator.odds).to eq pixelator[:odds]
   end
 
   it 'combines groups' do
-    pixelator.group left: (0..4)
-    pixelator.group right: (5..9)
+    pixelator.layer left: (0..4)
+    pixelator.layer right: (5..9)
     pixelator[:sum] = pixelator[:left] + pixelator[:right]
     expect(pixelator[:sum].pixels).to eq px
   end
 
   it 'subtracts groups' do
-    pixelator.group left: (0..4)
-    pixelator.group right: (5..9)
+    pixelator.layer left: (0..4)
+    pixelator.layer right: (5..9)
     pixelator[:diff] = pixelator[:all] - pixelator[:right]
     expect(pixelator[:diff]).to eq pixelator[:left]
   end

@@ -1,6 +1,6 @@
 require_relative '../support/color'
 
-class PixelGroup
+class PixelLayer
 
   def initialize(pixels)
     @pixels = pixels
@@ -13,11 +13,11 @@ class PixelGroup
   end
 
   def +(other)
-    PixelGroup.new(pixels + other.pixels)
+    PixelLayer.new(pixels + other.pixels)
   end
 
   def -(other)
-    PixelGroup.new(pixels - other.pixels)
+    PixelLayer.new(pixels - other.pixels)
   end
 
   def set(color, brightness = 1.0)
