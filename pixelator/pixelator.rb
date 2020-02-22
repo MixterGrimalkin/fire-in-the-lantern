@@ -45,7 +45,7 @@ class Pixelator
 
     key, criteria = group_def.first[0], group_def.first[1]
 
-    @groups[key] =
+    group =
         PixelGroup.new(pixels.select do |p|
           case criteria
             when Range, Array
@@ -54,6 +54,10 @@ class Pixelator
               criteria.call p
           end
         end)
+
+    self.class.send(:define_method, key.to_sym, proc { group })
+
+    @groups[key] = group
   end
 
   def []=(key, group)

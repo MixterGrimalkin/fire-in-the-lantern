@@ -42,6 +42,11 @@ RSpec.describe Pixelator do
         .to eq [px[0], px[2], px[4], px[6], px[8]]
   end
 
+  it 'defines a method' do
+    pixelator.group odds: proc { |p| p.number % 2 != 0 }
+    expect(pixelator.odds).to eq pixelator[:odds]
+  end
+
   it 'combines groups' do
     pixelator.group left: (0..4)
     pixelator.group right: (5..9)
