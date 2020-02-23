@@ -24,7 +24,7 @@ RSpec.describe Pixelator do
   it 'initializes the base layer' do
     expect(pixelator[:base].pixels).to eq px
     expect(pixelator.base.pixels).to eq px
-    expect(pixelator.base.contents).to eq [nil]*10
+    expect(pixelator.base.contents).to eq [black]*10
   end
 
   it 'can define a new layer' do

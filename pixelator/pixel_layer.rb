@@ -4,17 +4,22 @@ require_relative '../support/color_constants'
 class PixelLayer
   include ColorConstants
 
-  def initialize(pixels)
+  def initialize(pixels, default = nil)
     @pixels = pixels
-    @contents = [nil] * pixels.size
+    @contents = [default] * pixels.size
+    @opacity = 1.0
   end
 
   attr_reader :pixels, :contents
 
+  attr_accessor :opacity
+
   def render_over(base_layer)
     @contents.each_with_index do |color, i|
-      base_layer[pixels[i]] =
-          blend(base_layer[pixels[i]], color)
+      unless color.nil?
+        base_layer[pixels[i]] =
+            color.blend_over(base_layer[pixels[i]], opacity)
+      end
     end
     base_layer
   end
@@ -30,7 +35,7 @@ class PixelLayer
     end
   end
 
-  def gradient(red: [0,0], green: [0,0], blue: [0,0])
+  def gradient(red: [0, 0], green: [0, 0], blue: [0, 0])
     s_red, s_green, s_blue = red[0], green[0], blue[0]
     d_red = (red[1] - s_red) / (pixels.size - 1)
     d_green = (green[1] - s_green) / (pixels.size - 1)

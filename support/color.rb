@@ -1,6 +1,12 @@
 class Color
 
   def initialize(red = 0, green = red, blue = green, white = nil)
+    [red, green, blue, white].each do |c|
+      unless c.nil? || (0..255).include?(c)
+        raise ColorValueOutOfRange, "#{red},#{green},#{blue},#{white}"
+      end
+    end
+
     @red, @green, @blue, @white = red, green, blue, white
   end
 
@@ -15,6 +21,23 @@ class Color
     )
   end
 
+  def blend_over(other, alpha = 1.0)
+    if alpha == 0.0
+      other
+    elsif alpha == 1.0
+      self
+    else
+      w = white || 0
+      ow = other.white || 0
+      Color.new(
+          (red + ((1-alpha) * (other.red - red))).floor,
+          (green + ((1-alpha)* (other.green - green))).floor,
+          (blue + ((1-alpha) * (other.blue - blue))).floor,
+          (w + ((1-alpha) * (ow - w))).floor
+      )
+    end
+  end
+
   def ==(other)
     red == other.red &&
         green == other.green &&
@@ -26,4 +49,7 @@ class Color
     "[#{red},#{green},#{blue}#{white ? ",#{white}" : ''}]"
   end
 
+end
+
+class ColorValueOutOfRange < StandardError;
 end

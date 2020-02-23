@@ -11,12 +11,6 @@ RSpec.describe PixelLayer do
 
   let(:pixelator) { Pixelator.new neo_pixel }
 
-  let(:blk) { Color.new }
-  let(:red) { Color.new 200,0,0 }
-  let(:dk_red) { Color.new 100,0,0 }
-  let(:blue) { Color.new 0,0,200 }
-  let(:dk_blue) { Color.new 0,0,100 }
-
   subject(:layer) { pixelator.layer new_layer: (2..5) }
 
   it '.initializes correctly' do
@@ -25,6 +19,10 @@ RSpec.describe PixelLayer do
     expect(layer).to eq(pixelator.new_layer)
     expect(layer.contents).to eq [nil, nil, nil, nil]
   end
+
+  let(:blk) { Color.new }
+  let(:red) { Color.new 200,0,0 }
+  let(:dk_red) { Color.new 100,0,0 }
 
   it 'fill with single color' do
     layer.fill red, 1
@@ -36,6 +34,26 @@ RSpec.describe PixelLayer do
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, dk_red, dk_red, dk_red, dk_red, blk, blk]
+  end
+
+  let(:blue) { Color.new 0,0,200 }
+  let(:dk_blue) { Color.new 0,0,100 }
+  let(:dkr_blue) { Color.new 0,0,50 }
+
+  it 'blends with opacity' do
+    layer.fill blue
+
+    layer.opacity = 0.5
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [blk, blk, dk_blue, dk_blue, dk_blue, dk_blue, blk, blk]
+
+    layer.opacity = 0.25
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [blk, blk, dkr_blue, dkr_blue, dkr_blue, dkr_blue, blk, blk]
+
+
   end
 
   it 'draws a gradient' do

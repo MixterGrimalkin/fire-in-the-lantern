@@ -1,16 +1,19 @@
+require_relative '../support/color'
+require_relative '../support/color_constants'
 require_relative 'pixel'
 require_relative 'pixel_layer'
 
 require 'byebug'
 
 class Pixelator
+  include ColorConstants
 
   def initialize(neo_pixel)
     @neo_pixel = neo_pixel
     @pixels = []
     pixel_count.times { |i| @pixels << i }
     @layers = {}
-    layer :base
+    layer(:base, BLACK)
     @started = false
   end
 
@@ -47,11 +50,10 @@ class Pixelator
     neo_pixel.render
   end
 
-  def layer(layer_def)
-
+  def layer(layer_def, default = nil)
     if layer_def.is_a? Symbol
       key = layer_def
-      layer = PixelLayer.new(pixels)
+      layer = PixelLayer.new(pixels, default)
 
     elsif layer_def.is_a?(Hash) && layer_def.size==1
       key, criteria = layer_def.first[0], layer_def.first[1]
@@ -63,7 +65,7 @@ class Pixelator
               when Proc
                 criteria.call p
             end
-          end)
+          end, default)
 
     else
       return
