@@ -1,13 +1,16 @@
 require_relative 'pixel'
 require_relative 'pixel_layer'
 
+require 'byebug'
+
 class Pixelator
 
   def initialize(neo_pixel)
     @neo_pixel = neo_pixel
     @pixels = []
-    pixel_count.times { |i| @pixels << Pixel.new(i) }
-    @layers = {all: PixelLayer.new(@pixels)}
+    pixel_count.times { |i| @pixels << i }
+    @layers = {}
+    layer :base
     @started = false
   end
 
@@ -36,40 +39,57 @@ class Pixelator
   end
 
   def render
-    pixels.each { |p| neo_pixel.set(p.number, p.get) }
+    buffer = neo_pixel.contents
+    @layers.each do |_, layer|
+      buffer = layer.render_over buffer
+    end
+    neo_pixel.contents = buffer
     neo_pixel.render
   end
 
   def layer(layer_def)
-    return unless layer_def.is_a?(Hash) && layer_def.size == 1
 
-    key, criteria = layer_def.first[0], layer_def.first[1]
+    if layer_def.is_a? Symbol
+      key = layer_def
+      layer = PixelLayer.new(pixels)
 
-    layer =
-        PixelLayer.new(pixels.select do |p|
-          case criteria
-            when Range, Array
-              criteria.include?(p.number)
-            when Proc
-              criteria.call p
-          end
-        end)
+    elsif layer_def.is_a?(Hash) && layer_def.size==1
+      key, criteria = layer_def.first[0], layer_def.first[1]
+      layer =
+          PixelLayer.new(pixels.select do |p|
+            case criteria
+              when Range, Array
+                criteria.include?(p)
+              when Proc
+                criteria.call p
+            end
+          end)
+
+    else
+      return
+    end
 
     self.class.send(:define_method, key.to_sym, proc { layer })
-
     @layers[key] = layer
   end
 
-  def []=(key, layer)
-    return unless key.is_a?(Symbol) and layer.is_a?(PixelLayer)
-
-    @layers[key] = layer
+  def []=(key, value)
+    case key
+      when Integer
+        return unless value.is_a? Color
+        @layers[:base][key] = value
+      when Symbol
+        return unless value.is_a? PixelLayer
+        @layers[key] = value
+      else
+        nil
+    end
   end
 
   def [](key)
     case key
       when Integer
-        @pixels[key]
+        @layers[:base][key]
       when Symbol
         @layers[key]
     end

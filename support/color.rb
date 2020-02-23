@@ -6,6 +6,15 @@ class Color
 
   attr_accessor :red, :green, :blue, :white
 
+  def with_brightness(brightness)
+    Color.new(
+        (red * brightness).floor,
+        (green * brightness).floor,
+        (blue * brightness).floor,
+        white.nil? ? nil : (white * brightness).floor,
+    )
+  end
+
   def ==(other)
     red == other.red &&
         green == other.green &&

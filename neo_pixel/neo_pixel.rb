@@ -11,7 +11,9 @@ class NeoPixel
     @started = false
   end
 
-  attr_reader :pixel_count, :mode, :contents, :started
+  attr_accessor :contents
+
+  attr_reader :pixel_count, :mode, :started
 
   def set(pixel, color)
     raise PixelOutOfRangeError unless (0..pixel_count).include? pixel

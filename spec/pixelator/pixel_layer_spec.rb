@@ -20,26 +20,22 @@ RSpec.describe PixelLayer do
   subject(:layer) { pixelator.layer new_layer: (2..5) }
 
   it '.initializes correctly' do
-    expect(layer).to eq(pixelator[:new_layer])
     expect(layer).to be_a PixelLayer
-    expect(layer.pixels.size).to eq 4
+    expect(layer).to eq(pixelator[:new_layer])
+    expect(layer).to eq(pixelator.new_layer)
+    expect(layer.contents).to eq [nil, nil, nil, nil]
   end
 
-  it 'set color and brightness' do
-    layer.set red, 1
+  it 'fill with single color' do
+    layer.fill red, 1
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]
 
-    layer.brightness = 0.5
+    layer.fill red, 0.5
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, dk_red, dk_red, dk_red, dk_red, blk, blk]
-
-    layer.color = blue
-    pixelator.render
-    expect(neo_pixel.contents)
-        .to eq [blk, blk, dk_blue, dk_blue, dk_blue, dk_blue, blk, blk]
   end
 
   it 'draws a gradient' do

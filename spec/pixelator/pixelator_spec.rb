@@ -7,7 +7,8 @@ RSpec.describe Pixelator do
   subject(:pixelator) { Pixelator.new NeoPixel.new(10) }
 
   let(:neo_pixel) { pixelator.neo_pixel }
-  let(:px) { pixelator.pixels }
+
+  let(:px) { [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }
 
   let(:black) { Color.new }
   let(:red) { Color.new 255,0,0 }
@@ -15,64 +16,71 @@ RSpec.describe Pixelator do
   let(:orange) { Color.new 200,180,0 }
   let(:dim_orange) { Color.new 100,90,0 }
 
-  it 'creates Pixels' do
+  it 'initializes pixels' do
     expect(pixelator.pixel_count).to eq 10
-    expect(px.size).to eq 10
+    expect(pixelator.pixels).to eq px
   end
   
-  it 'defines All Group' do
-    expect(pixelator[:all].pixels).to eq px
+  it 'initializes the base layer' do
+    expect(pixelator[:base].pixels).to eq px
+    expect(pixelator.base.pixels).to eq px
+    expect(pixelator.base.contents).to eq [nil]*10
   end
 
-  it 'defines a Group by range' do
+  it 'can define a new layer' do
+    pixelator.layer :the_lot
+    expect(pixelator.the_lot.pixels).to eq px
+  end
+
+  it 'can define a layer by range' do
     pixelator.layer mid_four: (4..7)
     expect(pixelator[:mid_four].pixels)
         .to eq [px[4], px[5], px[6], px[7]]
   end
 
-  it 'defines a Group by array' do
+  it 'can define a layer by array' do
     pixelator.layer those_three: [1, 6, 9]
     expect(pixelator[:those_three].pixels)
         .to eq [px[1], px[6], px[9]]
   end
 
-  it 'defines a Group by proc' do
-    pixelator.layer evens: proc { |p| p.number % 2 == 0 }
+  it 'can define a layer by proc' do
+    pixelator.layer evens: proc { |p| p % 2 == 0 }
     expect(pixelator[:evens].pixels)
         .to eq [px[0], px[2], px[4], px[6], px[8]]
   end
 
-  it 'defines a method' do
-    pixelator.layer odds: proc { |p| p.number % 2 != 0 }
+  it 'defines a method for new layers' do
+    pixelator.layer odds: proc { |p| p % 2 != 0 }
     expect(pixelator.odds).to eq pixelator[:odds]
   end
 
-  it 'combines groups' do
+  it 'can combine layers' do
     pixelator.layer left: (0..4)
     pixelator.layer right: (5..9)
     pixelator[:sum] = pixelator[:left] + pixelator[:right]
     expect(pixelator[:sum].pixels).to eq px
   end
 
-  it 'subtracts groups' do
+  it 'can subtract layers' do
     pixelator.layer left: (0..4)
     pixelator.layer right: (5..9)
-    pixelator[:diff] = pixelator[:all] - pixelator[:right]
+    pixelator[:diff] = pixelator[:base] - pixelator[:right]
     expect(pixelator[:diff]).to eq pixelator[:left]
   end
 
   it 'renders to NeoPixel' do
     expect(neo_pixel).to receive(:show).once
-    pixelator[0].set red
-    pixelator[1].set blue
-    pixelator[2].set black
-    pixelator[3].set blue
-    pixelator[4].set red
-    pixelator[5].set orange
-    pixelator[6].set orange, 0.5
-    pixelator[7].set black
-    pixelator[8].set blue
-    pixelator[9].set red
+    pixelator[0] = red
+    pixelator[1] = blue
+    pixelator[2] = black
+    pixelator[3] = blue
+    pixelator[4] = red
+    pixelator[5] = orange
+    pixelator[6] = orange.with_brightness 0.5
+    pixelator[7] = black
+    pixelator[8] = blue
+    pixelator[9] = red
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [red, blue, black, blue, red, orange, dim_orange, black, blue, red]
