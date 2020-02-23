@@ -42,12 +42,22 @@ class Pixelator
   end
 
   def render
-    buffer = neo_pixel.contents
+    buffer = [BLACK] * pixel_count
     @layers.each do |_, layer|
       buffer = layer.render_over buffer
     end
     neo_pixel.contents = buffer
     neo_pixel.render
+  end
+
+  def all_on
+    stop if started
+    neo_pixel.all_on
+  end
+
+  def all_off
+    stop if started
+    neo_pixel.all_off
   end
 
   def layer(layer_def, default = nil)
