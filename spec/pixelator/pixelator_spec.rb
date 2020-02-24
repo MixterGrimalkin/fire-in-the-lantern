@@ -1,6 +1,7 @@
 require_relative '../../neo_pixel/neo_pixel'
 require_relative '../../pixelator/pixelator'
 require 'byebug'
+require 'json'
 
 RSpec.describe Pixelator do
 
@@ -12,16 +13,17 @@ RSpec.describe Pixelator do
 
   let(:black) { Color.new }
   let(:white) { Color.new 255 }
-  let(:red) { Color.new 255,0,0 }
-  let(:blue) { Color.new 0,0,255 }
-  let(:orange) { Color.new 200,180,0 }
-  let(:dim_orange) { Color.new 100,90,0 }
+  let(:red) { Color.new 255, 0, 0 }
+  let(:dk_red) { Color.new 127, 0, 0 }
+  let(:blue) { Color.new 0, 0, 255 }
+  let(:orange) { Color.new 200, 180, 0 }
+  let(:dim_orange) { Color.new 100, 90, 0 }
 
   it 'initializes pixels' do
     expect(pixelator.pixel_count).to eq 10
     expect(pixelator.pixels).to eq px
   end
-  
+
   it 'initializes the base layer' do
     expect(pixelator[:base].pixels).to eq px
     expect(pixelator.base.pixels).to eq px
@@ -136,24 +138,81 @@ RSpec.describe Pixelator do
     expect(neo_pixel.contents).to eq [black] * 10
   end
 
-  it '.clears' do
-    pixelator.layer a: [0,5,6]
-    pixelator.layer b: [2,4,7]
-    pixelator.a.fill red
-    pixelator.b.fill white
-    pixelator.render
-    expect(neo_pixel.contents)
-        .to eq [red, black, white, black, white, red, red, white, black, black]
-    expect(pixelator.layers.size).to eq 3
+  context 'when there is a pattern running' do
 
-    pixelator.clear
-    expect(neo_pixel.contents)
-        .to eq [black, black, black, black, black, black, black, black, black, black]
-    expect(pixelator.layers.size).to eq 1
+    before do
+      pixelator.layer a: [0, 5, 6]
+      pixelator.layer b: [2, 4, 7]
+      pixelator.a.fill red
+      pixelator.b.fill white
+      pixelator.render
+    end
+
+    let(:saved_scene) do
+      {layers: [
+          {key: :base,
+           pixels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+           contents: [black, black, black, black, black,
+                      black, black, black, black, black],
+           opacity: 1.0
+          },
+          {key: :a,
+           pixels: [0, 5, 6],
+           contents: [red, red, red],
+           opacity: 0.5,
+           scroll: 1
+          },
+          {key: :b,
+           pixels: [2, 4, 7],
+           contents: [white, white, white],
+           opacity: 1.0,
+           scroll: -2
+          }
+      ]}.to_json
+    end
+
+    it '.clears' do
+      expect(neo_pixel.contents)
+          .to eq [red, black, white, black, white, red, red, white, black, black]
+      expect(pixelator.layers.size).to eq 3
+
+      pixelator.clear
+
+      expect(neo_pixel.contents)
+          .to eq [black, black, black, black, black, black, black, black, black, black]
+      expect(pixelator.layers.size).to eq 1
+    end
 
 
+    it '.saves' do
+      pixelator.a.opacity = 0.5
+      pixelator.a.start_scroll 1
+      pixelator.b.start_scroll -2
 
+      expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
+      pixelator.save_scene 'pxfile.json'
+    end
+
+    it '.loads' do
+      allow(File).to receive(:read).with('pxfile.json')
+          .and_return(File.read('./spec/fixtures/pxfile.json'))
+
+      pixelator.clear
+      expect(neo_pixel.contents)
+          .to eq [black, black, black, black, black, black, black, black, black, black]
+      expect(pixelator.layers.size).to eq 1
+
+      pixelator.load_scene('pxfile.json')
+
+      expect(neo_pixel.contents)
+          .to eq [dk_red, black, white, black, white, dk_red, dk_red, white, black, black]
+      expect(pixelator.layers.size).to eq 3
+      expect(pixelator.a.opacity).to eq 0.5
+      expect(pixelator.a.scroll_period).to eq 1
+      expect(pixelator.b.opacity).to eq(1.0)
+      expect(pixelator.b.scroll_period).to eq -2
+    end
 
   end
 

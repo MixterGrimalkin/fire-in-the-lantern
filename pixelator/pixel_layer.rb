@@ -4,7 +4,8 @@ require_relative '../support/color_constants'
 class PixelLayer
   include ColorConstants
 
-  def initialize(pixels, default = nil)
+  def initialize(key, pixels, default = nil)
+    @key = key
     @pixels = pixels
     @contents = [default] * pixels.size
     @opacity = 1.0
@@ -14,9 +15,9 @@ class PixelLayer
     @scroll_last_updated = nil
   end
 
-  attr_accessor :opacity
+  attr_accessor :opacity, :contents
 
-  attr_reader :pixels, :contents, :scroll_offset
+  attr_reader :pixels, :scroll_offset, :scroll_period, :key
 
   def []=(pixel, color)
     contents[pixel] = color
@@ -78,16 +79,38 @@ class PixelLayer
     base_layer
   end
 
+  def combine_keys(other)
+    (key.to_s + other.key.to_s).to_sym
+  end
+
   def ==(other)
     pixels == other.pixels
   end
 
   def +(other)
-    PixelLayer.new(pixels + other.pixels)
+    PixelLayer.new(
+        combine_keys(other),
+        pixels + other.pixels)
   end
 
   def -(other)
-    PixelLayer.new(pixels - other.pixels)
+    PixelLayer.new(
+        combine_keys(other),
+        pixels - other.pixels
+    )
+  end
+
+  def layer_def
+    result = {
+        key: key,
+        pixels: pixels,
+        contents: contents,
+        opacity: opacity
+    }
+    if @scroll_last_updated
+      result[:scroll] = @scroll_period
+    end
+    result
   end
 
 end

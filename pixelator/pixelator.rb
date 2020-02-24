@@ -3,6 +3,7 @@ require_relative '../support/color_constants'
 require_relative 'pixel'
 require_relative 'pixel_layer'
 
+require 'json'
 require 'byebug'
 
 class Pixelator
@@ -51,7 +52,6 @@ class Pixelator
     @render_thread.join
   end
 
-
   def render
     neo_pixel.contents = build_buffer
     neo_pixel.render
@@ -78,12 +78,12 @@ class Pixelator
   def layer(layer_def, default = nil)
     if layer_def.is_a? Symbol
       key = layer_def
-      layer = PixelLayer.new(pixels, default)
+      layer = PixelLayer.new(key, pixels, default)
 
     elsif layer_def.is_a?(Hash) && layer_def.size==1
       key, criteria = layer_def.first[0], layer_def.first[1]
       layer =
-          PixelLayer.new(pixels.select do |p|
+          PixelLayer.new(key, pixels.select do |p|
             case criteria
               when Range, Array
                 criteria.include?(p)
@@ -122,6 +122,33 @@ class Pixelator
       else
         nil
     end
+  end
+
+  def save_scene(filename)
+    json =
+        {layers:
+             layers.collect do |key, layer|
+               layer.layer_def
+             end
+        }.to_json
+    File.write(filename, json)
+  end
+
+  def load_scene(filename)
+    clear
+    json = JSON.parse(File.read(filename))
+    json['layers'].each do |layer_json|
+      l = layer layer_json['key'].to_sym => layer_json['pixels']
+      layer_json['contents'].each_with_index do |color_string, i|
+        comps = color_string[1..-2].split(',').collect(&:to_i)
+        l[i] = Color.new(comps[0], comps[1], comps[2], comps[3])
+      end
+      l.opacity = layer_json['opacity']
+      if (scroll = layer_json['scroll'])
+        l.start_scroll scroll
+      end
+    end
+    render
   end
 
 end
