@@ -32,12 +32,12 @@ class NeoPixel
   end
 
   def all_on
-    fill WHITE
+    @contents = [WHITE] * pixel_count
     render
   end
 
   def all_off
-    fill
+    @contents = [BLACK] * pixel_count
     render
   end
 

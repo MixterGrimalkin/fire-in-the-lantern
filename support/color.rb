@@ -21,18 +21,18 @@ class Color
     )
   end
 
-  def blend_over(other, alpha = 1.0)
+  def blend_over(underlay, alpha = 1.0)
     if alpha == 0.0
-      other
+      underlay
     elsif alpha == 1.0
       self
     else
       w = white || 0
-      ow = other.white || 0
+      ow = underlay.white || 0
       Color.new(
-          (red + ((1-alpha) * (other.red - red))).floor,
-          (green + ((1-alpha)* (other.green - green))).floor,
-          (blue + ((1-alpha) * (other.blue - blue))).floor,
+          (red + ((1-alpha) * (underlay.red - red))).floor,
+          (green + ((1-alpha)* (underlay.green - green))).floor,
+          (blue + ((1-alpha) * (underlay.blue - blue))).floor,
           (w + ((1-alpha) * (ow - w))).floor
       )
     end

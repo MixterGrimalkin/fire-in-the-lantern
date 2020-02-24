@@ -15,8 +15,8 @@ RSpec.describe PixelLayer do
 
   it '.initializes correctly' do
     expect(layer).to be_a PixelLayer
-    expect(layer).to eq(pixelator[:new_layer])
-    expect(layer).to eq(pixelator.new_layer)
+    expect(layer).to eq pixelator[:new_layer]
+    expect(layer).to eq pixelator.new_layer
     expect(layer.contents).to eq [nil, nil, nil, nil]
   end
 
@@ -66,6 +66,41 @@ RSpec.describe PixelLayer do
            Color.new(60, 70, 9),
            Color.new(0, 100, 10),
            blk, blk])
+  end
+
+  it 'scrolls' do
+    layer.fill red
+
+    layer.scroll_by 1
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [blk, blk, blk, red, red, red, red, blk]
+
+    layer.scroll_by -4
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [red, red, red, blk, blk, blk, blk, red]
+  end
+
+  it 'sets scroll delta' do
+    layer.fill red
+
+    layer.update_scroll 1
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [blk, blk, red, red, red, red, blk, blk]
+
+    layer.start_scroll 1
+    layer.update_scroll 3.5
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [red, blk, blk, blk, blk, red, red, red]
+
+    layer.start_scroll -2
+    layer.update_scroll 6.5
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [blk, blk, red, red, red, red, blk, blk]
   end
 
 end

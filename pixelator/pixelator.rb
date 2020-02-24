@@ -15,6 +15,7 @@ class Pixelator
     @layers = {}
     layer(:base, BLACK)
     @started = false
+    @render_thread = nil
   end
 
   attr_reader :neo_pixel, :pixels, :started
@@ -27,8 +28,10 @@ class Pixelator
     raise NotAllowed if @started
 
     @started = true
-    Thread.new do
+
+    @render_thread = Thread.new do
       while @started
+        @layers.values.each(&:update)
         render
         sleep period
       end
@@ -39,15 +42,21 @@ class Pixelator
     raise NotAllowed unless @started
 
     @started = false
+    @render_thread.join
   end
 
+
   def render
+    neo_pixel.contents = build_buffer
+    neo_pixel.render
+  end
+
+  def build_buffer
     buffer = [BLACK] * pixel_count
     @layers.each do |_, layer|
       buffer = layer.render_over buffer
     end
-    neo_pixel.contents = buffer
-    neo_pixel.render
+    buffer
   end
 
   def all_on
@@ -104,6 +113,8 @@ class Pixelator
         @layers[:base][key]
       when Symbol
         @layers[key]
+      else
+        nil
     end
   end
 

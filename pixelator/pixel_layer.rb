@@ -8,29 +8,22 @@ class PixelLayer
     @pixels = pixels
     @contents = [default] * pixels.size
     @opacity = 1.0
-  end
 
-  attr_reader :pixels, :contents
+    @scroll_offset = 0
+    @scroll_period = nil
+    @scroll_last_updated = nil
+  end
 
   attr_accessor :opacity
 
-  def render_over(base_layer)
-    @contents.each_with_index do |color, i|
-      unless color.nil?
-        base_layer[pixels[i]] =
-            color.blend_over(base_layer[pixels[i]], opacity)
-      end
-    end
-    base_layer
-  end
+  attr_reader :pixels, :contents, :scroll_offset
 
-  def blend(base_color, new_color)
-    return base_color if new_color.nil?
-    new_color
+  def []=(pixel, color)
+    contents[pixel] = color
   end
 
   def fill(color, brightness = 1.0)
-    contents.size.times do |i|
+    pixels.size.times do |i|
       contents[i] = color&.with_brightness(brightness)
     end
   end
@@ -41,7 +34,7 @@ class PixelLayer
     d_green = (green[1] - s_green) / (pixels.size - 1)
     d_blue = (blue[1] - s_blue) / (pixels.size - 1)
     pixels.size.times do |i|
-      @contents[i] = Color.new(s_red, s_green, s_blue)
+      contents[i] = Color.new(s_red, s_green, s_blue)
       s_red += d_red
       s_green += d_green
       s_blue += d_blue
@@ -49,8 +42,40 @@ class PixelLayer
     self
   end
 
-  def []=(pixel, color)
-    @contents[pixel] = color
+  def scroll_by(amount)
+    @scroll_offset += amount
+  end
+
+  def start_scroll(period)
+    @scroll_period = period
+    @scroll_last_updated = Time.now
+  end
+
+  def stop_scroll
+    @scroll_last_updated = nil
+  end
+
+  def update_scroll(elapsed_seconds)
+    return unless @scroll_last_updated
+
+    if elapsed_seconds >= @scroll_period
+      @scroll_offset += (elapsed_seconds / @scroll_period)
+      @scroll_last_updated = Time.now
+    end
+  end
+
+  def update
+    update_scroll Time.now - @scroll_last_updated if @scroll_last_updated
+  end
+
+  def render_over(base_layer)
+    contents.each_with_index do |color, i|
+      unless color.nil?
+        p = (pixels[i] + @scroll_offset) % base_layer.size
+        base_layer[p] = color.blend_over(base_layer[p], opacity)
+      end
+    end
+    base_layer
   end
 
   def ==(other)
