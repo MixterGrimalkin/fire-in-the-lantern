@@ -18,10 +18,16 @@ class Pixelator
     @render_thread = nil
   end
 
-  attr_reader :neo_pixel, :pixels, :started
+  attr_reader :neo_pixel, :pixels, :started, :layers
 
   def pixel_count
     @neo_pixel.pixel_count
+  end
+
+  def clear
+    @layers = {}
+    layer(:base, BLACK)
+    render
   end
 
   def start(period = 0.01)

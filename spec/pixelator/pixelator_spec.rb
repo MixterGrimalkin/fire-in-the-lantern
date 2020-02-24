@@ -136,4 +136,25 @@ RSpec.describe Pixelator do
     expect(neo_pixel.contents).to eq [black] * 10
   end
 
+  it '.clears' do
+    pixelator.layer a: [0,5,6]
+    pixelator.layer b: [2,4,7]
+    pixelator.a.fill red
+    pixelator.b.fill white
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [red, black, white, black, white, red, red, white, black, black]
+    expect(pixelator.layers.size).to eq 3
+
+    pixelator.clear
+    expect(neo_pixel.contents)
+        .to eq [black, black, black, black, black, black, black, black, black, black]
+    expect(pixelator.layers.size).to eq 1
+
+
+
+
+
+  end
+
 end
