@@ -12,6 +12,15 @@ class Color
 
   attr_accessor :red, :green, :blue, :white
 
+  def self.safe(red = 0, green = red, blue = green, white = nil)
+    Color.new(
+        [[255, red].min, 0].max,
+        [[255, green].min, 0].max,
+        [[255, blue].min, 0].max,
+        white.nil? ? nil : [[255, white].min, 0].max
+    )
+  end
+
   def with_brightness(brightness)
     Color.new(
         (red * brightness).floor,
@@ -28,12 +37,12 @@ class Color
       self
     else
       w = white || 0
-      ow = underlay.white || 0
+      uw = underlay.white || 0
       Color.new(
           (red + ((1-alpha) * (underlay.red - red))).floor,
           (green + ((1-alpha)* (underlay.green - green))).floor,
           (blue + ((1-alpha) * (underlay.blue - blue))).floor,
-          (w + ((1-alpha) * (ow - w))).floor
+          (w + ((1-alpha) * (uw - w))).floor
       )
     end
   end

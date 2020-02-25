@@ -8,6 +8,12 @@ RSpec.describe Color do
     expect{ Color.new(200, 50, 0, 900) }.to raise_error ColorValueOutOfRange
   end
 
+  it 'Color.safe does not throw error' do
+    expect(Color.safe(300, 0, 0)).to eq Color.new(255, 0, 0)
+    expect(Color.safe(200, -50, 0)).to eq Color.new(200, 0, 0)
+    expect(Color.safe(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
+  end
+
   it 'compares ignoring white' do
     expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 3)).to eq true
     expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3)).to eq false

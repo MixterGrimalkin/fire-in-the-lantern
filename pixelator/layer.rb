@@ -1,7 +1,7 @@
 require_relative '../support/color'
 require_relative '../support/color_constants'
 
-class PixelLayer
+class Layer
   include ColorConstants
 
   def initialize(key, pixels, default = nil)
@@ -29,13 +29,15 @@ class PixelLayer
     end
   end
 
-  def gradient(red: [0, 0], green: [0, 0], blue: [0, 0])
+  def gradient(red: [0, 0], green: [0, 0], blue: [0, 0], sym: false)
+    size = (pixels.size / (sym ? 2 : 1)) + ( sym ? pixels.size % 2 : 0 )
     s_red, s_green, s_blue = red[0], green[0], blue[0]
-    d_red = (red[1] - s_red) / (pixels.size - 1)
-    d_green = (green[1] - s_green) / (pixels.size - 1)
-    d_blue = (blue[1] - s_blue) / (pixels.size - 1)
-    pixels.size.times do |i|
-      contents[i] = Color.new(s_red, s_green, s_blue)
+    d_red = (red[1] - s_red) / (size - 1)
+    d_green = (green[1] - s_green) / (size - 1)
+    d_blue = (blue[1] - s_blue) / (size - 1)
+    size.times do |i|
+      contents[i] = Color.safe(s_red, s_green, s_blue)
+      contents[-(i+1)] = Color.safe(s_red, s_green, s_blue) if sym
       s_red += d_red
       s_green += d_green
       s_blue += d_blue
@@ -88,13 +90,13 @@ class PixelLayer
   end
 
   def +(other)
-    PixelLayer.new(
+    Layer.new(
         combine_keys(other),
         pixels + other.pixels)
   end
 
   def -(other)
-    PixelLayer.new(
+    Layer.new(
         combine_keys(other),
         pixels - other.pixels
     )

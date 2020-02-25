@@ -38,19 +38,19 @@ RSpec.describe Pixelator do
   it 'can define a layer by range' do
     pixelator.layer mid_four: (4..7)
     expect(pixelator[:mid_four].pixels)
-        .to eq [px[4], px[5], px[6], px[7]]
+        .to eq [4, 5, 6, 7]
   end
 
   it 'can define a layer by array' do
     pixelator.layer those_three: [1, 6, 9]
     expect(pixelator[:those_three].pixels)
-        .to eq [px[1], px[6], px[9]]
+        .to eq [1, 6, 9]
   end
 
   it 'can define a layer by proc' do
     pixelator.layer evens: proc { |p| p % 2 == 0 }
     expect(pixelator[:evens].pixels)
-        .to eq [px[0], px[2], px[4], px[6], px[8]]
+        .to eq [0, 2, 4, 6, 8]
   end
 
   it 'defines a method for new layers' do
@@ -91,7 +91,7 @@ RSpec.describe Pixelator do
 
   context '.start and .stop' do
     it 'starts and stops the rendering thread' do
-      expect_any_instance_of(NeoPixel).to receive(:show).twice
+      expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
       expect(pixelator.started).to eq false
       pixelator.start 0.4
       expect(pixelator.started).to eq true
