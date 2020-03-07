@@ -4,8 +4,7 @@ require_relative '../support/color_constants'
 class Layer
   include ColorConstants
 
-  def initialize(key, pixels, default = nil)
-    @key = key
+  def initialize(pixels, default = nil)
     @pixels = pixels
     @contents = [default] * pixels.size
     @opacity = 1.0
@@ -30,7 +29,7 @@ class Layer
   end
 
   def gradient(red: [0, 0], green: [0, 0], blue: [0, 0], sym: false)
-    size = (pixels.size / (sym ? 2 : 1)) + ( sym ? pixels.size % 2 : 0 )
+    size = (pixels.size / (sym ? 2 : 1)) + (sym ? pixels.size % 2 : 0)
     s_red, s_green, s_blue = red[0], green[0], blue[0]
     d_red = (red[1] - s_red) / (size - 1)
     d_green = (green[1] - s_green) / (size - 1)
@@ -90,21 +89,15 @@ class Layer
   end
 
   def +(other)
-    Layer.new(
-        combine_keys(other),
-        pixels + other.pixels)
+    Layer.new(pixels + other.pixels)
   end
 
   def -(other)
-    Layer.new(
-        combine_keys(other),
-        pixels - other.pixels
-    )
+    Layer.new(pixels - other.pixels)
   end
 
   def layer_def
     result = {
-        key: key,
         pixels: pixels,
         contents: contents,
         opacity: opacity
@@ -114,5 +107,22 @@ class Layer
     end
     result
   end
+
+  def inspect
+    "#<Layer{#{pixels.size}} α=#{opacity} [#{stringify_scroll_period}]>"
+  end
+
+  private
+
+  def stringify_scroll_period
+    if scroll_period.nil?
+      '-0.0-'
+    elsif scroll_period > 0
+      ">#{scroll_period}>"
+    else
+      "<#{-scroll_period}<"
+    end
+  end
+
 
 end

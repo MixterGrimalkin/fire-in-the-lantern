@@ -1,11 +1,13 @@
 require_relative '../support/color'
 require_relative '../support/color_constants'
+require_relative '../support/utils'
 require_relative 'layer'
 
 require 'json'
 
 class Pixelator
   include ColorConstants
+  include Utils
 
   def initialize(neo_pixel)
     @neo_pixel = neo_pixel
@@ -13,6 +15,10 @@ class Pixelator
     @started = false
     @render_thread = nil
     clear
+  end
+
+  def inspect
+    "#<Pixelator[#{neo_pixel.class}] pixels:#{pixel_count} layers:#{layers.size} #{started ? 'STARTED' : 'STOPPED'}>"
   end
 
   def clear
@@ -28,34 +34,40 @@ class Pixelator
   attr_reader :neo_pixel, :pixels, :started, :layers
 
   def start(period = 0.01)
-    raise NotAllowed if @started
+    raise NotAllowed if started
 
     @started = true
 
     @render_thread = Thread.new do
-      while @started
-        @layers.values.each(&:update)
+      while started
+        layers.values.each(&:update)
         render
         sleep period
       end
     end
+
+    self
   end
 
   def stop
-    raise NotAllowed unless @started
+    raise NotAllowed unless started
 
     @started = false
     @render_thread.join
+
+    self
   end
 
   def all_on
     stop if started
     neo_pixel.all_on
+    self
   end
 
   def all_off
     stop if started
     neo_pixel.all_off
+    self
   end
 
   def render
@@ -74,12 +86,12 @@ class Pixelator
   def layer(layer_def, background = nil)
     if layer_def.is_a? Symbol
       key = layer_def
-      layer = Layer.new(key, pixels, background)
+      layer = Layer.new(pixels, background)
 
     elsif layer_def.is_a?(Hash) && layer_def.size==1
       key, criteria = layer_def.first[0].to_sym, layer_def.first[1]
       layer =
-          Layer.new(key, pixels.select do |p|
+          Layer.new(pixels.select do |p|
             case criteria
               when Range, Array
                 criteria.include?(p)
@@ -123,26 +135,30 @@ class Pixelator
   def save_scene(filename)
     json =
         {layers:
-             layers.collect do |_, layer|
-               layer.layer_def
+             layers.collect do |key, layer|
+               {key: key}.merge(layer.layer_def)
              end
         }.to_json
     File.write(filename, json)
   end
 
   def load_scene(filename)
+    json = symbolize_keys(JSON.parse(File.read(filename)))
     clear
-    json = JSON.parse(File.read(filename))
-    json['layers'].each do |layer_json|
-      l = layer layer_json['key'].to_sym => layer_json['pixels']
-      layer_json['contents'].each_with_index do |color_string, i|
+
+    json[:layers].each do |layer_json|
+
+      l = layer(layer_json[:key].to_sym => layer_json[:pixels])
+
+      layer_json[:contents].each_with_index do |color_string, i|
         comps = color_string[1..-2].split(',').collect(&:to_i)
         l[i] = Color.new(comps[0], comps[1], comps[2], comps[3])
       end
-      l.opacity = layer_json['opacity']
-      if (scroll = layer_json['scroll'])
+      l.opacity = layer_json[:opacity]
+      if (scroll = layer_json[:scroll])
         l.start_scroll scroll
       end
+
     end
     render
   end
