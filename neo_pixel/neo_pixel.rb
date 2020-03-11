@@ -8,12 +8,11 @@ class NeoPixel
     @pixel_count = pixel_count
     @mode = mode
     @contents = [BLACK] * pixel_count
-    @started = false
   end
 
   attr_accessor :contents
 
-  attr_reader :pixel_count, :mode, :started
+  attr_reader :pixel_count, :mode
 
   def set(pixel, color)
     raise PixelOutOfRangeError unless (0..pixel_count).include? pixel
@@ -49,24 +48,6 @@ class NeoPixel
     end
   end
 
-  def start(period = 0.01)
-    raise NeoPixelStartedError if @started
-
-    @started = true
-    Thread.new do
-      while @started
-        render
-        sleep period
-      end
-    end
-  end
-
-  def stop
-    raise NeoPixelNotStartedError unless @started
-
-    @started = false
-  end
-
   def render
     buffer = contents.collect do |color|
       case mode
@@ -86,9 +67,7 @@ class NeoPixel
     show buffer
   end
 
-  def show(buffer)
-
-  end
+  def show(buffer); end
 
 end
 

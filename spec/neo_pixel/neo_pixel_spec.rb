@@ -15,7 +15,6 @@ RSpec.describe NeoPixel do
     it 'initializes in OFF state without rendering' do
       expect_any_instance_of(NeoPixel).not_to receive(:show)
       expect(neo_pixel.contents).to eq [black, black, black, black]
-      expect(neo_pixel.started).to eq false
     end
   end
 
@@ -56,25 +55,6 @@ RSpec.describe NeoPixel do
       expect(neo_pixel).not_to receive(:show)
       neo_pixel.fill yellow
       expect(neo_pixel.contents).to eq [yellow, yellow, yellow, yellow]
-    end
-  end
-
-  context '.start and .stop' do
-    it 'starts and stops the rendering thread' do
-      expect_any_instance_of(NeoPixel).to receive(:show).twice
-      neo_pixel.start 0.25
-      expect(neo_pixel.started).to eq true
-      sleep 0.5
-      neo_pixel.stop
-      expect(neo_pixel.started).to eq false
-      sleep 0.5
-    end
-    it 'raises error if already started' do
-      neo_pixel.start
-      expect { neo_pixel.start }.to raise_error NeoPixelStartedError
-    end
-    it 'raises error if already stopped' do
-      expect { neo_pixel.stop }.to raise_error NeoPixelNotStartedError
     end
   end
 

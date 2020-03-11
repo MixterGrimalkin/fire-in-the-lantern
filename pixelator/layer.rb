@@ -118,9 +118,9 @@ class Layer
     if scroll_period.nil?
       '-0.0-'
     elsif scroll_period > 0
-      ">#{scroll_period}>"
+      "-#{scroll_period}>"
     else
-      "<#{-scroll_period}<"
+      "<#{-scroll_period}-"
     end
   end
 
