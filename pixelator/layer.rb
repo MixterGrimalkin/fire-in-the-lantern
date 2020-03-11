@@ -7,19 +7,25 @@ class Layer
   def initialize(pixels, default = nil)
     @pixels = pixels
     @contents = [default] * pixels.size
-    @opacity = 1.0
-
+    @global_opacity = 1.0
+    @pixel_opacity = [1.0] * pixels.size
     @scroll_offset = 0
     @scroll_period = nil
     @scroll_last_updated = nil
   end
 
-  attr_accessor :opacity, :contents
+  attr_accessor :global_opacity, :pixel_opacity, :contents
 
-  attr_reader :pixels, :scroll_offset, :scroll_period, :key
+  attr_reader :pixels, :scroll_offset, :scroll_period
 
   def []=(pixel, color)
+    set(pixel, color)
+  end
+
+  def set(pixel, color, opacity = 1.0)
+    raise PixelOutOfRangeError unless (0..(pixels.size-1)).include?(pixel)
     contents[pixel] = color
+    pixel_opacity[pixel] = opacity
   end
 
   def fill(color, brightness = 1.0)
@@ -74,7 +80,8 @@ class Layer
     contents.each_with_index do |color, i|
       unless color.nil?
         p = (pixels[i] + @scroll_offset) % base_layer.size
-        base_layer[p] = color.blend_over(base_layer[p], opacity)
+        # base_layer[p] = color.blend_over(base_layer[p], global_opacity)
+        base_layer[p] = color.blend_over(base_layer[p], opacity_for_pixel(i))
       end
     end
     base_layer
@@ -100,7 +107,7 @@ class Layer
     result = {
         pixels: pixels,
         contents: contents,
-        opacity: opacity
+        opacity: global_opacity
     }
     if @scroll_last_updated
       result[:scroll] = @scroll_period
@@ -109,7 +116,7 @@ class Layer
   end
 
   def inspect
-    "#<Layer{#{pixels.size}} α=#{opacity} [#{stringify_scroll_period}]>"
+    "#<Layer{#{pixels.size}} α=#{global_opacity} [#{stringify_scroll_period}]>"
   end
 
   private
@@ -124,5 +131,10 @@ class Layer
     end
   end
 
+  def opacity_for_pixel(p)
+    pixel_opacity[p] * global_opacity
+  end
 
 end
+
+class PixelOutOfRangeError < StandardError; end

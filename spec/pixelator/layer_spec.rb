@@ -24,6 +24,14 @@ RSpec.describe Layer do
   let(:red) { Color.new 200, 0, 0 }
   let(:dk_red) { Color.new 100, 0, 0 }
 
+  let(:blue) { Color.new 0, 0, 200 }
+  let(:dk_blue) { Color.new 0, 0, 100 }
+  let(:dkr_blue) { Color.new 0, 0, 50 }
+
+  let(:purple) { Color.new 100, 0, 100 }
+  let(:red_purple) { Color.new 150, 0, 50 }
+
+
   it 'fill with single color' do
     layer.fill red, 1
     pixelator.render
@@ -36,19 +44,15 @@ RSpec.describe Layer do
         .to eq [blk, blk, dk_red, dk_red, dk_red, dk_red, blk, blk]
   end
 
-  let(:blue) { Color.new 0, 0, 200 }
-  let(:dk_blue) { Color.new 0, 0, 100 }
-  let(:dkr_blue) { Color.new 0, 0, 50 }
-
   it 'blends with opacity' do
     layer.fill blue
 
-    layer.opacity = 0.5
+    layer.global_opacity = 0.5
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, dk_blue, dk_blue, dk_blue, dk_blue, blk, blk]
 
-    layer.opacity = 0.25
+    layer.global_opacity = 0.25
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, dkr_blue, dkr_blue, dkr_blue, dkr_blue, blk, blk]
@@ -132,6 +136,22 @@ RSpec.describe Layer do
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]
+  end
+
+  it 'sets opacity by pixel' do
+    pixelator.base.fill red
+    layer.set 0, blue, 0.0
+    layer.set 1, blue, 0.25
+    layer.set 2, blue, 0.5
+    layer.set 3, blue
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq [red, red, red, red_purple, purple, blue, red, red]
+  end
+
+  it 'throws an error when pixel out of range' do
+    expect{ layer.set 4, red }.to raise_error(PixelOutOfRangeError)
+    expect{ layer[-1] = red }.to raise_error(PixelOutOfRangeError)
   end
 
 end

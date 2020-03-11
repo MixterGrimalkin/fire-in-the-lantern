@@ -185,7 +185,7 @@ RSpec.describe Pixelator do
 
 
     it '.saves' do
-      pixelator.a.opacity = 0.5
+      pixelator.a.global_opacity = 0.5
       pixelator.a.start_scroll 1
       pixelator.b.start_scroll -2
 
@@ -208,9 +208,9 @@ RSpec.describe Pixelator do
       expect(neo_pixel.contents)
           .to eq [dk_red, black, white, black, white, dk_red, dk_red, white, black, black]
       expect(pixelator.layers.size).to eq 3
-      expect(pixelator.a.opacity).to eq 0.5
+      expect(pixelator.a.global_opacity).to eq 0.5
       expect(pixelator.a.scroll_period).to eq 1
-      expect(pixelator.b.opacity).to eq(1.0)
+      expect(pixelator.b.global_opacity).to eq(1.0)
       expect(pixelator.b.scroll_period).to eq -2
     end
 
