@@ -1,6 +1,6 @@
-require_relative '../support/color'
-require_relative '../support/color_constants'
-require_relative '../support/utils'
+require_relative '../lib/color'
+require_relative '../lib/color_constants'
+require_relative '../lib/utils'
 require_relative 'scene_manager'
 require_relative 'layer'
 

@@ -1,5 +1,5 @@
-require_relative '../support/color'
-require_relative '../support/color_constants'
+require_relative '../lib/color'
+require_relative '../lib/color_constants'
 
 class NeoPixel
   include ::ColorConstants

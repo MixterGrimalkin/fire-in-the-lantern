@@ -1,4 +1,4 @@
-require_relative '../../support/color'
+require_relative '../../lib/color'
 
 RSpec.describe Color do
 

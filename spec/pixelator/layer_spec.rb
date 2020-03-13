@@ -1,7 +1,7 @@
 require_relative '../../pixelator/layer'
 require_relative '../../pixelator/pixelator'
 require_relative '../../neo_pixel/neo_pixel'
-require_relative '../../support/color_constants'
+require_relative '../../lib/color_constants'
 
 require 'byebug'
 
