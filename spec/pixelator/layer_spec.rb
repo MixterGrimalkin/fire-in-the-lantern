@@ -72,7 +72,7 @@ RSpec.describe Layer do
                 blk, blk])
   end
 
-  it 'draws a symmetric gradient with an even size' do
+  it 'draws a sym gradient with even size' do
     pixelator.base.gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
     pixelator.render
     expect(neo_pixel.contents)
@@ -86,7 +86,7 @@ RSpec.describe Layer do
                 Color.new(180, 10, 7)])
   end
 
-  it 'draws a symmetric gradient with an odd size' do
+  it 'draws a sym gradient with odd size' do
     pixelator.layer a: (0..6)
     pixelator.a.gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
     pixelator.render
@@ -101,6 +101,36 @@ RSpec.describe Layer do
                 blk
                ])
 
+  end
+
+  it 'draws a smaller gradient' do
+    pixelator.base.gradient red: 100, green: [0,30], start: 2, width: 4
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq([blk,
+                blk,
+                Color.new(100, 0, 0),
+                Color.new(100, 10, 0),
+                Color.new(100, 20, 0),
+                Color.new(100, 30, 0),
+                blk,
+                blk
+               ])
+  end
+
+  it 'draws a smaller sym gradient' do
+    pixelator.base.gradient red: 100, green: [0,30], start: 1, width: 5, sym: true
+    pixelator.render
+    expect(neo_pixel.contents)
+        .to eq([blk,
+                Color.new(100, 0, 0),
+                Color.new(100, 15, 0),
+                Color.new(100, 30, 0),
+                Color.new(100, 15, 0),
+                Color.new(100, 0, 0),
+                blk,
+                blk
+               ])
   end
 
   it 'scrolls' do

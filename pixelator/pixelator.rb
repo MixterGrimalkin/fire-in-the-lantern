@@ -154,7 +154,8 @@ class Pixelator
         comps = color_string[1..-2].split(',').collect(&:to_i)
         l[i] = Color.new(comps[0], comps[1], comps[2], comps[3])
       end
-      l.global_opacity = layer_json[:opacity]
+      l.global_opacity = layer_json[:opacity] || 1
+      l.pixel_opacity = layer_json[:pixel_opacity] || ([1]*l.pixels.size)
       if (scroll = layer_json[:scroll])
         l.start_scroll scroll
       end

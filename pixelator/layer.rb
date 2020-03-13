@@ -34,19 +34,48 @@ class Layer
     end
   end
 
-  def gradient(red: [0, 0], green: [0, 0], blue: [0, 0], sym: false)
-    size = (pixels.size / (sym ? 2 : 1)) + (sym ? pixels.size % 2 : 0)
-    s_red, s_green, s_blue = red[0], green[0], blue[0]
-    d_red = (red[1] - s_red) / (size - 1)
-    d_green = (green[1] - s_green) / (size - 1)
-    d_blue = (blue[1] - s_blue) / (size - 1)
-    size.times do |i|
-      contents[i] = Color.safe(s_red, s_green, s_blue)
-      contents[-(i+1)] = Color.safe(s_red, s_green, s_blue) if sym
-      s_red += d_red
-      s_green += d_green
-      s_blue += d_blue
+  def gradient(config)
+    config = {
+        start: 0,
+        width: pixels.size,
+        sym: false,
+        value: {},
+        target: {},
+        delta: {}
+    }.merge config
+
+    size = config[:sym] ? (config[:width] / 2 + config[:width] % 2) : config[:width]
+
+    COMPONENTS.each do |c|
+      case config[c]
+        when Integer
+          config[:value][c], config[:target][c] = config[c], config[c]
+        when Array
+          config[:value][c], config[:target][c] = config[c][0], config[c][1]
+        else
+          config[:value][c], config[:target][c] = (c==:opacity ? [1, 1] : [0, 0])
+      end
+      config[:delta][c] = (config[:target][c].to_f - config[:value][c]) / (size - 1)
     end
+
+    size.times do |i|
+      p = i + config[:start]
+      pixel_opacity[p] = config[:value][:opacity]
+      contents[p] =
+          Color.safe(
+              config[:value][:red].to_i,
+              config[:value][:green].to_i,
+              config[:value][:blue].to_i,
+              config[:value][:white].to_i
+          )
+      if config[:sym]
+        mirror_p = config[:start] + config[:width] - i - 1
+        pixel_opacity[mirror_p] = pixel_opacity[p]
+        contents[mirror_p] = contents[p]
+      end
+      COMPONENTS.each { |c| config[:value][c] += config[:delta][c] }
+    end
+
     self
   end
 
@@ -106,8 +135,9 @@ class Layer
   def layer_def
     result = {
         pixels: pixels,
-        contents: contents,
-        opacity: global_opacity
+        contents: contents.collect {|c| c.nil? ? BLACK : c },
+        opacity: global_opacity,
+        pixel_opacity: pixel_opacity
     }
     if @scroll_last_updated
       result[:scroll] = @scroll_period
@@ -137,4 +167,5 @@ class Layer
 
 end
 
-class PixelOutOfRangeError < StandardError; end
+class PixelOutOfRangeError < StandardError;
+end

@@ -13,4 +13,7 @@ module ColorConstants
   MAGENTA = Color.new 255, 0, 255
   CYAN = Color.new 0, 255, 255
 
+  COLOR_COMPONENTS = [:red, :green, :blue, :white]
+  COMPONENTS = COLOR_COMPONENTS + [:opacity]
+
 end

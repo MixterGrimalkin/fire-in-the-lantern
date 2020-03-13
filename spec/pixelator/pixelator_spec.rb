@@ -154,18 +154,21 @@ RSpec.describe Pixelator do
            pixels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
            contents: [black, black, black, black, black,
                       black, black, black, black, black],
-           opacity: 1.0
+           opacity: 1.0,
+           pixel_opacity: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
           },
           {key: :a,
            pixels: [0, 5, 6],
            contents: [red, red, red],
            opacity: 0.5,
+           pixel_opacity: [1.0, 1.0, 1.0],
            scroll: 1
           },
           {key: :b,
            pixels: [2, 4, 7],
            contents: [white, white, white],
            opacity: 1.0,
+           pixel_opacity: [1.0, 1.0, 1.0],
            scroll: -2
           }
       ]}.to_json

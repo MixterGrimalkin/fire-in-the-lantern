@@ -14,10 +14,10 @@ class Color
 
   def self.safe(red = 0, green = red, blue = green, white = nil)
     Color.new(
-        [[255, red].min, 0].max,
-        [[255, green].min, 0].max,
-        [[255, blue].min, 0].max,
-        white.nil? ? nil : [[255, white].min, 0].max
+        [[255, red.to_i].min, 0].max,
+        [[255, green.to_i].min, 0].max,
+        [[255, blue.to_i].min, 0].max,
+        white.nil? ? nil : [[255, white.to_i].min, 0].max
     )
   end
 
