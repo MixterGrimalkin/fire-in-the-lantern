@@ -18,6 +18,8 @@ RSpec.describe Layer do
     expect(layer).to eq pixelator[:new_layer]
     expect(layer).to eq pixelator.new_layer
     expect(layer.contents).to eq [nil, nil, nil, nil]
+    expect(layer.global_opacity).to eq 1
+    expect(layer.pixel_opacity).to eq [1, 1, 1, 1]
   end
 
   let(:blk) { Color.new }
@@ -33,7 +35,7 @@ RSpec.describe Layer do
 
 
   it 'fill with single color' do
-    layer.fill red, 1
+    layer.fill red
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]

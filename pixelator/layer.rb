@@ -36,12 +36,8 @@ class Layer
 
   def gradient(config)
     config = {
-        start: 0,
-        width: pixels.size,
-        sym: false,
-        value: {},
-        target: {},
-        delta: {}
+        start: 0, width: pixels.size, sym: false,
+        value: {}, target: {}, delta: {}
     }.merge config
 
     size = config[:sym] ? (config[:width] / 2 + config[:width] % 2) : config[:width]
@@ -61,13 +57,7 @@ class Layer
     size.times do |i|
       p = i + config[:start]
       pixel_opacity[p] = config[:value][:opacity]
-      contents[p] =
-          Color.safe(
-              config[:value][:red].to_i,
-              config[:value][:green].to_i,
-              config[:value][:blue].to_i,
-              config[:value][:white].to_i
-          )
+      contents[p] = Color.safe(*COLOR_COMPONENTS.collect { |c| config[:value][c] })
       if config[:sym]
         mirror_p = config[:start] + config[:width] - i - 1
         pixel_opacity[mirror_p] = pixel_opacity[p]
@@ -109,15 +99,10 @@ class Layer
     contents.each_with_index do |color, i|
       unless color.nil?
         p = (pixels[i] + @scroll_offset) % base_layer.size
-        # base_layer[p] = color.blend_over(base_layer[p], global_opacity)
         base_layer[p] = color.blend_over(base_layer[p], opacity_for_pixel(i))
       end
     end
     base_layer
-  end
-
-  def combine_keys(other)
-    (key.to_s + other.key.to_s).to_sym
   end
 
   def ==(other)
@@ -135,7 +120,7 @@ class Layer
   def layer_def
     result = {
         pixels: pixels,
-        contents: contents.collect {|c| c.nil? ? BLACK : c },
+        contents: contents.collect { |c| c.nil? ? BLACK : c },
         opacity: global_opacity,
         pixel_opacity: pixel_opacity
     }

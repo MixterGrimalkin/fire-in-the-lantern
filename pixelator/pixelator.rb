@@ -1,12 +1,14 @@
 require_relative '../support/color'
 require_relative '../support/color_constants'
 require_relative '../support/utils'
+require_relative 'scene_manager'
 require_relative 'layer'
 
 require 'json'
 
 class Pixelator
   include ColorConstants
+  include SceneManager
   include Utils
 
   def initialize(neo_pixel)
@@ -133,34 +135,11 @@ class Pixelator
   end
 
   def save_scene(filename)
-    json =
-        {layers:
-             layers.collect do |key, layer|
-               {key: key}.merge(layer.layer_def)
-             end
-        }.to_json
-    File.write(filename, json)
+    write self, filename
   end
 
   def load_scene(filename)
-    json = symbolize_keys(JSON.parse(File.read(filename)))
-    clear
-
-    json[:layers].each do |layer_json|
-
-      l = layer(layer_json[:key].to_sym => layer_json[:pixels])
-
-      layer_json[:contents].each_with_index do |color_string, i|
-        comps = color_string[1..-2].split(',').collect(&:to_i)
-        l[i] = Color.new(comps[0], comps[1], comps[2], comps[3])
-      end
-      l.global_opacity = layer_json[:opacity] || 1
-      l.pixel_opacity = layer_json[:pixel_opacity] || ([1]*l.pixels.size)
-      if (scroll = layer_json[:scroll])
-        l.start_scroll scroll
-      end
-
-    end
+    read self, filename
     render
   end
 
