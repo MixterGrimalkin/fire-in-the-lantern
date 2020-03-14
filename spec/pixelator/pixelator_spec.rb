@@ -21,7 +21,6 @@ RSpec.describe Pixelator do
 
   it 'initializes pixels' do
     expect(pixelator.pixel_count).to eq 10
-    expect(pixelator.pixels).to eq px
   end
 
   it 'initializes the base layer' do
@@ -32,7 +31,7 @@ RSpec.describe Pixelator do
 
   it 'can define a new layer' do
     pixelator.layer :the_lot
-    expect(pixelator.the_lot.pixels).to eq px
+    expect(pixelator[:the_lot].pixels).to eq px
   end
 
   it 'can define a layer by range' do
@@ -55,7 +54,7 @@ RSpec.describe Pixelator do
 
   it 'defines a method for new layers' do
     pixelator.layer odds: proc { |p| p % 2 != 0 }
-    expect(pixelator.odds).to eq pixelator[:odds]
+    expect(pixelator.scene.odds).to eq pixelator[:odds]
   end
 
   it 'can combine layers' do
@@ -143,8 +142,8 @@ RSpec.describe Pixelator do
     before do
       pixelator.layer a: [0, 5, 6]
       pixelator.layer b: [2, 4, 7]
-      pixelator.a.fill red
-      pixelator.b.fill white
+      pixelator[:a].fill red
+      pixelator[:b].fill white
       pixelator.render
     end
 
@@ -188,9 +187,9 @@ RSpec.describe Pixelator do
 
 
     it '.saves' do
-      pixelator.a.global_opacity = 0.5
-      pixelator.a.start_scroll 1
-      pixelator.b.start_scroll -2
+      pixelator[:a].layer_opacity = 0.5
+      pixelator[:a].start_scroll 1
+      pixelator[:b].start_scroll -2
 
       expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
@@ -211,10 +210,10 @@ RSpec.describe Pixelator do
       expect(neo_pixel.contents)
           .to eq [dk_red, black, white, black, white, dk_red, dk_red, white, black, black]
       expect(pixelator.layers.size).to eq 3
-      expect(pixelator.a.global_opacity).to eq 0.5
-      expect(pixelator.a.scroll_period).to eq 1
-      expect(pixelator.b.global_opacity).to eq(1.0)
-      expect(pixelator.b.scroll_period).to eq -2
+      expect(pixelator[:a].layer_opacity).to eq 0.5
+      expect(pixelator[:a].scroll_period).to eq 1
+      expect(pixelator[:b].layer_opacity).to eq(1.0)
+      expect(pixelator[:b].scroll_period).to eq -2
     end
 
   end

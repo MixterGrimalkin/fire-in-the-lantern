@@ -1,8 +1,9 @@
 require_relative '../lib/color'
-require_relative '../lib/color_constants'
+require_relative '../lib/colors'
+require_relative '../lib/color_tools'
 
 class NeoPixel
-  include ::ColorConstants
+  include Colors
 
   def initialize(pixel_count, mode: :rgb)
     @pixel_count = pixel_count
@@ -10,42 +11,32 @@ class NeoPixel
     @contents = [BLACK] * pixel_count
   end
 
-  attr_accessor :contents
+  attr_reader :pixel_count, :mode, :contents
 
-  attr_reader :pixel_count, :mode
+  def [](pixel)
+    raise BadPixelNumber unless (0..pixel_count).include? pixel
+    contents[pixel]
+  end
 
-  def set(pixel, color)
-    raise PixelOutOfRangeError unless (0..pixel_count).include? pixel
-
+  def []=(pixel, color)
+    raise BadPixelNumber unless (0..pixel_count).include? pixel
     contents[pixel] = color
   end
 
-  def set_range(start, width, color)
-    width.times do |i|
-      set start+i, color
-    end
-  end
-
-  def fill(color = BLACK)
-    set_range 0, pixel_count, color
-  end
-
-  def all_on
-    @contents = [WHITE] * pixel_count
+  def on(color = FULL_WHITE)
+    @contents = [color] * pixel_count
     render
   end
 
-  def all_off
+  def off
     @contents = [BLACK] * pixel_count
     render
   end
 
-  def rgb_count
-    if mode == :rgbw
-      ((pixel_count * 4) / 3.0).ceil
-    else
-      pixel_count
-    end
+  def write(contents)
+    raise BadPixelNumber unless contents.size == pixel_count
+    @contents = contents
+    self
   end
 
   def render
@@ -65,13 +56,49 @@ class NeoPixel
       buffer << 0
     end
     show buffer
+    self
   end
 
-  def show(buffer); end
+  def show(buffer)
+    # --> DO THING HERE <-- #
+  end
+
+  def rgb_count
+    if mode == :rgbw
+      ((pixel_count * 4) / 3.0).ceil
+    else
+      pixel_count
+    end
+  end
+
+  def test
+    print 'NeoPixel test running.'
+    on RED
+    sleep 1
+
+    print '.'
+    on GREEN
+    sleep 1
+
+    print '.'
+    on BLUE
+    sleep 1
+
+    if mode == :rgbw
+      print '.'
+      on WARM_WHITE
+      sleep 1
+    end
+
+    print '.'
+    on
+    sleep 1
+
+    off
+    puts 'OK'
+  end
 
 end
 
-class PixelOutOfRangeError < StandardError; end
-class NeoPixelStartedError < StandardError; end
-class NeoPixelNotStartedError < StandardError; end
-class BadOutputMode < StandardError; end
+BadPixelNumber = Class.new(StandardError)
+BadOutputMode = Class.new(StandardError)

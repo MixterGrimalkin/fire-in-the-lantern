@@ -1,1 +1,4 @@
-irb -r ./pixelator/pixelator.rb -r ./neo_pixel/osc_neo_pixel.rb
+#!/usr/bin/env bash
+export OPTIONS=$*
+clear
+irb -r ./fitl.rb --prompt simple

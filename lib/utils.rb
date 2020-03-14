@@ -1,5 +1,17 @@
 module Utils
 
+  LOGO = %q{
+    ___
+   (_  '_ _   '  _// _   /  _  _/_ _
+   /  // (-  //) //)(-  (__(//)/(-/ /)
+       p  i  x  e  l  a  t  o  r
+
+}
+
+  def logo
+    puts LOGO
+  end
+
   def symbolize_keys(hash)
     result = {}
     hash.each do |key, value|
@@ -28,6 +40,4 @@ module Utils
       end
     end
   end
-
-
 end

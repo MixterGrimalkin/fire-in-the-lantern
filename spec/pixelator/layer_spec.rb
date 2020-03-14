@@ -1,7 +1,7 @@
 require_relative '../../pixelator/layer'
 require_relative '../../pixelator/pixelator'
 require_relative '../../neo_pixel/neo_pixel'
-require_relative '../../lib/color_constants'
+require_relative '../../lib/color_tools'
 
 require 'byebug'
 
@@ -16,9 +16,8 @@ RSpec.describe Layer do
   it '.initializes correctly' do
     expect(layer).to be_a Layer
     expect(layer).to eq pixelator[:new_layer]
-    expect(layer).to eq pixelator.new_layer
     expect(layer.contents).to eq [nil, nil, nil, nil]
-    expect(layer.global_opacity).to eq 1
+    expect(layer.layer_opacity).to eq 1
     expect(layer.pixel_opacity).to eq [1, 1, 1, 1]
   end
 
@@ -49,12 +48,12 @@ RSpec.describe Layer do
   it 'blends with opacity' do
     layer.fill blue
 
-    layer.global_opacity = 0.5
+    layer.layer_opacity = 0.5
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, dk_blue, dk_blue, dk_blue, dk_blue, blk, blk]
 
-    layer.global_opacity = 0.25
+    layer.layer_opacity = 0.25
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, dkr_blue, dkr_blue, dkr_blue, dkr_blue, blk, blk]
@@ -90,7 +89,7 @@ RSpec.describe Layer do
 
   it 'draws a sym gradient with odd size' do
     pixelator.layer a: (0..6)
-    pixelator.a.gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
+    pixelator[:a].gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
     pixelator.render
     expect(neo_pixel.contents)
         .to eq([Color.new(180, 10, 7),
@@ -136,20 +135,6 @@ RSpec.describe Layer do
   end
 
   it 'scrolls' do
-    layer.fill red
-
-    layer.scroll_by 1
-    pixelator.render
-    expect(neo_pixel.contents)
-        .to eq [blk, blk, blk, red, red, red, red, blk]
-
-    layer.scroll_by -4
-    pixelator.render
-    expect(neo_pixel.contents)
-        .to eq [red, red, red, blk, blk, blk, blk, red]
-  end
-
-  it 'sets scroll delta' do
     layer.fill red
 
     layer.update_scroll 1

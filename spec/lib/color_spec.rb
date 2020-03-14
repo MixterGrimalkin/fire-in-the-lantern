@@ -8,7 +8,7 @@ RSpec.describe Color do
     expect{ Color.new(200, 50, 0, 900) }.to raise_error ColorValueOutOfRange
   end
 
-  it 'Color.safe does not throw error' do
+  it 'Color#safe does not throw error' do
     expect(Color.safe(300, 0, 0)).to eq Color.new(255, 0, 0)
     expect(Color.safe(200, -50, 0)).to eq Color.new(200, 0, 0)
     expect(Color.safe(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
@@ -32,7 +32,7 @@ RSpec.describe Color do
     expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3, 99)).to eq true
   end
 
-  it '.with_brightness' do
+  it '#with_brightness' do
     expect(Color.new(100, 50, 20, 10).with_brightness(0.5))
         .to eq Color.new(50, 25, 10, 5)
   end
@@ -46,7 +46,7 @@ RSpec.describe Color do
   let(:purple) { Color.new(180, 10, 220) }
 
 
-  it '.blend_over' do
+  it '#blend_over' do
     expect(red.blend_over yellow)
         .to eq red
 
@@ -62,6 +62,10 @@ RSpec.describe Color do
     expect(red.blend_over full_white, 0.25)
         .to eq Color.new(200, 150, 150, 150)
 
+  end
+
+  it '#blend_under' do
+    expect(red.blend_over(yellow, 0.25)). to eq yellow.blend_over(red, 0.75)
   end
 
 end

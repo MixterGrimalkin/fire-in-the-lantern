@@ -11,71 +11,65 @@ RSpec.describe NeoPixel do
   let(:white) { Color.new 255, 255, 255, 255 }
   let(:cyan) { Color.new 0, 200, 255 }
 
-  context '.initialize' do
-    it 'initializes in OFF state without rendering' do
-      expect_any_instance_of(NeoPixel).not_to receive(:show)
-      expect(neo_pixel.contents).to eq [black, black, black, black]
-    end
+  let(:empty) { [black, black, black, black] }
+  let(:pattern) { [white, cyan, black, yellow] }
+
+  it '#initialize' do
+    expect_any_instance_of(NeoPixel).not_to receive(:show)
+    expect(neo_pixel.contents).to eq empty
   end
 
-  context '.set' do
-    it 'sets single pixel colour' do
-      neo_pixel.set 2, yellow
-      expect(neo_pixel.contents).to eq [black, black, yellow, black]
-    end
-    it 'raises error if pixel out of range' do
-      expect { neo_pixel.set -3, yellow }.to raise_error PixelOutOfRangeError
-      expect { neo_pixel.set 7, yellow }.to raise_error PixelOutOfRangeError
-    end
+  it 'set pixel' do
+    expect(neo_pixel[2]).to eq black
+    neo_pixel[2] = yellow
+    expect(neo_pixel.contents).to eq [black, black, yellow, black]
+    expect(neo_pixel[2]).to eq yellow
   end
 
-  context '.set_range' do
-    it 'sets pixel range colour' do
-      neo_pixel.set_range 1, 2, yellow
-      expect(neo_pixel.contents).to eq [black, yellow, yellow, black]
-    end
-    it 'raises error if pixel range too large' do
-      expect { neo_pixel.set_range 1, 9, yellow }.to raise_error PixelOutOfRangeError
-      expect { neo_pixel.set_range -4, 2, yellow }.to raise_error PixelOutOfRangeError
-    end
+  it 'set pixel out of range' do
+    expect { neo_pixel[-3] = yellow }.to raise_error BadPixelNumber
+    expect { neo_pixel[7] = yellow }.to raise_error BadPixelNumber
   end
 
-  context '.all_on and .all_off' do
-    it 'renders all ON and OFF' do
-      expect_any_instance_of(NeoPixel).to receive(:show).twice
-      neo_pixel.all_on
-      expect(neo_pixel.contents).to eq [white, white, white, white]
-      neo_pixel.all_off
-      expect(neo_pixel.contents).to eq [black, black, black, black]
-    end
+  it 'write content' do
+    expect_any_instance_of(NeoPixel).not_to receive(:show)
+    expect(neo_pixel.write pattern).to eq neo_pixel
+    expect(neo_pixel.contents).to eq pattern
   end
 
-  context '.fill' do
-    it 'fills contents but does not render' do
-      expect(neo_pixel).not_to receive(:show)
-      neo_pixel.fill yellow
-      expect(neo_pixel.contents).to eq [yellow, yellow, yellow, yellow]
-    end
+  it 'write wrong size content' do
+    expect { neo_pixel.write [black, white] }.to raise_error BadPixelNumber
+    expect { neo_pixel.write [black, white, white, cyan, black] }.to raise_error BadPixelNumber
   end
 
-  context 'when unknown output mode' do
+  it '#on and #off' do
+    expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
+    neo_pixel.on
+    expect(neo_pixel.contents).to eq [white, white, white, white]
+    neo_pixel.on cyan
+    expect(neo_pixel.contents).to eq [cyan, cyan, cyan, cyan]
+    neo_pixel.off
+    expect(neo_pixel.contents).to eq empty
+  end
+
+  context 'invalid output mode' do
     let(:mode) { :magic }
     it 'raises an error' do
       expect { neo_pixel.render }.to raise_error BadOutputMode
     end
   end
 
-  context 'output modes' do
+  context 'valid output modes' do
     before do
-      neo_pixel.set 0, white
-      neo_pixel.set 1, cyan
-      neo_pixel.set 3, yellow
+      neo_pixel[0] = white
+      neo_pixel[1] = cyan
+      neo_pixel[3] = yellow
       expect(neo_pixel).to receive(:show).with(buffer)
     end
     context 'RGB mode' do
       let(:mode) { :rgb }
       let(:buffer) do
-        [255,255,255, 0,200,255, 0,0,0, 200,255,0]
+        [255, 255, 255, 0, 200, 255, 0, 0, 0, 200, 255, 0]
       end
       it 'renders RGB' do
         expect(neo_pixel.rgb_count).to eq 4
@@ -85,7 +79,7 @@ RSpec.describe NeoPixel do
     context 'GRB mode' do
       let(:mode) { :grb }
       let(:buffer) do
-        [255,255,255, 200,0,255, 0,0,0, 255,200,0]
+        [255, 255, 255, 200, 0, 255, 0, 0, 0, 255, 200, 0]
       end
       it 'renders GRB' do
         expect(neo_pixel.rgb_count).to eq 4
@@ -95,7 +89,7 @@ RSpec.describe NeoPixel do
     context 'RGBW mode' do
       let(:mode) { :rgbw }
       let(:buffer) do
-        [255,255,255, 255,0,200, 255,0,0, 0,0,0, 200,255,0, 0,0,0]
+        [255, 255, 255, 255, 0, 200, 255, 0, 0, 0, 0, 0, 200, 255, 0, 0, 0, 0]
       end
       it 'renders RGBW' do
         expect(neo_pixel.rgb_count).to eq 6

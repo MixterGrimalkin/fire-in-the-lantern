@@ -1,20 +1,22 @@
 require_relative '../lib/color'
-require_relative '../lib/color_constants'
+require_relative '../lib/colors'
+require_relative '../lib/color_tools'
 
 class Layer
-  include ColorConstants
+  include Colors
+  include ColorTools
 
   def initialize(pixels, default = nil)
     @pixels = pixels
     @contents = [default] * pixels.size
-    @global_opacity = 1.0
+    @layer_opacity = 1.0
     @pixel_opacity = [1.0] * pixels.size
     @scroll_offset = 0
     @scroll_period = nil
     @scroll_last_updated = nil
   end
 
-  attr_accessor :global_opacity, :pixel_opacity, :contents
+  attr_accessor :layer_opacity, :pixel_opacity, :contents
 
   attr_reader :pixels, :scroll_offset, :scroll_period
 
@@ -30,47 +32,15 @@ class Layer
 
   def fill(color, brightness = 1.0)
     pixels.size.times do |i|
-      contents[i] = color&.with_brightness(brightness)
+      contents[i] = color.nil? ? nil : color.with_brightness(brightness)
     end
   end
 
   def gradient(config)
-    config = {
-        start: 0, width: pixels.size, sym: false,
-        value: {}, target: {}, delta: {}
-    }.merge config
-
-    size = config[:sym] ? (config[:width] / 2 + config[:width] % 2) : config[:width]
-
-    COMPONENTS.each do |c|
-      case config[c]
-        when Integer
-          config[:value][c], config[:target][c] = config[c], config[c]
-        when Array
-          config[:value][c], config[:target][c] = config[c][0], config[c][1]
-        else
-          config[:value][c], config[:target][c] = (c==:opacity ? [1, 1] : [0, 0])
-      end
-      config[:delta][c] = (config[:target][c].to_f - config[:value][c]) / (size - 1)
-    end
-
-    size.times do |i|
-      p = i + config[:start]
-      pixel_opacity[p] = config[:value][:opacity]
-      contents[p] = Color.safe(*COLOR_COMPONENTS.collect { |c| config[:value][c] })
-      if config[:sym]
-        mirror_p = config[:start] + config[:width] - i - 1
-        pixel_opacity[mirror_p] = pixel_opacity[p]
-        contents[mirror_p] = contents[p]
-      end
-      COMPONENTS.each { |c| config[:value][c] += config[:delta][c] }
-    end
-
+    grad = draw_gradient(pixels.size, config)
+    @contents = grad[:colors]
+    @pixel_opacity = grad[:alphas]
     self
-  end
-
-  def scroll_by(amount)
-    @scroll_offset += amount
   end
 
   def start_scroll(period)
@@ -121,7 +91,7 @@ class Layer
     result = {
         pixels: pixels,
         contents: contents.collect { |c| c.nil? ? BLACK : c },
-        opacity: global_opacity,
+        opacity: layer_opacity,
         pixel_opacity: pixel_opacity
     }
     if @scroll_last_updated
@@ -131,7 +101,7 @@ class Layer
   end
 
   def inspect
-    "#<Layer{#{pixels.size}} α=#{global_opacity} [#{stringify_scroll_period}]>"
+    "#<Layer{#{pixels.size}} α=#{layer_opacity} [#{stringify_scroll_period}]>"
   end
 
   private
@@ -147,7 +117,7 @@ class Layer
   end
 
   def opacity_for_pixel(p)
-    pixel_opacity[p] * global_opacity
+    pixel_opacity[p] * layer_opacity
   end
 
 end
