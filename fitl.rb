@@ -16,6 +16,27 @@ def px
   @px ||= Pixelator.from_config('config/fitl.yml').start
 end
 
+def scn
+  px.scene
+end
+
+def neo
+  px.neo_pixel
+end
+
+def clear
+  px.clear
+end
+
+def layers
+  scn.layers
+end
+
+def layer(layer_def)
+  scn.layer layer_def
+end
+
+
 logo
 
 if (options = ENV['OPTIONS'])
