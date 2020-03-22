@@ -16,9 +16,9 @@ RSpec.describe Layer do
   it '.initializes correctly' do
     expect(layer).to be_a Layer
     expect(layer).to eq pixelator[:new_layer]
-    expect(layer.contents).to eq [nil, nil, nil, nil]
     expect(layer.layer_opacity).to eq 1
-    expect(layer.pixel_opacity).to eq [1, 1, 1, 1]
+    expect(layer.color_array).to eq [nil, nil, nil, nil]
+    expect(layer.alpha_array).to eq [1, 1, 1, 1]
   end
 
   let(:blk) { Color.new }
@@ -137,19 +137,19 @@ RSpec.describe Layer do
   it 'scrolls' do
     layer.fill red
 
-    layer.update_scroll 1
+    layer.scroller.update 1
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]
 
-    layer.start_scroll 1
-    layer.update_scroll 3.5
+    layer.scroller.start 1
+    layer.scroller.update 3.5
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [red, blk, blk, blk, blk, red, red, red]
 
-    layer.start_scroll -2
-    layer.update_scroll 6.5
+    layer.scroller.start -2
+    layer.scroller.update 6.5
     pixelator.render
     expect(neo_pixel.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]

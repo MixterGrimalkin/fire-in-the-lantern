@@ -26,7 +26,7 @@ RSpec.describe Pixelator do
   it 'initializes the base layer' do
     expect(pixelator[:base].pixels).to eq px
     expect(pixelator.base.pixels).to eq px
-    expect(pixelator.base.contents).to eq [black]*10
+    expect(pixelator.base.color_array).to eq [black]*10
   end
 
   it 'can define a new layer' do
@@ -161,14 +161,14 @@ RSpec.describe Pixelator do
            contents: [red, red, red],
            opacity: 0.5,
            pixel_opacity: [1.0, 1.0, 1.0],
-           scroll: 1
+           scroll: 1.0
           },
           {key: :b,
            pixels: [2, 4, 7],
            contents: [white, white, white],
            opacity: 1.0,
            pixel_opacity: [1.0, 1.0, 1.0],
-           scroll: -2
+           scroll: -2.0
           }
       ]}.to_json
     end
@@ -188,8 +188,8 @@ RSpec.describe Pixelator do
 
     it '.saves' do
       pixelator[:a].layer_opacity = 0.5
-      pixelator[:a].start_scroll 1
-      pixelator[:b].start_scroll -2
+      pixelator[:a].scroller.start 1
+      pixelator[:b].scroller.start -2
 
       expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
@@ -211,9 +211,9 @@ RSpec.describe Pixelator do
           .to eq [dk_red, black, white, black, white, dk_red, dk_red, white, black, black]
       expect(pixelator.layers.size).to eq 3
       expect(pixelator[:a].layer_opacity).to eq 0.5
-      expect(pixelator[:a].scroll_period).to eq 1
+      expect(pixelator[:a].scroller.period).to eq 1
       expect(pixelator[:b].layer_opacity).to eq(1.0)
-      expect(pixelator[:b].scroll_period).to eq -2
+      expect(pixelator[:b].scroller.period).to eq -2
     end
 
   end

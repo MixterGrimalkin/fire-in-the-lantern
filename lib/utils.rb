@@ -40,4 +40,16 @@ module Utils
       end
     end
   end
+
+  def sum_array(array)
+    return 0 if array.empty?
+
+    array.inject(0) { |sum, value| sum + value }
+  end
+
+  def avg_array(array)
+    return 0 if array.empty?
+
+    sum_array(array) / array.size
+  end
 end

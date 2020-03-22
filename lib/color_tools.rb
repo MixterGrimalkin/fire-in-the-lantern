@@ -1,6 +1,9 @@
 require_relative 'color'
+require_relative 'color_a'
+require_relative 'utils'
 
 module ColorTools
+  include Utils
 
   COLOR_COMPONENTS = [:red, :green, :blue, :white]
   COMPONENTS = COLOR_COMPONENTS + [:opacity]
@@ -17,6 +20,32 @@ module ColorTools
     [r, g, b, w].collect do |c|
       c.nil? ? nil : (c * scale).floor
     end
+  end
+
+  def mix_colors(color_as)
+    buffer = {
+        red: [], green: [], blue: [], white: [], alpha: []
+    }
+    color_as.each do |color_a|
+      if (c = color_a.color)
+        buffer[:red] << c.red
+        buffer[:green] << c.green
+        buffer[:blue] << c.blue
+        buffer[:white] << c.white if c.white
+        buffer[:alpha] << color_a.alpha
+      else
+        buffer[:alpha] << 0.0
+      end
+    end
+    ColorA.new(
+        Color.safe(
+            avg_array(buffer[:red]),
+            avg_array(buffer[:green]),
+            avg_array(buffer[:blue]),
+            avg_array(buffer[:white]),
+        ),
+        avg_array(buffer[:alpha])
+    )
   end
 
   def blend(under, over, alpha = 1.0)
@@ -56,19 +85,17 @@ module ColorTools
       config[:delta][c] = (config[:target][c].to_f - config[:value][c]) / (size - 1)
     end
 
-    result = {
-        colors: [nil] * surface_size,
-        alphas: [1.0] * surface_size
-    }
+    result = [ColorA.new] * surface_size
 
     size.times do |i|
       p = i + config[:start]
-      result[:colors][p] = Color.safe(*COLOR_COMPONENTS.collect { |c| config[:value][c] })
-      result[:alphas][p] = config[:value][:opacity]
+      result[p] = ColorA.new(
+          Color.safe(*COLOR_COMPONENTS.collect { |c| config[:value][c] }),
+          config[:value][:opacity]
+      )
       if config[:sym]
         mirror_p = config[:start] + config[:width] - i - 1
-        result[:colors][mirror_p] = result[:colors][p]
-        result[:alphas][mirror_p] = result[:alphas][p]
+        result[mirror_p] = result[p]
       end
       COMPONENTS.each { |c| config[:value][c] += config[:delta][c] }
     end

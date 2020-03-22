@@ -1,0 +1,2 @@
+class PixelOutOfRangeError < StandardError;
+end
