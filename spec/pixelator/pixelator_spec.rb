@@ -161,14 +161,16 @@ RSpec.describe Pixelator do
            contents: [red, red, red],
            opacity: 0.5,
            pixel_opacity: [1.0, 1.0, 1.0],
-           scroll: 1.0
+           scroll: 1.0,
+           scroll_over_sample: 8
           },
           {key: :b,
            pixels: [2, 4, 7],
            contents: [white, white, white],
            opacity: 1.0,
            pixel_opacity: [1.0, 1.0, 1.0],
-           scroll: -2.0
+           scroll: -2.0,
+           scroll_over_sample: 1
           }
       ]}.to_json
     end
@@ -185,11 +187,13 @@ RSpec.describe Pixelator do
       expect(pixelator.layers.size).to eq 1
     end
 
-
     it '.saves' do
       pixelator[:a].layer_opacity = 0.5
       pixelator[:a].scroller.start 1
+      pixelator[:a].scroller.over_sample = 8
       pixelator[:b].scroller.start -2
+
+      puts pixelator[:a].layer_def.to_json
 
       expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
@@ -212,8 +216,10 @@ RSpec.describe Pixelator do
       expect(pixelator.layers.size).to eq 3
       expect(pixelator[:a].layer_opacity).to eq 0.5
       expect(pixelator[:a].scroller.period).to eq 1
+      expect(pixelator[:a].scroller.over_sample).to eq 4
       expect(pixelator[:b].layer_opacity).to eq(1.0)
       expect(pixelator[:b].scroller.period).to eq -2
+      expect(pixelator[:b].scroller.over_sample).to eq 1
     end
 
   end

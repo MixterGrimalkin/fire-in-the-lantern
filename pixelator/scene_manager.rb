@@ -26,6 +26,7 @@ module SceneManager
       l.layer_opacity = layer_json[:opacity] || 1
       l.pixel_opacity = layer_json[:pixel_opacity] || ([1]*l.pixels.size)
       if (scroll = layer_json[:scroll])
+        l.scroller.over_sample = (layer_json[:scroll_over_sample]||1).to_i
         l.scroller.start scroll
       end
 

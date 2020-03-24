@@ -95,7 +95,10 @@ class Layer
         pixel_opacity: pattern.collect { |ca| ca.alpha }
     }
     if scroller.last_updated
-      result[:scroll] = scroller.period
+      result.merge!(
+          scroll: scroller.period,
+          scroll_over_sample: scroller.over_sample
+      )
     end
     result
   end

@@ -58,7 +58,8 @@
         1.0,
         1.0
       ],
-      "scroll": 1.0
+      "scroll": 1.0,
+      "scroll_over_sample": 4
     },
     {
       "key": "b",
@@ -78,7 +79,8 @@
         1.0,
         1.0
       ],
-      "scroll": -2.0
+      "scroll": -2.0,
+      "scroll_over_sample": 1
     }
   ]
 }

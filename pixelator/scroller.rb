@@ -14,7 +14,7 @@ class Scroller
   attr_reader :offset, :period, :effective_period, :last_updated, :over_sample
 
   def over_sample=(value)
-    @over_sample = value
+    @over_sample = value.to_i
     @offset = 0
     start period if last_updated
   end
