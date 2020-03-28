@@ -142,33 +142,36 @@ RSpec.describe Pixelator do
     before do
       pixelator.layer a: [0, 5, 6]
       pixelator.layer b: [2, 4, 7]
-      pixelator[:a].fill red
+      pixelator[:a].fill red, 0.8
       pixelator[:b].fill white
       pixelator.render
     end
+
+    let(:black_100) { ColorA.new black }
+    let(:white_100) { ColorA.new white }
+    let(:red_80) { ColorA.new red, 0.8 }
+    let(:faded_red) { Color.new 204, 0, 0 }
+    let(:faded_dk_red) { Color.new 102, 0, 0 }
 
     let(:saved_scene) do
       {layers: [
           {key: :base,
            pixels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-           contents: [black, black, black, black, black,
-                      black, black, black, black, black],
+           contents: [black_100, black_100, black_100, black_100, black_100,
+                      black_100, black_100, black_100, black_100, black_100],
            opacity: 1.0,
-           pixel_opacity: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
           },
           {key: :a,
            pixels: [0, 5, 6],
-           contents: [red, red, red],
+           contents: [red_80, red_80, red_80],
            opacity: 0.5,
-           pixel_opacity: [1.0, 1.0, 1.0],
            scroll: 1.0,
            scroll_over_sample: 8
           },
           {key: :b,
            pixels: [2, 4, 7],
-           contents: [white, white, white],
+           contents: [white_100, white_100, white_100],
            opacity: 1.0,
-           pixel_opacity: [1.0, 1.0, 1.0],
            scroll: -2.0,
            scroll_over_sample: 1
           }
@@ -177,23 +180,23 @@ RSpec.describe Pixelator do
 
     it '.clears' do
       expect(neo_pixel.contents)
-          .to eq [red, black, white, black, white, red, red, white, black, black]
+          .to eq [faded_red, black, white, black, white,
+                  faded_red, faded_red, white, black, black]
       expect(pixelator.layers.size).to eq 3
 
       pixelator.clear
 
       expect(neo_pixel.contents)
-          .to eq [black, black, black, black, black, black, black, black, black, black]
+          .to eq [black, black, black, black, black,
+                  black, black, black, black, black]
       expect(pixelator.layers.size).to eq 1
     end
 
     it '.saves' do
-      pixelator[:a].layer_opacity = 0.5
+      pixelator[:a].opacity = 0.5
       pixelator[:a].scroller.start 1
       pixelator[:a].scroller.over_sample = 8
       pixelator[:b].scroller.start -2
-
-      puts pixelator[:a].layer_def.to_json
 
       expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
@@ -206,18 +209,20 @@ RSpec.describe Pixelator do
 
       pixelator.clear
       expect(neo_pixel.contents)
-          .to eq [black, black, black, black, black, black, black, black, black, black]
+          .to eq [black, black, black, black, black,
+                  black, black, black, black, black]
       expect(pixelator.layers.size).to eq 1
 
       pixelator.load_scene('pxfile.json')
 
       expect(neo_pixel.contents)
-          .to eq [dk_red, black, white, black, white, dk_red, dk_red, white, black, black]
+          .to eq [faded_dk_red, black, white, black, white,
+                  faded_dk_red, faded_dk_red, white, black, black]
       expect(pixelator.layers.size).to eq 3
-      expect(pixelator[:a].layer_opacity).to eq 0.5
+      expect(pixelator[:a].opacity).to eq 0.5
       expect(pixelator[:a].scroller.period).to eq 1
       expect(pixelator[:a].scroller.over_sample).to eq 4
-      expect(pixelator[:b].layer_opacity).to eq(1.0)
+      expect(pixelator[:b].opacity).to eq(1.0)
       expect(pixelator[:b].scroller.period).to eq -2
       expect(pixelator[:b].scroller.over_sample).to eq 1
     end

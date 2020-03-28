@@ -21,13 +21,14 @@ class Scroller
 
   def start(scroll_period)
     @period = scroll_period.to_f
-    @effective_period = scroll_period.to_f / @over_sample
+    @effective_period = scroll_period.to_f / over_sample
     @last_updated = Time.now
     self
   end
 
   def resume
     @last_updated = Time.now
+    self
   end
 
   def stop
@@ -36,7 +37,7 @@ class Scroller
   end
 
   def check_and_update
-    update Time.now - last_updated if last_updated
+    update(Time.now - last_updated) if last_updated
   end
 
   def update(elapsed_seconds)

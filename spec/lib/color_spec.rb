@@ -1,17 +1,12 @@
 require_relative '../../lib/color'
+require_relative '../../lib/color_a'
 
 RSpec.describe Color do
 
-  it 'throws error if color out of range' do
-    expect{ Color.new(300, 0, 0) }.to raise_error ColorValueOutOfRange
-    expect{ Color.new(200, -50, 0) }.to raise_error ColorValueOutOfRange
-    expect{ Color.new(200, 50, 0, 900) }.to raise_error ColorValueOutOfRange
-  end
-
-  it 'Color#safe does not throw error' do
-    expect(Color.safe(300, 0, 0)).to eq Color.new(255, 0, 0)
-    expect(Color.safe(200, -50, 0)).to eq Color.new(200, 0, 0)
-    expect(Color.safe(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
+  it 'Caps components' do
+    expect(Color.new(300, 0, 0)).to eq Color.new(255, 0, 0)
+    expect(Color.new(200, -50, 0)).to eq Color.new(200, 0, 0)
+    expect(Color.new(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
   end
 
   it 'compares ignoring white' do
@@ -44,6 +39,7 @@ RSpec.describe Color do
 
   let(:blue) { Color.new(0, 0, 200) }
   let(:purple) { Color.new(180, 10, 220) }
+  let(:purple_20) { ColorA.new(purple, 0.2) }
 
 
   it '#blend_over' do
@@ -65,7 +61,18 @@ RSpec.describe Color do
   end
 
   it '#blend_under' do
-    expect(red.blend_over(yellow, 0.25)). to eq yellow.blend_over(red, 0.75)
+    expect(red.blend_over(yellow, 0.25)).to eq yellow.blend_over(red, 0.75)
+  end
+
+  it 'creates Color from string' do
+    expect(Color.from_s('[190,0,80,10]')).to eq Color.new(190, 0, 80, 10)
+    expect(Color.from_s(yellow.to_s)).to eq yellow
+  end
+
+  it 'creates ColorA from string' do
+    expect(ColorA.from_s('([190,0,80,10]x0.42)'))
+        .to eq ColorA.new(Color.new(190, 0, 80, 10), 0.42)
+    expect(ColorA.from_s(purple_20.to_s)).to eq purple_20
   end
 
 end

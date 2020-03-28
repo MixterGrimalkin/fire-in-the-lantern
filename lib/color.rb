@@ -3,20 +3,14 @@ require_relative 'color_tools'
 class Color
   include ColorTools
 
-  def self.safe(red = 0, green = red, blue = green, white = nil)
-    Color.new(*[red, green, blue, white].collect do |c|
-      c.nil? ? nil : [[255, c.to_i].min, 0].max
-    end)
-  end
-
   def initialize(red = 0, green = red, blue = green, white = nil)
-    @red, @green, @blue, @white = validate_comps(red, green, blue, white)
+    @red, @green, @blue, @white = *cap_comps(red, green, blue, white)
   end
 
   attr_accessor :red, :green, :blue, :white
 
   def with_brightness(brightness)
-    Color.safe(*scale_comps(brightness, red, green, blue, white))
+    Color.new *scale_comps(brightness, red, green, blue, white)
   end
 
   def blend_over(underlay, alpha = 1.0)
@@ -39,6 +33,7 @@ class Color
   end
   alias :inspect :to_s
 
+  def self.from_s(color_string)
+    Color.new *color_string[1..-2].split(',').collect(&:to_i)
+  end
 end
-
-

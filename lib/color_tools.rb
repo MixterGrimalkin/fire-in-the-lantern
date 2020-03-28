@@ -5,14 +5,22 @@ require_relative 'utils'
 module ColorTools
   include Utils
 
+  MAX = 255
+
   COLOR_COMPONENTS = [:red, :green, :blue, :white]
   COMPONENTS = COLOR_COMPONENTS + [:opacity]
 
   def validate_comps(r, g, b, w)
     [r, g, b, w].each do |c|
-      unless c.nil? || (0..255).include?(c)
+      unless c.nil? || (0..MAX).include?(c)
         raise ColorValueOutOfRange, "#{r},#{g},#{b},#{w}"
       end
+    end
+  end
+
+  def cap_comps(r, g, b, w)
+    [r, g, b, w].collect do |c|
+      c.nil? ? nil : [0, [MAX, c.to_i].min].max
     end
   end
 
@@ -38,7 +46,7 @@ module ColorTools
       end
     end
     ColorA.new(
-        Color.safe(
+        Color.new(
             avg_array(buffer[:red]),
             avg_array(buffer[:green]),
             avg_array(buffer[:blue]),
@@ -90,7 +98,7 @@ module ColorTools
     size.times do |i|
       p = i + config[:start]
       result[p] = ColorA.new(
-          Color.safe(*COLOR_COMPONENTS.collect { |c| config[:value][c] }),
+          Color.new(*COLOR_COMPONENTS.collect { |c| config[:value][c] }),
           config[:value][:opacity]
       )
       if config[:sym]

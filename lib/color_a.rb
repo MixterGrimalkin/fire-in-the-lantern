@@ -13,4 +13,13 @@ class ColorA
     color == other.color && alpha == other.alpha
   end
 
+  def to_s
+    "(#{color.to_s}x#{alpha})"
+  end
+  alias :inspect :to_s
+
+  def self.from_s(color_a_string)
+    comps = color_a_string[1..-2].split('x')
+    ColorA.new Color.from_s(comps[0]), comps[1].to_f
+  end
 end
