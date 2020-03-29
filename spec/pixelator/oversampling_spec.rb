@@ -1,6 +1,6 @@
-require_relative '../../pixelator/pixelator'
-require_relative '../../pixelator/layer'
-require_relative '../../neo_pixel/neo_pixel'
+require_relative '../../app/pixelator/pixelator'
+require_relative '../../app/pixelator/layer'
+require_relative '../../app/neo_pixel/neo_pixel'
 
 RSpec.describe 'Oversampling for layer scroll' do
 
@@ -25,8 +25,8 @@ RSpec.describe 'Oversampling for layer scroll' do
   context 'without oversampling' do
     it 'scrolls by 1 pixel' do
       expect(neo_pixel.contents).to eq before_scroll
-      layer.scroller.start 1
-      layer.scroller.update 1.25
+      layer.layer_scroller.start 1
+      layer.layer_scroller.update 1.25
       pixelator.render
       expect(neo_pixel.contents).to eq after_scroll_without_oversampling
     end
@@ -35,9 +35,9 @@ RSpec.describe 'Oversampling for layer scroll' do
   context 'with 4x oversampling' do
     it 'scrolls by 1.25 effective pixels' do
       expect(neo_pixel.contents).to eq before_scroll
-      layer.scroller.over_sample = 4
-      layer.scroller.start 1
-      layer.scroller.update 1.25
+      layer.layer_scroller.over_sample = 4
+      layer.layer_scroller.start 1
+      layer.layer_scroller.update 1.25
       pixelator.render
       expect(neo_pixel.contents).to eq after_scroll_with_oversampling
     end

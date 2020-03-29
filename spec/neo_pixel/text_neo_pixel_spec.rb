@@ -1,4 +1,4 @@
-require_relative '../../neo_pixel/text_neo_pixel'
+require_relative '../../app/neo_pixel/text_neo_pixel'
 
 RSpec.describe TextNeoPixel do
 

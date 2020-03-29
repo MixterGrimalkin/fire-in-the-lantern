@@ -1,7 +1,7 @@
-require_relative '../../pixelator/layer'
-require_relative '../../pixelator/pixelator'
-require_relative '../../neo_pixel/neo_pixel'
-require_relative '../../lib/color_tools'
+require_relative '../../app/pixelator/layer'
+require_relative '../../app/pixelator/pixelator'
+require_relative '../../app/neo_pixel/neo_pixel'
+require_relative '../../app/lib/color_tools'
 
 # require 'byebug'
 
@@ -128,22 +128,22 @@ RSpec.describe Layer do
                ])
   end
 
-  it 'scrolls' do
+  it 'scrolls layer' do
     layer.fill red
 
-    layer.scroller.update 1
+    layer.layer_scroller.update 1
     px.render
     expect(neo.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]
 
-    layer.scroller.start 1
-    layer.scroller.update 3.5
+    layer.layer_scroller.start 1
+    layer.layer_scroller.update 3.5
     px.render
     expect(neo.contents)
         .to eq [red, blk, blk, blk, blk, red, red, red]
 
-    layer.scroller.start -2
-    layer.scroller.update 6.5
+    layer.layer_scroller.start -2
+    layer.layer_scroller.update 6.5
     px.render
     expect(neo.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]

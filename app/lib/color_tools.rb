@@ -8,7 +8,7 @@ module ColorTools
   MAX = 255
 
   COLOR_COMPONENTS = [:red, :green, :blue, :white]
-  COMPONENTS = COLOR_COMPONENTS + [:opacity]
+  COMPONENTS = COLOR_COMPONENTS + [:alpha]
 
   def validate_comps(r, g, b, w)
     [r, g, b, w].each do |c|
@@ -88,7 +88,7 @@ module ColorTools
         when Array
           config[:value][c], config[:target][c] = config[c][0], config[c][1]
         else
-          config[:value][c], config[:target][c] = (c==:opacity ? [1, 1] : [0, 0])
+          config[:value][c], config[:target][c] = (c==:alpha ? [1, 1] : [0, 0])
       end
       config[:delta][c] = (config[:target][c].to_f - config[:value][c]) / (size - 1)
     end
@@ -99,7 +99,7 @@ module ColorTools
       p = i + config[:start]
       result[p] = ColorA.new(
           Color.new(*COLOR_COMPONENTS.collect { |c| config[:value][c] }),
-          config[:value][:opacity]
+          config[:value][:alpha]
       )
       if config[:sym]
         mirror_p = config[:start] + config[:width] - i - 1

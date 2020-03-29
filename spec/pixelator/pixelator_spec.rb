@@ -1,5 +1,5 @@
-require_relative '../../neo_pixel/neo_pixel'
-require_relative '../../pixelator/pixelator'
+require_relative '../../app/neo_pixel/neo_pixel'
+require_relative '../../app/pixelator/pixelator'
 require 'byebug'
 require 'json'
 
@@ -24,31 +24,31 @@ RSpec.describe Pixelator do
   end
 
   it 'initializes the base layer' do
-    expect(pixelator[:base].pixels).to eq px
-    expect(pixelator.base.pixels).to eq px
+    expect(pixelator[:base].canvas).to eq px
+    expect(pixelator.base.canvas).to eq px
     expect(pixelator.base.color_array).to eq [black]*10
   end
 
   it 'can define a new layer' do
     pixelator.layer :the_lot
-    expect(pixelator[:the_lot].pixels).to eq px
+    expect(pixelator[:the_lot].canvas).to eq px
   end
 
   it 'can define a layer by range' do
     pixelator.layer mid_four: (4..7)
-    expect(pixelator[:mid_four].pixels)
+    expect(pixelator[:mid_four].canvas)
         .to eq [4, 5, 6, 7]
   end
 
   it 'can define a layer by array' do
     pixelator.layer those_three: [1, 6, 9]
-    expect(pixelator[:those_three].pixels)
+    expect(pixelator[:those_three].canvas)
         .to eq [1, 6, 9]
   end
 
   it 'can define a layer by proc' do
     pixelator.layer evens: proc { |p| p % 2 == 0 }
-    expect(pixelator[:evens].pixels)
+    expect(pixelator[:evens].canvas)
         .to eq [0, 2, 4, 6, 8]
   end
 
@@ -61,7 +61,7 @@ RSpec.describe Pixelator do
     pixelator.layer left: (0..4)
     pixelator.layer right: (5..9)
     pixelator[:sum] = pixelator[:left] + pixelator[:right]
-    expect(pixelator[:sum].pixels).to eq px
+    expect(pixelator[:sum].canvas).to eq px
   end
 
   it 'can subtract layers' do
@@ -157,20 +157,20 @@ RSpec.describe Pixelator do
       {layers: [
           {key: :base,
            pixels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-           contents: [black_100, black_100, black_100, black_100, black_100,
-                      black_100, black_100, black_100, black_100, black_100],
+           pattern: [black_100, black_100, black_100, black_100, black_100,
+                     black_100, black_100, black_100, black_100, black_100],
            opacity: 1.0,
           },
           {key: :a,
            pixels: [0, 5, 6],
-           contents: [red_80, red_80, red_80],
+           pattern: [red_80, red_80, red_80],
            opacity: 0.5,
            scroll: 1.0,
            scroll_over_sample: 8
           },
           {key: :b,
            pixels: [2, 4, 7],
-           contents: [white_100, white_100, white_100],
+           pattern: [white_100, white_100, white_100],
            opacity: 1.0,
            scroll: -2.0,
            scroll_over_sample: 1
@@ -194,9 +194,9 @@ RSpec.describe Pixelator do
 
     it '.saves' do
       pixelator[:a].opacity = 0.5
-      pixelator[:a].scroller.start 1
-      pixelator[:a].scroller.over_sample = 8
-      pixelator[:b].scroller.start -2
+      pixelator[:a].layer_scroller.start 1
+      pixelator[:a].layer_scroller.over_sample = 8
+      pixelator[:b].layer_scroller.start -2
 
       expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
@@ -220,11 +220,11 @@ RSpec.describe Pixelator do
                   faded_dk_red, faded_dk_red, white, black, black]
       expect(pixelator.layers.size).to eq 3
       expect(pixelator[:a].opacity).to eq 0.5
-      expect(pixelator[:a].scroller.period).to eq 1
-      expect(pixelator[:a].scroller.over_sample).to eq 4
+      expect(pixelator[:a].layer_scroller.period).to eq 1
+      expect(pixelator[:a].layer_scroller.over_sample).to eq 4
       expect(pixelator[:b].opacity).to eq(1.0)
-      expect(pixelator[:b].scroller.period).to eq -2
-      expect(pixelator[:b].scroller.over_sample).to eq 1
+      expect(pixelator[:b].layer_scroller.period).to eq -2
+      expect(pixelator[:b].layer_scroller.over_sample).to eq 1
     end
 
   end

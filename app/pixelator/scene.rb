@@ -53,7 +53,7 @@ class Scene
     key, criteria = key_criteria(layer_def)
 
     if criteria.nil?
-      layer = Layer.new(pixels, background)
+      layer = Layer.new(pixels, background: background)
     else
       layer =
           Layer.new(pixels.select do |p|
@@ -63,7 +63,7 @@ class Scene
               when Proc
                 criteria.call p
             end
-          end, background)
+          end, background: background)
     end
 
     self.class.send(:define_method, key, proc { layer })

@@ -1,4 +1,4 @@
-require_relative '../../lib/utils'
+require_relative '../../app/lib/utils'
 
 RSpec.describe 'Utils Module' do
 

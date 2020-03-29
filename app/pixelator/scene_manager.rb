@@ -19,13 +19,13 @@ module SceneManager
 
       l = scene.layer(layer_json[:key].to_sym => layer_json[:pixels])
 
-      l.contents = layer_json[:contents].collect do |color_a_string|
+      l.pattern = layer_json[:contents].collect do |color_a_string|
         ColorA.from_s color_a_string
       end
       l.opacity = layer_json[:opacity] || 1
       if (scroll = layer_json[:scroll])
-        l.scroller.over_sample = (layer_json[:scroll_over_sample]||1).to_i
-        l.scroller.start scroll
+        l.layer_scroller.over_sample = (layer_json[:scroll_over_sample]||1).to_i
+        l.layer_scroller.start scroll
       end
 
     end

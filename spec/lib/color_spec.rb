@@ -1,5 +1,5 @@
-require_relative '../../lib/color'
-require_relative '../../lib/color_a'
+require_relative '../../app/lib/color'
+require_relative '../../app/lib/color_a'
 
 RSpec.describe Color do
 
