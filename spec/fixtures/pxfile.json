@@ -2,7 +2,7 @@
   "layers": [
     {
       "key": "base",
-      "pixels": [
+      "canvas": [
         0,
         1,
         2,
@@ -14,7 +14,9 @@
         8,
         9
       ],
-      "contents": [
+      "background": "[0,0,0]",
+      "opacity": 1.0,
+      "pattern": [
         "([0,0,0]x1.0)",
         "([0,0,0]x1.0)",
         "([0,0,0]x1.0)",
@@ -25,40 +27,45 @@
         "([0,0,0]x1.0)",
         "([0,0,0]x1.0)",
         "([0,0,0]x1.0)"
-      ],
-      "opacity": 1.0
+      ]
     },
     {
       "key": "a",
-      "pixels": [
+      "canvas": [
         0,
         5,
         6
       ],
-      "contents": [
+      "background": null,
+      "opacity": 0.5,
+      "pattern": [
         "([255,0,0]x0.8)",
         "([255,0,0]x0.8)",
         "([255,0,0]x0.8)"
       ],
-      "opacity": 0.5,
-      "scroll": 1.0,
-      "scroll_over_sample": 4
+      "layer_scroller": {
+        "period": 1.0,
+        "over_sample": 4
+      }
     },
     {
       "key": "b",
-      "pixels": [
+      "canvas": [
         2,
         4,
         7
       ],
-      "contents": [
+      "background": null,
+      "opacity": 1.0,
+      "pattern": [
         "([255,255,255]x1.0)",
         "([255,255,255]x1.0)",
         "([255,255,255]x1.0)"
       ],
-      "opacity": 1.0,
-      "scroll": -2.0,
-      "scroll_over_sample": 1
+      "layer_scroller": {
+        "period": -2.0,
+        "over_sample": 1
+      }
     }
   ]
 }

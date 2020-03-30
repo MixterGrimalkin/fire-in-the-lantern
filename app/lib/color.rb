@@ -34,6 +34,7 @@ class Color
   alias :inspect :to_s
 
   def self.from_s(color_string)
+    return nil unless color_string && !color_string.empty?
     Color.new *color_string[1..-2].split(',').collect(&:to_i)
   end
 end

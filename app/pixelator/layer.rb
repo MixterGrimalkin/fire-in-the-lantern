@@ -22,6 +22,31 @@ class Layer
     @pattern = [ColorA.new(background)] * (size || canvas.size)
   end
 
+  def to_conf
+    result = {
+        canvas: canvas,
+        background: background,
+        opacity: opacity,
+        pattern: pattern
+    }
+    if layer_scroller.last_updated
+      result.merge!(layer_scroller: layer_scroller.to_conf)
+    end
+    if pattern_scroller.last_updated
+      result.merge!(pattern_scroller: pattern_scroller.to_conf)
+    end
+    result
+  end
+
+  def from_conf(conf)
+    @canvas = conf[:canvas]
+    @background = conf[:background]
+    @opacity = conf[:opacity]
+    @pattern = conf[:pattern].collect { |string| ColorA.from_s(string) }
+    layer_scroller.from_conf(conf[:layer_scroller]) if conf[:layer_scroller]
+    pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]
+  end
+
   attr_accessor :opacity, :pattern, :background
 
   attr_reader :canvas,
@@ -33,6 +58,18 @@ class Layer
 
   def alpha_array
     pattern.collect(&:alpha)
+  end
+
+  def ==(other)
+    canvas == other.canvas
+  end
+
+  def +(other)
+    Layer.new(canvas + other.canvas)
+  end
+
+  def -(other)
+    Layer.new(canvas - other.canvas)
   end
 
   def []=(pixel, color)
@@ -58,32 +95,7 @@ class Layer
     pattern_scroller.check_and_update
   end
 
-  def ==(other)
-    canvas == other.canvas
-  end
 
-  def +(other)
-    Layer.new(canvas + other.canvas)
-  end
-
-  def -(other)
-    Layer.new(canvas - other.canvas)
-  end
-
-  def layer_def
-    result = {
-        pixels: canvas,
-        pattern: pattern,
-        opacity: opacity,
-    }
-    if layer_scroller.last_updated
-      result.merge!(
-          scroll: layer_scroller.period,
-          scroll_over_sample: layer_scroller.over_sample
-      )
-    end
-    result
-  end
 
   def inspect
     "#<Layer{#{canvas.size}} α=#{opacity} [#{stringify_scroll_period}]>"

@@ -75,4 +75,16 @@ class Scroller
     end
     result
   end
+
+  def to_conf
+    {
+        period: period,
+        over_sample: over_sample
+    }
+  end
+
+  def from_conf(conf)
+    @over_sample = conf[:over_sample]
+    start conf[:period]
+  end
 end

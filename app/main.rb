@@ -53,6 +53,7 @@ if ARGV[0]
   rescue Interrupt
   end
 
+  px.clear
   px.stop
   neo.close
 

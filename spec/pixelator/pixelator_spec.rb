@@ -156,24 +156,31 @@ RSpec.describe Pixelator do
     let(:saved_scene) do
       {layers: [
           {key: :base,
-           pixels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-           pattern: [black_100, black_100, black_100, black_100, black_100,
-                     black_100, black_100, black_100, black_100, black_100],
+           canvas: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+           background: black,
            opacity: 1.0,
+           pattern: [black_100, black_100, black_100, black_100, black_100,
+                     black_100, black_100, black_100, black_100, black_100]
           },
           {key: :a,
-           pixels: [0, 5, 6],
-           pattern: [red_80, red_80, red_80],
+           canvas: [0, 5, 6],
+           background: nil,
            opacity: 0.5,
-           scroll: 1.0,
-           scroll_over_sample: 8
+           pattern: [red_80, red_80, red_80],
+           layer_scroller: {
+               period: 1.0,
+               over_sample: 8
+           }
           },
           {key: :b,
-           pixels: [2, 4, 7],
-           pattern: [white_100, white_100, white_100],
+           canvas: [2, 4, 7],
+           background: nil,
            opacity: 1.0,
-           scroll: -2.0,
-           scroll_over_sample: 1
+           pattern: [white_100, white_100, white_100],
+           layer_scroller: {
+               period: -2.0,
+               over_sample: 1
+           }
           }
       ]}.to_json
     end
