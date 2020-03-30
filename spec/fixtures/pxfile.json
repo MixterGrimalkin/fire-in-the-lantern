@@ -62,7 +62,7 @@
         "([255,255,255]x1.0)",
         "([255,255,255]x1.0)"
       ],
-      "layer_scroller": {
+      "pattern_scroller": {
         "period": -2.0,
         "over_sample": 1
       }

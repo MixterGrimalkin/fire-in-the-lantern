@@ -177,7 +177,7 @@ RSpec.describe Pixelator do
            background: nil,
            opacity: 1.0,
            pattern: [white_100, white_100, white_100],
-           layer_scroller: {
+           pattern_scroller: {
                period: -2.0,
                over_sample: 1
            }
@@ -203,7 +203,7 @@ RSpec.describe Pixelator do
       pixelator[:a].opacity = 0.5
       pixelator[:a].layer_scroller.start 1
       pixelator[:a].layer_scroller.over_sample = 8
-      pixelator[:b].layer_scroller.start -2
+      pixelator[:b].pattern_scroller.start -2
 
       expect(File).to receive(:write).with('pxfile.json', saved_scene)
 
@@ -230,8 +230,8 @@ RSpec.describe Pixelator do
       expect(pixelator[:a].layer_scroller.period).to eq 1
       expect(pixelator[:a].layer_scroller.over_sample).to eq 4
       expect(pixelator[:b].opacity).to eq(1.0)
-      expect(pixelator[:b].layer_scroller.period).to eq -2
-      expect(pixelator[:b].layer_scroller.over_sample).to eq 1
+      expect(pixelator[:b].pattern_scroller.period).to eq -2
+      expect(pixelator[:b].pattern_scroller.over_sample).to eq 1
     end
 
   end
