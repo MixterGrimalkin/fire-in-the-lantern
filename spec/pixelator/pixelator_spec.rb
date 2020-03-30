@@ -236,4 +236,81 @@ RSpec.describe Pixelator do
 
   end
 
+  context '#hide and #show' do
+
+    let(:scene) { pixelator.scene }
+    let!(:layer_1) { scene.layer :a, background: blue }
+    let!(:layer_2) { scene.layer({b: [2, 5, 7]}, background: red) }
+
+    it 'initializes with all layers visible' do
+      pixelator.render
+
+      expect(layer_1.visible).to eq true
+      expect(layer_2.visible).to eq true
+      expect(neo_pixel.contents)
+          .to eq [blue, blue, red, blue, blue,
+                  red, blue, red, blue, blue]
+    end
+
+    it 'hides a single layer' do
+      layer_1.hide
+      pixelator.render
+
+      expect(layer_1.visible).to eq false
+      expect(layer_2.visible).to eq true
+      expect(neo_pixel.contents)
+          .to eq [black, black, red, black, black,
+                  red, black, red, black, black]
+    end
+
+    it 'hides all layers' do
+      scene.hide_all
+      pixelator.render
+
+      expect(layer_1.visible).to eq false
+      expect(layer_2.visible).to eq false
+      expect(neo_pixel.contents)
+          .to eq [black, black, black, black, black,
+                  black, black, black, black, black]
+    end
+
+    it 'shows a single layer' do
+      scene.hide_all
+      pixelator.render
+
+      expect(layer_1.visible).to eq false
+      expect(layer_2.visible).to eq false
+      expect(neo_pixel.contents)
+          .to eq [black, black, black, black, black,
+                  black, black, black, black, black]
+
+      layer_1.show
+      pixelator.render
+
+      expect(layer_1.visible).to eq true
+      expect(layer_2.visible).to eq false
+      expect(neo_pixel.contents)
+          .to eq [blue, blue, blue, blue, blue,
+                  blue, blue, blue, blue, blue]
+    end
+
+    it 'shows all layers' do
+      scene.hide_all
+      pixelator.render
+      expect(neo_pixel.contents)
+          .to eq [black, black, black, black, black,
+                  black, black, black, black, black]
+
+      scene.show_all
+      pixelator.render
+
+      expect(layer_1.visible).to eq true
+      expect(layer_2.visible).to eq true
+      expect(neo_pixel.contents)
+          .to eq [blue, blue, red, blue, blue,
+                  red, blue, red, blue, blue]
+    end
+
+  end
+
 end

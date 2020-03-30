@@ -13,6 +13,7 @@ class Layer
     @canvas = canvas
     @background = background
     @opacity = 1.0
+    @visible = true
     @layer_scroller = Scroller.new
     @pattern_scroller = Scroller.new
     resize size || canvas.size
@@ -47,10 +48,18 @@ class Layer
     pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]
   end
 
-  attr_accessor :opacity, :pattern, :background
+  attr_accessor :opacity
 
-  attr_reader :canvas,
+  attr_reader :canvas, :visible, :pattern, :background,
               :layer_scroller, :pattern_scroller
+
+  def hide
+    @visible = false
+  end
+
+  def show
+    @visible = true
+  end
 
   def color_array
     pattern.collect(&:color)
@@ -96,10 +105,12 @@ class Layer
   end
 
   def inspect
-    "#<Layer(#{canvas.size}/#{pattern.size}) α=#{opacity} δL=#{layer_scroller} δP=#{pattern_scroller}>"
+    "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δL=#{layer_scroller} δP=#{pattern_scroller}>"
   end
 
   def render_over(base_layer)
+    return base_layer unless visible
+
     build_buffer(base_layer.size).each_with_index do |color_a, i|
       unless color_a.nil? || color_a.color.nil?
         base_layer[i] = color_a.color.blend_over(base_layer[i], color_a.alpha * opacity)

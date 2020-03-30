@@ -30,7 +30,14 @@ def clear
 end
 
 def layers
-  scn.layers
+  max_width = 0
+  scn.layers.each do |key, _|
+    max_width = [max_width, key.to_s.length].max
+  end
+  scn.layers.each do |key, layer|
+    puts "#{key.to_s.ljust(max_width)} : #{layer.inspect}"
+  end
+  nil
 end
 
 def layer(layer_def)

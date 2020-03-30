@@ -15,6 +15,14 @@ class Scene
 
   attr_reader :pixels, :layers
 
+  def hide_all
+    layers.values.each(&:hide)
+  end
+
+  def show_all
+    layers.values.each(&:show)
+  end
+
   def update
     layers.values.each(&:update)
   end
