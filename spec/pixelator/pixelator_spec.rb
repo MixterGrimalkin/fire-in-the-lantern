@@ -92,12 +92,12 @@ RSpec.describe Pixelator do
     it 'starts and stops the rendering thread' do
       expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
       expect(pixelator.started).to eq false
-      pixelator.start 0.4
+      pixelator.start 0.02
       expect(pixelator.started).to eq true
-      sleep 0.6
+      sleep 0.03
       pixelator.stop
       expect(pixelator.started).to eq false
-      sleep 0.6
+      sleep 0.03
     end
     it 'raises error if already started' do
       pixelator.start
@@ -205,13 +205,13 @@ RSpec.describe Pixelator do
       pixelator[:a].layer_scroller.over_sample = 8
       pixelator[:b].pattern_scroller.start -2
 
-      expect(File).to receive(:write).with('pxfile.json', saved_scene)
+      expect(File).to receive(:write).with('scenes/pxfile.json', saved_scene)
 
       pixelator.save_scene 'pxfile.json'
     end
 
     it '.loads' do
-      allow(File).to receive(:read).with('pxfile.json')
+      allow(File).to receive(:read).with('scenes/pxfile.json')
           .and_return(File.read('./spec/fixtures/pxfile.json'))
 
       pixelator.clear

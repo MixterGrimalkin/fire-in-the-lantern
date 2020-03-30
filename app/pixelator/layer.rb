@@ -95,10 +95,8 @@ class Layer
     pattern_scroller.check_and_update
   end
 
-
-
   def inspect
-    "#<Layer{#{canvas.size}} α=#{opacity} [#{stringify_scroll_period}]>"
+    "#<Layer(#{canvas.size}/#{pattern.size}) α=#{opacity} δL=#{layer_scroller} δP=#{pattern_scroller}>"
   end
 
   def render_over(base_layer)
@@ -113,35 +111,18 @@ class Layer
   private
 
   def build_buffer(size)
-    layer_scroller.scroll(
-        expand_content_to_layer(
-            chop_pattern(size),
-            size
-        )
-    )
+    layer_scroller.scroll(expand_content size)
   end
 
-  def chop_pattern(size)
-    pattern_scroller.scroll(pattern)[0..size-1]
-  end
-
-  def expand_content_to_layer(content, layer_size)
-    result = [ColorA.new] * layer_size
-    content.each_with_index do |color_a, i|
-      result[canvas[i]] = color_a if canvas[i] < layer_size
+  def expand_content(size)
+    result = [ColorA.new] * size
+    chop_pattern.each_with_index do |color_a, i|
+      result[canvas[i]] = color_a if canvas[i] < size
     end
     result
   end
 
-  def stringify_scroll_period
-    if layer_scroller.period.nil?
-      '----'
-    elsif layer_scroller.period > 0
-      "+#{layer_scroller.period}+"
-    else
-      "-#{-layer_scroller.period}-"
-    end
+  def chop_pattern
+    pattern_scroller.scroll(pattern)[0..canvas.size-1]
   end
-
 end
-

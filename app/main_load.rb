@@ -13,7 +13,7 @@ include Colors
 include Utils
 
 def px
-  @px ||= Pixelator.from_config('config/fitl.yml').start
+  @px ||= Pixelator.from_config('../.fitl.yml').start
 end
 
 def scn
@@ -35,7 +35,6 @@ end
 def layer(layer_def)
   scn.layer layer_def
 end
-
 
 logo
 

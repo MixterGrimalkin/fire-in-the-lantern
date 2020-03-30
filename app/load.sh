@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 clear
-ruby main.rb $*
+ruby main_load.rb $*

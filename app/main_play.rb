@@ -14,7 +14,7 @@ include Colors
 include Utils
 
 def px
-  @px ||= Pixelator.from_config('config/fitl.yml').start
+  @px ||= Pixelator.from_config('../.fitl.yml').start
 end
 
 def scn

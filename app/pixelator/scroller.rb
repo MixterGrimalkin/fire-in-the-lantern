@@ -87,4 +87,9 @@ class Scroller
     @over_sample = conf[:over_sample]
     start conf[:period]
   end
+
+  def to_s
+    "#{period}x#{over_sample}"
+  end
+  alias :inspect :to_s
 end

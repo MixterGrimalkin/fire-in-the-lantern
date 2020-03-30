@@ -10,7 +10,7 @@ class Scene
 
   def clear
     @layers = {}
-    layer(:base, BLACK)
+    layer(:base, background: BLACK)
   end
 
   attr_reader :pixels, :layers
@@ -49,11 +49,11 @@ class Scene
     end
   end
 
-  def layer(layer_def, background = nil)
+  def layer(layer_def, size: nil, background: nil)
     key, criteria = key_criteria(layer_def)
 
     if criteria.nil?
-      layer = Layer.new(pixels, background: background)
+      layer = Layer.new(pixels, size: size, background: background)
     else
       layer =
           Layer.new(pixels.select do |p|
@@ -63,7 +63,7 @@ class Scene
               when Proc
                 criteria.call p
             end
-          end, background: background)
+          end, size: size, background: background)
     end
 
     self.class.send(:define_method, key, proc { layer })

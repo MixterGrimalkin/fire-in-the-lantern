@@ -19,6 +19,7 @@ class ColorA
   alias :inspect :to_s
 
   def self.from_s(color_a_string)
+    return nil unless color_a_string && !color_a_string.empty?
     comps = color_a_string[1..-2].split('x')
     ColorA.new Color.from_s(comps[0]), comps[1].to_f
   end
