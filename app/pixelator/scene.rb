@@ -27,6 +27,27 @@ class Scene
     layers.values.each(&:update)
   end
 
+  def put_top(layer_key)
+    raise LayerNotFound, layer_key unless layers[layer_key]
+
+    new_layers = {}
+    layers.each do |key, layer|
+      new_layers[key] = layer unless key==layer_key
+    end
+    new_layers[layer_key] = layers[layer_key]
+    @layers = new_layers
+  end
+
+  def put_bottom(layer_key)
+    raise LayerNotFound, layer_key unless layers[layer_key]
+
+    new_layers = {layer_key => layers[layer_key]}
+    layers.each do |key, layer|
+      new_layers[key] = layer unless key==layer_key
+    end
+    @layers = new_layers
+  end
+
   def build_buffer
     layers.values.inject([BLACK]*pixels.size) do |buffer, layer|
       layer.render_over buffer
@@ -90,3 +111,5 @@ class Scene
     end
   end
 end
+
+LayerNotFound = Class.new(StandardError)

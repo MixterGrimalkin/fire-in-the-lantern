@@ -212,7 +212,7 @@ RSpec.describe Pixelator do
 
     it '.loads' do
       allow(File).to receive(:read).with('scenes/pxfile.json')
-          .and_return(File.read('./spec/fixtures/pxfile.json'))
+                         .and_return(File.read('./spec/fixtures/pxfile.json'))
 
       pixelator.clear
       expect(neo_pixel.contents)
@@ -313,4 +313,39 @@ RSpec.describe Pixelator do
 
   end
 
+  context 'Layer re-ordering' do
+    let(:scene) { pixelator.scene }
+    let!(:layer_1) { scene.layer({layer_1: [1, 5, 9]}, background: red) }
+    let!(:layer_2) { scene.layer :layer_2, background: blue }
+    let!(:layer_3) { scene.layer({layer_3: [2, 5, 7]}, background: white) }
+
+    before do
+      pixelator.render
+      expect(neo_pixel.contents)
+          .to eq [blue, blue, white, blue, blue,
+                  white, blue, white, blue, blue]
+    end
+
+    it '#put_top' do
+      expect { scene.put_top(:not_exist) }.to raise_error(LayerNotFound)
+
+      scene.put_top(:layer_1)
+
+      pixelator.render
+      expect(neo_pixel.contents)
+          .to eq [blue, red, white, blue, blue,
+                  red, blue, white, blue, red]
+    end
+
+    it '#put_bottom' do
+      expect { scene.put_bottom(:not_exist) }.to raise_error(LayerNotFound)
+
+      scene.put_bottom(:layer_3)
+
+      pixelator.render
+      expect(neo_pixel.contents)
+          .to eq [blue, blue, blue, blue, blue,
+                  blue, blue, blue, blue, blue]
+    end
+  end
 end
