@@ -1,7 +1,7 @@
 require_relative '../lib/color'
 require_relative '../lib/color_tools'
 require_relative '../lib/utils'
-require_relative 'scene_manager'
+require_relative 'scene'
 require_relative 'layer'
 require 'forwardable'
 require 'json'
@@ -9,9 +9,10 @@ require 'yaml'
 
 class Pixelator
   include ColorTools
-  include SceneManager
   include Utils
   extend Forwardable
+
+  SCENES_DIR = ENV['SCENES_DIR'] || 'scenes'
 
   def initialize(neo_pixel)
     @neo_pixel = neo_pixel
@@ -75,12 +76,20 @@ class Pixelator
   end
 
   def save_scene(filename)
-    write(scene, filename)
+    File.write(
+        "#{SCENES_DIR}/#{filename}",
+        scene.to_conf.to_json
+    )
     "Saved to: #{filename}"
   end
 
   def load_scene(filename)
-    @scene = read(pixel_count, filename)
+    @scene = Scene.new pixel_count
+    scene.from_conf(
+        symbolize_keys(JSON.parse(
+            File.read("#{SCENES_DIR}/#{filename}")
+        ))
+    )
     render
     "Loaded from: #{filename}"
   end

@@ -1,6 +1,6 @@
 require_relative '../../app/neo_pixel/neo_pixel'
 require_relative '../../app/pixelator/pixelator'
-require 'byebug'
+
 require 'json'
 
 RSpec.describe Pixelator do
@@ -159,6 +159,7 @@ RSpec.describe Pixelator do
            canvas: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
            background: black,
            opacity: 1.0,
+           visible: true,
            pattern: [black_100, black_100, black_100, black_100, black_100,
                      black_100, black_100, black_100, black_100, black_100]
           },
@@ -166,6 +167,7 @@ RSpec.describe Pixelator do
            canvas: [0, 5, 6],
            background: nil,
            opacity: 0.5,
+           visible: true,
            pattern: [red_80, red_80, red_80],
            layer_scroller: {
                period: 1.0,
@@ -176,6 +178,7 @@ RSpec.describe Pixelator do
            canvas: [2, 4, 7],
            background: nil,
            opacity: 1.0,
+           visible: false,
            pattern: [white_100, white_100, white_100],
            pattern_scroller: {
                period: -2.0,
@@ -204,6 +207,7 @@ RSpec.describe Pixelator do
       pixelator[:a].layer_scroller.start 1
       pixelator[:a].layer_scroller.over_sample = 8
       pixelator[:b].pattern_scroller.start -2
+      pixelator[:b].hide
 
       expect(File).to receive(:write).with('scenes/pxfile.json', saved_scene)
 
@@ -225,13 +229,18 @@ RSpec.describe Pixelator do
       expect(neo_pixel.contents)
           .to eq [faded_dk_red, black, white, black, white,
                   faded_dk_red, faded_dk_red, white, black, black]
-      expect(pixelator.layers.size).to eq 3
+      expect(pixelator.layers.size).to eq 4
       expect(pixelator[:a].opacity).to eq 0.5
+      expect(pixelator[:a].visible).to eq true
       expect(pixelator[:a].layer_scroller.period).to eq 1
       expect(pixelator[:a].layer_scroller.over_sample).to eq 4
+
       expect(pixelator[:b].opacity).to eq(1.0)
+      expect(pixelator[:b].visible).to eq true
       expect(pixelator[:b].pattern_scroller.period).to eq -2
       expect(pixelator[:b].pattern_scroller.over_sample).to eq 1
+
+      expect(pixelator[:c].visible).to eq false
     end
 
   end
@@ -315,11 +324,11 @@ RSpec.describe Pixelator do
 
   context 'Layer re-ordering' do
     let(:scene) { pixelator.scene }
-    let!(:layer_1) { scene.layer({layer_1: [1, 5, 9]}, background: red) }
-    let!(:layer_2) { scene.layer :layer_2, background: blue }
-    let!(:layer_3) { scene.layer({layer_3: [2, 5, 7]}, background: white) }
 
     before do
+      scene.layer({layer_1: [1, 5, 9]}, background: red)
+      scene.layer(:layer_2, background: blue)
+      scene.layer({layer_3: [2, 5, 7]}, background: white)
       pixelator.render
       expect(neo_pixel.contents)
           .to eq [blue, blue, white, blue, blue,

@@ -28,6 +28,7 @@ class Layer
         canvas: canvas,
         background: background,
         opacity: opacity,
+        visible: visible,
         pattern: pattern
     }
     if layer_scroller.last_updated
@@ -43,6 +44,7 @@ class Layer
     @canvas = conf[:canvas]
     @background = conf[:background]
     @opacity = conf[:opacity]
+    @visible = conf[:visible]
     @pattern = conf[:pattern].collect { |string| ColorA.from_s(string) }
     layer_scroller.from_conf(conf[:layer_scroller]) if conf[:layer_scroller]
     pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]

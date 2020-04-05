@@ -16,6 +16,7 @@
       ],
       "background": "[0,0,0]",
       "opacity": 1.0,
+      "visible": true,
       "pattern": [
         "([0,0,0]x1.0)",
         "([0,0,0]x1.0)",
@@ -38,6 +39,7 @@
       ],
       "background": null,
       "opacity": 0.5,
+      "visible": true,
       "pattern": [
         "([255,0,0]x0.8)",
         "([255,0,0]x0.8)",
@@ -57,10 +59,27 @@
       ],
       "background": null,
       "opacity": 1.0,
+      "visible": true,
       "pattern": [
         "([255,255,255]x1.0)",
         "([255,255,255]x1.0)",
         "([255,255,255]x1.0)"
+      ],
+      "pattern_scroller": {
+        "period": -2.0,
+        "over_sample": 1
+      }
+    },
+    {
+      "key": "c",
+      "canvas": [
+        9
+      ],
+      "background": null,
+      "opacity": 1.0,
+      "visible": false,
+      "pattern": [
+        "([0,255,0]x1.0)"
       ],
       "pattern_scroller": {
         "period": -2.0,

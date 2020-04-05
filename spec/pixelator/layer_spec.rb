@@ -3,8 +3,6 @@ require_relative '../../app/pixelator/pixelator'
 require_relative '../../app/neo_pixel/neo_pixel'
 require_relative '../../app/lib/color_tools'
 
-# require 'byebug'
-
 RSpec.describe Layer do
 
   let(:neo) { NeoPixel.new(8) }
