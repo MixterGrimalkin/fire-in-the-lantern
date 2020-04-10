@@ -2,7 +2,7 @@ require_relative '../../app/neo_pixel/text_neo_pixel'
 
 RSpec.describe TextNeoPixel do
 
-  let(:neo_pixel) { TextNeoPixel.new 4 }
+  let(:neo_pixel) { TextNeoPixel.new pixel_count: 4 }
 
   it 'renders' do
     expect{ neo_pixel.render }.to output("....\n").to_stdout

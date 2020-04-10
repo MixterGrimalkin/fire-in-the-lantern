@@ -3,6 +3,7 @@ require_relative '../lib/color_tools'
 require_relative '../lib/utils'
 require_relative 'scene'
 require_relative 'layer'
+# require 'active_support/all'
 require 'forwardable'
 require 'json'
 require 'yaml'
@@ -12,12 +13,12 @@ class Pixelator
   include Utils
   extend Forwardable
 
-  SCENES_DIR = ENV['SCENES_DIR'] || 'scenes'
-
-  def initialize(neo_pixel)
+  def initialize(neo_pixel:, render_period: 0.01, scenes_dir: 'scenes')
     @neo_pixel = neo_pixel
     @started = false
     @render_thread = nil
+    @render_period = render_period
+    @scenes_dir = scenes_dir
     clear
   end
 
@@ -30,7 +31,7 @@ class Pixelator
     neo_pixel.pixel_count
   end
 
-  attr_reader :neo_pixel, :started, :scene
+  attr_reader :neo_pixel, :render_period, :started, :scene, :scenes_dir
 
   def_delegators :scene, :layers, :layer, :base, :[], :[]=
 
@@ -38,7 +39,7 @@ class Pixelator
     neo_pixel.write(scene.build_buffer).render
   end
 
-  def start(period = 0.01)
+  def start(period = render_period)
     raise NotAllowed if started
 
     @started = true
@@ -75,35 +76,23 @@ class Pixelator
     self
   end
 
-  def save_scene(filename)
+  def save_scene(scene_name)
     File.write(
-        "#{SCENES_DIR}/#{filename}",
+        "#{scenes_dir}/#{scene_name}.json",
         scene.to_conf.to_json
     )
-    "Saved to: #{filename}"
+    "Saved '#{scene_name}'"
   end
 
-  def load_scene(filename)
+  def load_scene(scene_name)
     @scene = Scene.new pixel_count
     scene.from_conf(
         symbolize_keys(JSON.parse(
-            File.read("#{SCENES_DIR}/#{filename}")
+            File.read("#{scenes_dir}/#{scene_name}.json")
         ))
     )
     render
-    "Loaded from: #{filename}"
-  end
-
-  def self.from_config(file)
-    yaml = YAML.load_file file
-    px_config = yaml['Pixelator']
-    unless (count = px_config['PixelCount']) && (adapter = px_config['Adapter'])
-      puts "No configuration found in: #{file}"
-      return
-    end
-    new(const_get(adapter).new count)
-  rescue Errno::ENOENT
-    puts "File not found: #{file}"
+    "Loaded '#{scene_name}'"
   end
 
   def inspect

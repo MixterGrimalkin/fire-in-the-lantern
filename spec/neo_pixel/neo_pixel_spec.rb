@@ -2,7 +2,7 @@ require_relative '../../app/neo_pixel/neo_pixel'
 
 RSpec.describe NeoPixel do
 
-  subject(:neo_pixel) { NeoPixel.new 4, mode: mode }
+  subject(:neo_pixel) { NeoPixel.new pixel_count: 4, mode: mode }
 
   let(:mode) { :rgb }
 

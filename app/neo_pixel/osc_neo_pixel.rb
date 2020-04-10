@@ -3,15 +3,19 @@ require 'osc-ruby'
 
 class OscNeoPixel < NeoPixel
 
-  def initialize(pixel_count, mode: :rgb, host: 'localhost', port: 3333)
-    super(pixel_count, mode: mode)
+  def initialize(pixel_count:, mode:, host:, port:, address:)
+    super(pixel_count: pixel_count, mode: mode)
+
     @client = OSC::Client.new(host, port)
+    @address = address
   end
 
   def show(buffer)
-    @client.send(OSC::Message.new('/data', buffer.join(' ')))
-  rescue => e
-    puts e.message
+    client.send OSC::Message.new("/#{address}", buffer.join(' '))
   end
+
+  private
+
+  attr_reader :client, :address
 
 end

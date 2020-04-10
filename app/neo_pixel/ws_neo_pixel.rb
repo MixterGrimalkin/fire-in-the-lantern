@@ -5,8 +5,8 @@ require 'ws2812'
 class WsNeoPixel < NeoPixel
   extend Forwardable
 
-  def initialize(pixel_count, pin: 18, mode: :rgb, brightness: 127, options: {})
-    super(pixel_count, mode: mode)
+  def initialize(pixel_count:, mode:, pin:, brightness:, options: {})
+    super(pixel_count: pixel_count, mode: mode)
     @ws = Ws2812::Basic.new(pixel_count, pin, brightness, options)
     ws.open
   end

@@ -4,6 +4,7 @@ require_relative '../lib/colors'
 require_relative '../lib/color_tools'
 require_relative '../lib/errors'
 require_relative 'scroller'
+require_relative 'modifiers'
 
 class Layer
   include Colors
@@ -21,6 +22,7 @@ class Layer
 
   def resize(size)
     @pattern = [ColorA.new(background)] * (size || canvas.size)
+    @modifiers = Modifiers.new pattern.size
   end
 
   def to_conf
@@ -41,10 +43,10 @@ class Layer
   end
 
   def from_conf(conf)
-    @canvas = conf[:canvas]
-    @background = conf[:background]
-    @opacity = conf[:opacity]
-    @visible = conf[:visible]
+    @canvas = conf.fetch(:canvas)
+    @background = conf.fetch(:background, nil)
+    @opacity = conf.fetch(:opacity, 1.0)
+    @visible = conf.fetch(:visible, true)
     @pattern = conf[:pattern].collect { |string| ColorA.from_s(string) }
     layer_scroller.from_conf(conf[:layer_scroller]) if conf[:layer_scroller]
     pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]
@@ -53,7 +55,7 @@ class Layer
   attr_accessor :opacity
 
   attr_reader :canvas, :visible, :pattern, :background,
-              :layer_scroller, :pattern_scroller
+              :layer_scroller, :pattern_scroller, :modifiers
 
   def hide
     @visible = false
@@ -69,6 +71,10 @@ class Layer
 
   def alpha_array
     pattern.collect(&:alpha)
+  end
+
+  def fade_in(pixel, time, color=nil, alpha=nil)
+
   end
 
   def ==(other)

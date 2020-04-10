@@ -5,9 +5,9 @@ require_relative '../lib/color_tools'
 class NeoPixel
   include Colors
 
-  def initialize(pixel_count, mode: :rgb)
+  def initialize(pixel_count:, mode: :rgb)
     @pixel_count = pixel_count
-    @mode = mode
+    @mode = mode.to_sym
     @contents = [BLACK] * pixel_count
   end
 
@@ -52,15 +52,22 @@ class NeoPixel
           raise BadOutputMode, mode.to_s
       end
     end.flatten
+
     while buffer.size % 3 != 0
       buffer << 0
     end
+
     show buffer
+
     self
   end
 
   def show(buffer)
-    # --> DO THING HERE <-- #
+    # --> Update display here <-- #
+  end
+
+  def close
+    # --> Shutdown display here <-- #
   end
 
   def rgb_count
@@ -71,28 +78,28 @@ class NeoPixel
     end
   end
 
-  def test
+  def test(time = 1)
     print 'NeoPixel test running.'
     on RED
-    sleep 1
+    sleep time
 
     print '.'
     on GREEN
-    sleep 1
+    sleep time
 
     print '.'
     on BLUE
-    sleep 1
+    sleep time
 
     if mode == :rgbw
       print '.'
       on WARM_WHITE
-      sleep 1
+      sleep time
     end
 
     print '.'
     on
-    sleep 1
+    sleep time
 
     off
     puts 'OK'

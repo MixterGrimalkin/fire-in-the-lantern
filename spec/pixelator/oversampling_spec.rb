@@ -4,9 +4,9 @@ require_relative '../../app/neo_pixel/neo_pixel'
 
 RSpec.describe 'Oversampling for layer scroll' do
 
-  let(:neo_pixel) { NeoPixel.new 6 }
-  let(:pixelator) { Pixelator.new neo_pixel }
-  let(:layer) { pixelator.scene.layer block: [1, 2] }
+  let(:neo) { NeoPixel.new pixel_count: 6 }
+  let(:px) { Pixelator.new neo_pixel: neo }
+  let(:layer) { px.scene.layer block: [1, 2] }
 
   let(:black) { Color.new }
   let(:color_25) { Color.new 50, 25, 20, 5 }
@@ -19,27 +19,27 @@ RSpec.describe 'Oversampling for layer scroll' do
 
   before do
     layer.fill color_full
-    pixelator.render
+    px.render
   end
 
   context 'without oversampling' do
     it 'scrolls by 1 pixel' do
-      expect(neo_pixel.contents).to eq before_scroll
+      expect(neo.contents).to eq before_scroll
       layer.layer_scroller.start 1
       layer.layer_scroller.update 1.25
-      pixelator.render
-      expect(neo_pixel.contents).to eq after_scroll_without_oversampling
+      px.render
+      expect(neo.contents).to eq after_scroll_without_oversampling
     end
   end
 
   context 'with 4x oversampling' do
     it 'scrolls by 1.25 effective pixels' do
-      expect(neo_pixel.contents).to eq before_scroll
+      expect(neo.contents).to eq before_scroll
       layer.layer_scroller.over_sample = 4
       layer.layer_scroller.start 1
       layer.layer_scroller.update 1.25
-      pixelator.render
-      expect(neo_pixel.contents).to eq after_scroll_with_oversampling
+      px.render
+      expect(neo.contents).to eq after_scroll_with_oversampling
     end
   end
 end

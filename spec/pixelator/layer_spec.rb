@@ -5,9 +5,8 @@ require_relative '../../app/lib/color_tools'
 
 RSpec.describe Layer do
 
-  let(:neo) { NeoPixel.new(8) }
-
-  let(:px) { Pixelator.new neo }
+  let(:neo) { NeoPixel.new pixel_count: 8 }
+  let(:px) { Pixelator.new neo_pixel: neo }
 
   subject(:layer) { px.layer new_layer: (2..5) }
 

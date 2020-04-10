@@ -4,12 +4,26 @@ module Utils
     ___
    (_  '_ _   '  _// _   /  _  _/_ _
    /  // (-  //) //)(-  (__(//)/(-/ /)
+
        p  i  x  e  l  a  t  o  r
 
 }
 
   def logo
     puts LOGO
+  end
+
+  def message(msg)
+    puts
+    puts "  #{msg}"
+    puts
+  end
+
+  def wait_for_interrupt
+    while true
+    end
+  rescue Interrupt
+    # ignored
   end
 
   def symbolize_keys(hash)
