@@ -3,10 +3,12 @@ require_relative '../lib/color_a'
 require_relative '../lib/colors'
 require_relative '../lib/color_tools'
 require_relative '../lib/errors'
+require_relative 'layer_config'
 require_relative 'scroller'
 require_relative 'modifiers'
 
 class Layer
+  include LayerConfig
   include Colors
   include ColorTools
 
@@ -25,45 +27,10 @@ class Layer
     @modifiers = Modifiers.new pattern.size
   end
 
-  def to_conf
-    result = {
-        canvas: canvas,
-        background: background,
-        opacity: opacity,
-        visible: visible,
-        pattern: pattern
-    }
-    if layer_scroller.last_updated
-      result.merge!(layer_scroller: layer_scroller.to_conf)
-    end
-    if pattern_scroller.last_updated
-      result.merge!(pattern_scroller: pattern_scroller.to_conf)
-    end
-    result
-  end
-
-  def from_conf(conf)
-    @canvas = conf.fetch(:canvas)
-    @background = conf.fetch(:background, nil)
-    @opacity = conf.fetch(:opacity, 1.0)
-    @visible = conf.fetch(:visible, true)
-    @pattern = conf[:pattern].collect { |string| ColorA.from_s(string) }
-    layer_scroller.from_conf(conf[:layer_scroller]) if conf[:layer_scroller]
-    pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]
-  end
-
   attr_accessor :opacity
 
   attr_reader :canvas, :visible, :pattern, :background,
               :layer_scroller, :pattern_scroller, :modifiers
-
-  def hide
-    @visible = false
-  end
-
-  def show
-    @visible = true
-  end
 
   def color_array
     pattern.collect(&:color)
@@ -73,20 +40,17 @@ class Layer
     pattern.collect(&:alpha)
   end
 
-  def fade_in(pixel, time, color=nil, alpha=nil)
-
+  def hide
+    @visible = false
   end
 
-  def ==(other)
-    canvas == other.canvas
+  def show
+    @visible = true
   end
 
-  def +(other)
-    Layer.new(canvas + other.canvas)
-  end
-
-  def -(other)
-    Layer.new(canvas - other.canvas)
+  def [](pixel)
+    check_pixel_number pixel
+    pattern[pixel]
   end
 
   def []=(pixel, color)
@@ -94,7 +58,7 @@ class Layer
   end
 
   def set(pixel, color, alpha = 1.0)
-    raise PixelOutOfRangeError unless (0..(pattern.size-1)).include?(pixel)
+    check_pixel_number pixel
     pattern[pixel] = ColorA.new(color, alpha)
   end
 
@@ -107,13 +71,17 @@ class Layer
     self
   end
 
+  def inspect
+    "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δl=#{layer_scroller} δp=#{pattern_scroller}>"
+  end
+
+  def fade_in(pixels, time, color=nil, alpha=nil)
+
+  end
+
   def update
     layer_scroller.check_and_update
     pattern_scroller.check_and_update
-  end
-
-  def inspect
-    "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δL=#{layer_scroller} δP=#{pattern_scroller}>"
   end
 
   def render_over(base_layer)
@@ -143,5 +111,9 @@ class Layer
 
   def chop_pattern
     pattern_scroller.scroll(pattern)[0..canvas.size-1]
+  end
+
+  def check_pixel_number(pixel)
+    raise PixelOutOfRangeError unless (0..(pattern.size-1)).include?(pixel)
   end
 end

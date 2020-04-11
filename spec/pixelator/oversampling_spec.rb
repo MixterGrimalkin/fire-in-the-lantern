@@ -6,7 +6,7 @@ RSpec.describe 'Oversampling for layer scroll' do
 
   let(:neo) { NeoPixel.new pixel_count: 6 }
   let(:px) { Pixelator.new neo_pixel: neo }
-  let(:layer) { px.scene.layer block: [1, 2] }
+  let(:layer) { px.scene.layer :block, canvas: [1, 2] }
 
   let(:black) { Color.new }
   let(:color_25) { Color.new 50, 25, 20, 5 }

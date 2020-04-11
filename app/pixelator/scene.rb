@@ -1,6 +1,8 @@
 require_relative '../lib/colors'
+require_relative 'scene_config'
 
 class Scene
+  include SceneConfig
   include Colors
 
   def initialize(pixel_count)
@@ -78,53 +80,25 @@ class Scene
     end
   end
 
-  def layer(layer_def, size: nil, background: nil)
-    key, criteria = key_criteria(layer_def)
-
-    if criteria.nil?
+  def layer(key, canvas: nil, size: nil, background: nil)
+    if canvas.nil?
       layer = Layer.new(pixels, size: size, background: background)
     else
       layer =
           Layer.new(pixels.select do |p|
-            case criteria
+            case canvas
               when Range, Array
-                criteria.include?(p)
+                canvas.include?(p)
               when Proc
-                criteria.call p
+                canvas.call p
             end
           end, size: size, background: background)
     end
 
     self.class.send(:define_method, key, proc { layer })
-    @layers[key] = layer
+    layers[key] = layer
   end
 
-  def to_conf
-    {
-        layers:
-            layers.collect do |key, layer|
-              {key: key}.merge(layer.to_conf)
-            end
-    }
-  end
-
-  def from_conf(conf)
-    conf[:layers].each do |layer_conf|
-      layer(layer_conf[:key].to_sym => layer_conf[:canvas]).from_conf(layer_conf)
-    end
-  end
-
-  private
-
-  def key_criteria(layer_def)
-    if layer_def.is_a? Symbol
-      [layer_def, nil]
-    elsif layer_def.is_a?(Hash) && layer_def.size==1
-      [layer_def.first[0].to_sym, layer_def.first[1]]
-    else
-      raise StandardError, 'Bad layer config'
-    end
-  end
 end
 
 LayerNotFound = Class.new(StandardError)

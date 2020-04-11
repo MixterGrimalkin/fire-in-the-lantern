@@ -13,7 +13,6 @@ RSpec.describe 'Utils Module' do
                'f' => [{'g' => 54, 'f' => ['h' => 1]}]
            }}}
     end
-
     let(:hash_after) do
       {a: 123,
        b: {
@@ -23,18 +22,18 @@ RSpec.describe 'Utils Module' do
                f: [{g: 54, f: [h: 1]}]
            }}}
     end
-
     it 'symbolizes keys' do
       expect(symbolize_keys(hash_before)).to eq hash_after
     end
   end
 
   context 'array utils' do
+    let(:array) { [1, 2, 3, 4] }
     it '#sum_array' do
-      expect(sum_array([1,2,3,4])).to eq 10
+      expect(sum_array(array)).to eq 10
     end
     it '#avg_array' do
-      expect(avg_array([1,2,3,4])).to eq 2.5
+      expect(avg_array(array)).to eq 2.5
     end
   end
 
@@ -45,6 +44,27 @@ RSpec.describe 'Utils Module' do
       allow(STDIN).to receive(:getch).and_return('2')
       expect { @choice = pick_from items }.to output(menu).to_stdout
       expect(@choice).to eq 'Two'
+    end
+    it 'returns nil if option unknown' do
+      allow(STDIN).to receive(:getch).and_return('X')
+      expect { @choice = pick_from items }.to output(menu).to_stdout
+      expect(@choice).to be_nil
+    end
+  end
+
+  context '#print_table' do
+    let(:data) do
+      [[:base, 'base layer', 99],
+       [:another, 'swirly layer'],
+       [:bum, 'nifty layer', 1]]
+    end
+    let(:table) do
+      "base     base layer    99\n" \
+      "another  swirly layer\n" \
+      "bum      nifty layer   1 \n"
+    end
+    it 'prints a table' do
+      expect{ print_table(data) }.to output(table).to_stdout
     end
   end
 

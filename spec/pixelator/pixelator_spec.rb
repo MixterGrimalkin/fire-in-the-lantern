@@ -35,40 +35,26 @@ RSpec.describe Pixelator do
   end
 
   it 'can define a layer by range' do
-    px.layer mid_four: (4..7)
+    px.layer :mid_four, canvas: (4..7)
     expect(px[:mid_four].canvas)
         .to eq [4, 5, 6, 7]
   end
 
   it 'can define a layer by array' do
-    px.layer those_three: [1, 6, 9]
+    px.layer :those_three, canvas: [1, 6, 9]
     expect(px[:those_three].canvas)
         .to eq [1, 6, 9]
   end
 
   it 'can define a layer by proc' do
-    px.layer evens: proc { |p| p % 2 == 0 }
+    px.layer :evens, canvas: proc { |p| p % 2 == 0 }
     expect(px[:evens].canvas)
         .to eq [0, 2, 4, 6, 8]
   end
 
   it 'defines a method for new layers' do
-    px.layer odds: proc { |p| p % 2 != 0 }
+    px.layer :odds, canvas: proc { |p| p % 2 != 0 }
     expect(px.scene.odds).to eq px[:odds]
-  end
-
-  it 'can combine layers' do
-    px.layer left: (0..4)
-    px.layer right: (5..9)
-    px[:sum] = px[:left] + px[:right]
-    expect(px[:sum].canvas).to eq all_pixels
-  end
-
-  it 'can subtract layers' do
-    px.layer left: (0..4)
-    px.layer right: (5..9)
-    px[:diff] = px[:base] - px[:right]
-    expect(px[:diff]).to eq px[:left]
   end
 
   it 'renders to NeoPixel' do
@@ -140,8 +126,8 @@ RSpec.describe Pixelator do
   context 'when there is a pattern running' do
 
     before do
-      px.layer a: [0, 5, 6]
-      px.layer b: [2, 4, 7]
+      px.layer :a, canvas: [0, 5, 6]
+      px.layer :b, canvas: [2, 4, 7]
       px[:a].fill red, 0.8
       px[:b].fill white
       px.render
@@ -251,7 +237,7 @@ RSpec.describe Pixelator do
 
     let(:scene) { px.scene }
     let!(:layer_1) { scene.layer :a, background: blue }
-    let!(:layer_2) { scene.layer({b: [2, 5, 7]}, background: red) }
+    let!(:layer_2) { scene.layer :b, canvas: [2, 5, 7], background: red }
 
     it 'initializes with all layers visible' do
       px.render
@@ -328,9 +314,9 @@ RSpec.describe Pixelator do
     let(:scene) { px.scene }
 
     before do
-      scene.layer({layer_1: [1, 5, 9]}, background: red)
+      scene.layer(:layer_1, canvas: [1, 5, 9], background: red)
       scene.layer(:layer_2, background: blue)
-      scene.layer({layer_3: [2, 5, 7]}, background: white)
+      scene.layer(:layer_3, canvas: [2, 5, 7], background: white)
       px.render
       expect(neo.contents)
           .to eq [blue, blue, white, blue, blue,

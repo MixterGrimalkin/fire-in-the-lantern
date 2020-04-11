@@ -3,7 +3,7 @@ class Factory
 
   def initialize(filename = '../.fitl.json')
     @filename = filename
-    @config = load_config
+    @config = read_config
   end
 
   attr_reader :filename, :config
@@ -25,18 +25,22 @@ class Factory
   end
 
   def save_config
-    File.write filename, JSON.pretty_generate(config)
+    write_config config
   end
 
   private
 
-  def load_config
-    write_defaults unless File.exists? filename
-    symbolize_keys JSON.parse File.read filename
+  def read_config
+    if File.exists? filename
+      symbolize_keys JSON.parse File.read filename
+    else
+      write_config DEFAULT_CONFIG
+    end
   end
 
-  def write_defaults
-    File.write filename, JSON.pretty_generate(DEFAULT_CONFIG)
+  def write_config(conf)
+    File.write filename, JSON.pretty_generate(conf)
+    conf
   end
 
   def neo_class

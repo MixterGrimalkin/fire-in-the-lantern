@@ -8,7 +8,7 @@ RSpec.describe Layer do
   let(:neo) { NeoPixel.new pixel_count: 8 }
   let(:px) { Pixelator.new neo_pixel: neo }
 
-  subject(:layer) { px.layer new_layer: (2..5) }
+  subject(:layer) { px.layer :new_layer, canvas: (2..5) }
 
   it 'initializes correctly' do
     expect(layer).to be_a Layer
@@ -79,7 +79,7 @@ RSpec.describe Layer do
   end
 
   it 'draws a sym gradient with odd size' do
-    px.layer a: (0..6)
+    px.layer :a, canvas: (0..6)
     px[:a].gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
     px.render
     expect(neo.contents)

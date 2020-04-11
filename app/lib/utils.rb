@@ -1,4 +1,5 @@
 require 'io/console'
+require 'enumerator'
 
 module Utils
 
@@ -42,6 +43,21 @@ module Utils
           end
     end
     result
+  end
+
+  def print_table(data)
+    max_widths = []
+    data.each do |row|
+      row.each_with_index do |value, i|
+        max_widths[i] = [max_widths[i]||0, value.to_s.size].max
+      end
+    end
+    table = data.collect do |row|
+      row.enum_for(:each_with_index).collect do |value, i|
+        value.to_s.ljust(max_widths[i], ' ')
+      end.join '  '
+    end.join "\n"
+    puts table
   end
 
   def pick_from(list)

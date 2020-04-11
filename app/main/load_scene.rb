@@ -7,14 +7,15 @@ unless (scene_name = ARGV[0])
   exit
 end
 
-px.load_scene scene_name
 px.start
-message 'Press CTRL + C to make it stop'
+px.load_scene scene_name
 
+message 'Press CTRL + C to make it stop'
 wait_for_interrupt
 
-px.clear
 px.stop
+px.clear
+neo.off
 neo.close
 
 message 'Bye'

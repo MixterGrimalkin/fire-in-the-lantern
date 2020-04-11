@@ -2,15 +2,14 @@ require_relative 'fire_in_the_lantern'
 
 include FireInTheLantern
 
+def init
+  px.start
+  puts "   px = #{px.inspect}\n\n"
+end
+
 def layers
-  max_width = 0
-  scn.layers.each do |key, _|
-    max_width = [max_width, key.to_s.length].max
-  end
-  scn.layers.each do |key, layer|
-    puts "#{key.to_s.ljust(max_width)} : #{layer.inspect}"
-  end
-  nil
+  print_table scn.layers.collect { |k, l| [k, l.inspect] }
+  scn.layers.size
 end
 
 def scenes
@@ -23,8 +22,5 @@ def scenes
 end
 
 if (options = ENV['OPTIONS'])
-  if options.include?('-init')
-    px.start
-    puts "   px = #{px.inspect}\n\n"
-  end
+  init if options.include?('-init')
 end
