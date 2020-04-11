@@ -29,22 +29,6 @@ module Utils
     # ignored
   end
 
-  def symbolize_keys(hash)
-    result = {}
-    hash.each do |key, value|
-      result[key.to_sym] =
-          case value
-            when Hash
-              symbolize_keys value
-            when Array
-              symbolize_array value
-            else
-              value
-          end
-    end
-    result
-  end
-
   def print_table(data)
     max_widths = []
     data.each do |row|
@@ -61,15 +45,44 @@ module Utils
   end
 
   def pick_from(list)
-    i = 1
-    options = {}
-    list.each do |item|
-      puts "#{i}. #{item}"
-      options[i] = item
-      i += 1
+    page = 0
+    pages = list.size / 9
+    choice = nil
+    # until choice
+      options = {}
+      i = 1
+      list[(page*9)..((page*8)+8)].each do |item|
+        puts "#{i}. #{item}"
+        options[i] = item
+        i += 1
+      end
+      if page < pages
+        puts '0. more...'
+      end
+      response = STDIN.getch.strip
+      if response == '0' && page < pages
+        page += 1
+      else
+        choice = options[response.to_i]
+      end
+    # end
+    choice
+  end
+
+  def symbolize_keys(hash)
+    result = {}
+    hash.each do |key, value|
+      result[key.to_sym] =
+          case value
+            when Hash
+              symbolize_keys value
+            when Array
+              symbolize_array value
+            else
+              value
+          end
     end
-    response = STDIN.getch.strip
-    options[response.to_i]
+    result
   end
 
   def symbolize_array(array)

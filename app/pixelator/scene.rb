@@ -1,5 +1,6 @@
 require_relative '../lib/colors'
 require_relative 'scene_config'
+require_relative 'layer'
 
 class Scene
   include SceneConfig

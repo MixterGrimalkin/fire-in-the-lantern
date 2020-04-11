@@ -7,7 +7,7 @@ class WsNeoPixel < NeoPixel
 
   def initialize(pixel_count:, mode:, pin:, brightness:, options: {})
     super(pixel_count: pixel_count, mode: mode)
-    @ws = Ws2812::Basic.new(pixel_count, pin, brightness, options)
+    @ws = Ws2812::Basic.new(rgb_count, pin, brightness, options)
     ws.open
   end
 

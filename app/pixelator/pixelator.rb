@@ -2,7 +2,6 @@ require_relative '../lib/color'
 require_relative '../lib/color_tools'
 require_relative '../lib/utils'
 require_relative 'scene'
-require_relative 'layer'
 require 'forwardable'
 require 'json'
 
@@ -13,9 +12,9 @@ class Pixelator
 
   def initialize(neo_pixel:, render_period: 0.01, scenes_dir: 'scenes')
     @neo_pixel = neo_pixel
-    @started = false
-    @render_thread = nil
     @render_period = render_period
+    @render_thread = nil
+    @started = false
     @scenes_dir = scenes_dir
     clear
   end
