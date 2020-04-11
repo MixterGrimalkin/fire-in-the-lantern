@@ -1,18 +1,3 @@
-require_relative '../pixelator/pixelator'
-
-require_relative '../neo_pixel/neo_pixel'
-require_relative '../neo_pixel/ws_neo_pixel'
-require_relative '../neo_pixel/osc_neo_pixel'
-require_relative '../neo_pixel/http_neo_pixel'
-require_relative '../neo_pixel/text_neo_pixel'
-
-require_relative '../lib/color'
-require_relative '../lib/color_a'
-require_relative '../lib/color_tools'
-require_relative '../lib/utils'
-
-require 'json'
-
 class Factory
   include Utils
 
@@ -40,7 +25,7 @@ class Factory
   end
 
   def save_config
-    File.write filename, config.to_json
+    File.write filename, JSON.pretty_generate(config)
   end
 
   private
@@ -51,7 +36,7 @@ class Factory
   end
 
   def write_defaults
-    File.write filename, DEFAULT_CONFIG.to_json
+    File.write filename, JSON.pretty_generate(DEFAULT_CONFIG)
   end
 
   def neo_class
@@ -63,11 +48,11 @@ class Factory
   end
 
   def neo_config
-    config[:NeoPixel].merge(config[neo_key] || {})
+    config.fetch(:NeoPixel).merge(config.fetch(neo_key, {}))
   end
 
   def px_config
-    config[:Pixelator].merge(neo_pixel: neo)
+    config.fetch(:Pixelator).merge(neo_pixel: neo)
   end
 
   DEFAULT_CONFIG = {

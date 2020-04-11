@@ -1,30 +1,20 @@
-require_relative 'factory'
-require 'forwardable'
+require_relative 'fire_in_the_lantern'
 
-include Colors
-include Utils
-include Forwardable
+include FireInTheLantern
 
-def factory
-  @factory ||= Factory.new
+unless (scene_name = ARGV[0])
+  message 'Specify a Scene to load'
+  exit
 end
-def_delegators :factory, :neo, :px
 
-logo
+px.load_scene scene_name
+px.start
+message 'Press CTRL + C to make it stop'
 
-if ARGV[0]
-  px.load_scene ARGV[0]
-  px.start
+wait_for_interrupt
 
-  message 'Press CTRL + C to make it stop'
-
-  wait_for_interrupt
-
-  px.clear
-  px.stop
-  neo.close
-else
-  message 'Specify a scene to load'
-end
+px.clear
+px.stop
+neo.close
 
 message 'Bye'

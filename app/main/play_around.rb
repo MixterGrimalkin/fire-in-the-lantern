@@ -1,16 +1,6 @@
-require_relative 'factory'
-require 'forwardable'
+require_relative 'fire_in_the_lantern'
 
-include Colors
-include Utils
-include Forwardable
-
-def factory
-  @factory ||= Factory.new
-end
-def_delegators :factory, :neo, :px, :scn, :clear
-
-logo
+include FireInTheLantern
 
 def layers
   max_width = 0

@@ -1,3 +1,5 @@
+require 'io/console'
+
 module Utils
 
   LOGO = %q{
@@ -42,6 +44,18 @@ module Utils
     result
   end
 
+  def pick_from(list)
+    i = 1
+    options = {}
+    list.each do |item|
+      puts "#{i}. #{item}"
+      options[i] = item
+      i += 1
+    end
+    response = STDIN.getch.strip
+    options[response.to_i]
+  end
+
   def symbolize_array(array)
     array.collect do |value|
       case value
@@ -58,7 +72,7 @@ module Utils
   def sum_array(array)
     return 0 if array.empty?
 
-    array.inject(0) { |sum, value| sum + value }
+    array.inject(0.0) { |sum, value| sum + value }
   end
 
   def avg_array(array)

@@ -3,10 +3,8 @@ require_relative '../lib/color_tools'
 require_relative '../lib/utils'
 require_relative 'scene'
 require_relative 'layer'
-# require 'active_support/all'
 require 'forwardable'
 require 'json'
-require 'yaml'
 
 class Pixelator
   include ColorTools
@@ -81,7 +79,7 @@ class Pixelator
         "#{scenes_dir}/#{scene_name}.json",
         scene.to_conf.to_json
     )
-    "Saved '#{scene_name}'"
+    "Saved #{scene_name}"
   end
 
   def load_scene(scene_name)
@@ -92,7 +90,7 @@ class Pixelator
         ))
     )
     render
-    "Loaded '#{scene_name}'"
+    "Loaded #{scene_name}"
   end
 
   def inspect
