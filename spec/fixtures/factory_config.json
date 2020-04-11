@@ -1,0 +1,31 @@
+{
+  "Adapter": "OscNeoPixel",
+  "Pixelator": {
+    "render_period": 4,
+    "scenes_dir": "scenes"
+  },
+  "NeoPixel": {
+    "pixel_count": 99,
+    "mode": "grb"
+  },
+  "HttpNeoPixel": {
+    "host": "with.the.most",
+    "port": 4567,
+    "path": "data"
+  },
+  "OscNeoPixel": {
+    "host": "localhost",
+    "port": 3333,
+    "address": "your_house"
+  },
+  "WsNeoPixel": {
+    "pin": 18,
+    "brightness": 255,
+    "options": {
+      "freq": 800000,
+      "dma": 5,
+      "invert": false,
+      "channel": 0
+    }
+  }
+}

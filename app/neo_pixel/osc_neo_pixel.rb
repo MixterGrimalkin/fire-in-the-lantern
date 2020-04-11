@@ -10,12 +10,10 @@ class OscNeoPixel < NeoPixel
     @address = address
   end
 
+  attr_reader :client, :address
+
   def show(buffer)
     client.send OSC::Message.new("/#{address}", buffer.join(' '))
   end
-
-  private
-
-  attr_reader :client, :address
 
 end

@@ -209,14 +209,16 @@ RSpec.describe Pixelator do
       px[:b].pattern_scroller.start -2
       px[:b].hide
 
-      expect(File).to receive(:write).with('scenes/pxfile.json', saved_scene)
+      expect(File).to receive(:write)
+                          .with('scenes/my_scene.json', saved_scene)
 
-      px.save_scene 'pxfile'
+      px.save_scene 'my_scene'
     end
 
     it '.loads' do
-      allow(File).to receive(:read).with('scenes/pxfile.json')
-                         .and_return(File.read('./spec/fixtures/pxfile.json'))
+      allow(File).to receive(:read)
+                         .with('scenes/my_scene.json')
+                         .and_return(File.read('./spec/fixtures/scene.json'))
 
       px.clear
       expect(neo.contents)
@@ -224,7 +226,7 @@ RSpec.describe Pixelator do
                   black, black, black, black, black]
       expect(px.layers.size).to eq 1
 
-      px.load_scene('pxfile')
+      px.load_scene('my_scene')
 
       expect(neo.contents)
           .to eq [faded_dk_red, black, white, black, white,
