@@ -13,6 +13,15 @@ def layers
   nil
 end
 
+def scenes
+  scene = pick_from(
+      Dir.glob("#{px.scenes_dir}/*.json").collect do |filename|
+        filename.split('/')[-1].gsub('.json', '')
+      end
+  )
+  px.load_scene scene if scene
+end
+
 if (options = ENV['OPTIONS'])
   if options.include?('-init')
     px.start
