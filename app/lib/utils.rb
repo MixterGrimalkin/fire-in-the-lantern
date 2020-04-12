@@ -45,28 +45,28 @@ module Utils
   end
 
   def pick_from(list)
+    pages = (list.size / 9.0).ceil
     page = 0
-    pages = list.size / 9
-    choice = nil
-    # until choice
-      options = {}
+    options = {}
+    list.each_slice(9) do |items|
+      page += 1
+      options[page] = {}
       i = 1
-      list[(page*9)..((page*8)+8)].each do |item|
+      items.each do |item|
         puts "#{i}. #{item}"
-        options[i] = item
+        options[page][i] = item
         i += 1
       end
       if page < pages
         puts '0. more...'
       end
+      puts
+
       response = STDIN.getch.strip
-      if response == '0' && page < pages
-        page += 1
-      else
-        choice = options[response.to_i]
-      end
-    # end
-    choice
+      next if response == '0' && page < pages
+
+      return options[page][response.to_i]
+    end
   end
 
   def symbolize_keys(hash)
