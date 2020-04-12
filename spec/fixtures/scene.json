@@ -84,6 +84,12 @@
       "pattern_scroller": {
         "period": -2.0,
         "over_sample": 1
+      },
+      "modifiers": {
+        "bouncers": [true],
+        "initial_alphas": [0.0],
+        "target_alphas": [1.0],
+        "target_times": [0.5]
       }
     }
   ]

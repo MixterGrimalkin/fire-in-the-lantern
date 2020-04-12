@@ -75,12 +75,16 @@ class Layer
     "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δl=#{layer_scroller} δp=#{pattern_scroller}>"
   end
 
-  def fade_in(time = 0)
-    modifiers.fade time, 0, 1
+  def fade_in(time = 0, min: 0, max: 1, bounce: false)
+    fade time, start: min, target: max, bounce: bounce
   end
 
-  def fade_out(time = 0)
-    modifiers.fade time, 1, 0
+  def fade_out(time = 0, min: 0, max: 1, bounce: false)
+    fade time, start: max, target: min, bounce: bounce
+  end
+
+  def fade(time, start:, target:, bounce: false)
+    modifiers.fade time, start: start, target: target, bounce: bounce
   end
 
   def update

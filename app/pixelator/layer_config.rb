@@ -14,6 +14,9 @@ module LayerConfig
     if pattern_scroller.last_updated
       result.merge!(pattern_scroller: pattern_scroller.to_conf)
     end
+    if modifiers.active?
+      result.merge!(modifiers: modifiers.to_conf)
+    end
     result
   end
 
@@ -23,9 +26,10 @@ module LayerConfig
     @opacity = conf.fetch(:opacity, 1.0)
     @visible = conf.fetch(:visible, true)
     @pattern = conf.fetch(:pattern).collect { |string| ColorA.from_s(string) }
-    @modifiers = Modifiers.new pattern.size
     layer_scroller.from_conf(conf[:layer_scroller]) if conf[:layer_scroller]
     pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]
+    @modifiers = Modifiers.new(pattern.size).from_conf(conf[:modifiers]) if conf[:modifiers]
+    self
   end
 
 end

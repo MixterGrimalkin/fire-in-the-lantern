@@ -1,7 +1,12 @@
+require_relative 'modifiers_config'
+
 class Modifiers
+  include ModifiersConfig
 
   def initialize(size)
+    @size = size
     @alphas = [nil] * size
+    @bouncers = [false] * size
     @initial_alphas = [nil] * size
     @target_alphas = [nil] * size
     @target_times = [nil] * size
@@ -9,37 +14,58 @@ class Modifiers
     @last_updated = Time.now
   end
 
-  attr_accessor :alphas, :initial_alphas, :target_alphas,
-                :target_times, :elapsed_times, :last_updated
+  attr_reader :size, :alphas, :bouncers, :initial_alphas, :target_alphas,
+              :target_times, :elapsed_times, :last_updated
 
-  def fade(time, initial_alpha, target_alpha)
-    alphas.size.times do |i|
-      fade_pixel i, time, initial_alpha, target_alpha
+  def active?
+    target_alphas.any?
+  end
+
+  def fade(time, start:, target:, bounce:)
+    size.times do |i|
+      fade_pixel i, time, start: start, target: target, bounce: bounce
     end
   end
 
-  def fade_pixel(pixel, time, initial_alpha, target_alpha)
+  def fade_pixel(pixel, time, start:, target:, bounce:)
     if time == 0
-      alphas[pixel] = target_alpha.to_f
+      alphas[pixel] = target.to_f
       elapsed_times[pixel] = nil
     else
-      alphas[pixel] = initial_alpha.to_f
-      initial_alphas[pixel] = initial_alpha.to_f
-      target_alphas[pixel] = target_alpha.to_f
+      alphas[pixel] = start.to_f
+      bouncers[pixel] = bounce
+      initial_alphas[pixel] = start.to_f
+      target_alphas[pixel] = target.to_f
       target_times[pixel] = time.to_f
       elapsed_times[pixel] = 0.0
     end
   end
 
   def update(elapsed_seconds)
-    alphas.size.times do |i|
-      if elapsed_times[i]
-        elapsed_times[i] += elapsed_seconds
-        alphas[i] = initial_alphas[i] + (
-            [1.0, (elapsed_times[i] / target_times[i])].min *
-                (target_alphas[i] - initial_alphas[i])
+    size.times do |pixel|
+      if elapsed_times[pixel]
+        elapsed_times[pixel] += elapsed_seconds
+        alphas[pixel] = initial_alphas[pixel] + (
+        [1.0, (elapsed_times[pixel] / target_times[pixel])].min *
+            (target_alphas[pixel] - initial_alphas[pixel])
         )
+        if finished_fading? pixel
+          if bouncers[pixel]
+            initial_alphas[pixel], target_alphas[pixel] = target_alphas[pixel], initial_alphas[pixel]
+            elapsed_times[pixel] = 0.0
+          else
+            elapsed_times[pixel] = nil
+          end
+        end
       end
+    end
+  end
+
+  def finished_fading?(pixel)
+    if target_alphas[pixel] > initial_alphas[pixel]
+      alphas[pixel] >= target_alphas[pixel]
+    else
+      alphas[pixel] <= target_alphas[pixel]
     end
   end
 

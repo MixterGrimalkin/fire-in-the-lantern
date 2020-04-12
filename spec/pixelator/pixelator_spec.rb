@@ -169,6 +169,12 @@ RSpec.describe Pixelator do
            pattern_scroller: {
                period: -2.0,
                over_sample: 1
+           },
+           modifiers: {
+               bouncers: [true, true, true],
+               initial_alphas: [1.0, 1.0, 1.0],
+               target_alphas: [0.0, 0.0, 0.0],
+               target_times: [2.0, 2.0, 2.0]
            }
           }
       ]}.to_json
@@ -194,6 +200,7 @@ RSpec.describe Pixelator do
       px[:a].layer_scroller.over_sample = 8
       px[:b].pattern_scroller.start -2
       px[:b].hide
+      px[:b].fade_out 2, bounce: true
 
       expect(File).to receive(:write)
                           .with('scenes/my_scene.json', saved_scene)
@@ -220,15 +227,26 @@ RSpec.describe Pixelator do
       expect(px.layers.size).to eq 4
       expect(px[:a].opacity).to eq 0.5
       expect(px[:a].visible).to eq true
+      expect(px[:a].modifiers.active?).to eq false
       expect(px[:a].layer_scroller.period).to eq 1
       expect(px[:a].layer_scroller.over_sample).to eq 4
 
       expect(px[:b].opacity).to eq(1.0)
       expect(px[:b].visible).to eq true
+      expect(px[:b].modifiers.active?).to eq false
       expect(px[:b].pattern_scroller.period).to eq -2
       expect(px[:b].pattern_scroller.over_sample).to eq 1
 
       expect(px[:c].visible).to eq false
+      expect(px[:c].modifiers.active?).to eq true
+      expect(px[:c].modifiers.pixel_config(0))
+          .to include(
+                  bouncer: true,
+                  initial_alpha: 0.0,
+                  current_alpha: 0.0,
+                  target_alpha: 1.0,
+                  target_time: 0.5
+              )
     end
 
   end
