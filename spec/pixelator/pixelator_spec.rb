@@ -279,7 +279,7 @@ RSpec.describe Pixelator do
     end
 
     it 'solos a single layer' do
-      expect{ scene.solo :not_exist }.to raise_error(LayerNotFound)
+      expect { scene.solo :not_exist }.to raise_error(LayerNotFound)
 
       scene.solo(:b)
       px.render
@@ -374,6 +374,49 @@ RSpec.describe Pixelator do
       expect(neo.contents)
           .to eq [blue, blue, blue, blue, blue,
                   blue, blue, blue, blue, blue]
+    end
+  end
+
+  context 'Cross-fading' do
+    let(:current_scene) do
+      scene = px.scene
+      scene.layer :a, background: red
+      scene
+    end
+    let(:new_scene) do
+      scene = Scene.new(px.pixel_count)
+      scene.layer :a, background: blue
+      scene
+    end
+
+    it 'switches scene' do
+      expect(px.scene).to eq current_scene
+      px.set_scene new_scene
+      expect(px.scene).to eq new_scene
+    end
+
+    it 'fades in a scene' do
+      expect(px).to receive(:fade_time_elapsed).and_return(0, 0.5, 1, 2)
+
+      expect(px.scene).to eq current_scene
+      px.set_scene new_scene, crossfade: 2
+      expect(px.scene).to eq current_scene
+
+      px.render
+      expect(neo.contents).to eq [red] * 10
+
+      px.render
+      expect(neo.contents).to eq [blue.blend_over(red, 0.25)] * 10
+
+      px.render
+      expect(neo.contents).to eq [blue.blend_over(red, 0.5)] * 10
+
+      px.render
+      expect(neo.contents).to eq [blue] * 10
+      expect(px.scene).to eq new_scene
+
+      px.render
+      expect(neo.contents).to eq [blue] * 10
     end
   end
 end

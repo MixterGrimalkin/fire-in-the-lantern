@@ -12,13 +12,13 @@ def layers
   scn.layers.size
 end
 
-def scenes
+def scenes(crossfade = px.default_crossfade)
   scene = pick_from(
       Dir.glob("#{px.scenes_dir}/*.json").collect do |filename|
         filename.split('/')[-1].gsub('.json', '')
       end
   )
-  px.load_scene scene if scene
+  px.load_scene(scene, crossfade: crossfade) if scene
 end
 
 if (options = ENV['OPTIONS'])

@@ -10,17 +10,21 @@ class Pixelator
   include Utils
   extend Forwardable
 
-  def initialize(neo_pixel:, render_period: 0.01, scenes_dir: 'scenes')
+  def initialize(neo_pixel:, render_period: 0.01, scenes_dir: 'scenes', default_crossfade: 0)
     @neo_pixel = neo_pixel
     @render_period = render_period
     @render_thread = nil
     @started = false
     @scenes_dir = scenes_dir
+    @default_crossfade = default_crossfade
     clear
   end
 
   def clear
     @scene = Scene.new(pixel_count)
+    @incoming_scene = nil
+    @crossfade_time = nil
+    @crossfade_started_at = nil
     render
   end
 
@@ -28,12 +32,13 @@ class Pixelator
     neo_pixel.pixel_count
   end
 
-  attr_reader :neo_pixel, :render_period, :started, :scene, :scenes_dir
+  attr_reader :neo_pixel, :render_period, :started, :scene, :incoming_scene,
+              :crossfade_time, :default_crossfade, :scenes_dir
 
   def_delegators :scene, :layers, :layer, :base, :[], :[]=
 
   def render
-    neo_pixel.write(scene.build_buffer).render
+    neo_pixel.write(build_crossfade_buffer).render
   end
 
   def start(period = render_period)
@@ -44,6 +49,7 @@ class Pixelator
     @render_thread = Thread.new do
       while started
         scene.update
+        incoming_scene.update if incoming_scene
         render
         sleep period
       end
@@ -81,19 +87,59 @@ class Pixelator
     "Saved #{scene_name}"
   end
 
-  def load_scene(scene_name)
-    @scene = Scene.new pixel_count
-    scene.from_conf(
-        symbolize_keys(JSON.parse(
-            File.read("#{scenes_dir}/#{scene_name}.json")
-        ))
-    )
+  def load_scene(scene_name, crossfade: default_crossfade)
+    set_scene create_scene_from_file(scene_name), crossfade: crossfade
     render
     "Loaded #{scene_name}"
   end
 
+  def set_scene(new_scene, crossfade: default_crossfade)
+    if crossfade == 0
+      @scene = new_scene
+      @crossfade_time = nil
+    else
+      @incoming_scene = new_scene
+      @crossfade_time = crossfade
+      @crossfade_started_at = Time.now
+    end
+  end
+
   def inspect
     "#<Pixelator[#{neo_pixel.class}] pixels:#{pixel_count} layers:#{layers.size} #{started ? 'STARTED' : 'STOPPED'}>"
+  end
+
+  private
+
+  def create_scene_from_file(scene_name)
+    result = Scene.new pixel_count
+    result.from_conf(
+        symbolize_keys(JSON.parse(
+            File.read("#{scenes_dir}/#{scene_name}.json")
+        ))
+    )
+    result
+  end
+
+  def fade_time_elapsed
+    Time.now - @crossfade_started_at
+  end
+
+  def build_crossfade_buffer
+    buffer = scene.build_buffer
+    if crossfade_time && incoming_scene
+      incoming_buffer = incoming_scene.build_buffer
+      elapsed = fade_time_elapsed.to_f
+      if elapsed >= crossfade_time
+        @scene = incoming_scene
+        @incoming_scene = nil
+        @crossfade_time = nil
+        buffer = incoming_buffer
+      else
+        alpha = elapsed / crossfade_time
+        buffer = blend_range buffer, incoming_buffer, alpha
+      end
+    end
+    buffer
   end
 end
 

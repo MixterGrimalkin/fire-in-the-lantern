@@ -2,7 +2,8 @@
   "Adapter": "OscNeoPixel",
   "Pixelator": {
     "render_period": 4,
-    "scenes_dir": "scenes"
+    "scenes_dir": "scenes",
+    "default_crossfade": 0
   },
   "NeoPixel": {
     "pixel_count": 99,

@@ -63,7 +63,8 @@ class Factory
       Adapter: 'OscNeoPixel',
       Pixelator: {
           render_period: 0.01,
-          scenes_dir: 'scenes'
+          scenes_dir: 'scenes',
+          default_crossfade: 0
       },
       NeoPixel: {
           pixel_count: 25,

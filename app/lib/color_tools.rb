@@ -73,6 +73,22 @@ module ColorTools
     end
   end
 
+  def blend_range(under, over, alpha)
+    raise BlendRangeMismatch unless under.size==over.size
+
+    if alpha == 1.0
+      over
+    elsif alpha == 0.0
+      under
+    else
+      result = []
+      over.each_with_index do |color, i|
+        result << color.blend_over(under[i], alpha)
+      end
+      result
+    end
+  end
+
   def draw_gradient(surface_size, config)
     config = {
         start: 0, width: surface_size, sym: false,
