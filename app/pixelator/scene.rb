@@ -26,6 +26,12 @@ class Scene
     layers.values.each(&:show)
   end
 
+  def solo(layer_key)
+    raise LayerNotFound, layer_key unless layers[layer_key]
+    hide_all
+    layers[layer_key].show
+  end
+
   def update
     layers.values.each(&:update)
   end

@@ -278,6 +278,19 @@ RSpec.describe Pixelator do
                   red, black, red, black, black]
     end
 
+    it 'solos a single layer' do
+      expect{ scene.solo :not_exist }.to raise_error(LayerNotFound)
+
+      scene.solo(:b)
+      px.render
+
+      expect(layer_1.visible).to eq false
+      expect(layer_2.visible).to eq true
+      expect(neo.contents)
+          .to eq [black, black, red, black, black,
+                  red, black, red, black, black]
+    end
+
     it 'hides all layers' do
       scene.hide_all
       px.render

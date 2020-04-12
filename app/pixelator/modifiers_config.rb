@@ -26,7 +26,7 @@ module ModifiersConfig
       alphas[pixel] = conf[:initial_alphas][pixel]
       target_alphas[pixel] = conf[:target_alphas][pixel]
       target_times[pixel] = conf[:target_times][pixel]
-      elapsed_times[pixel] = 0.0
+      elapsed_times[pixel] = 0.0 if target_times[pixel]
     end
     @bouncers = conf[:bouncers]
     self
