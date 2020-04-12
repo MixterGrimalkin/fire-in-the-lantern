@@ -50,6 +50,8 @@ class Scroller
   end
 
   def scroll(pattern)
+    @offset %= ((offset >= 0 ? pattern.size : -pattern.size) * over_sample)
+
     over_sampled = [ColorA.new] * (pattern.size * over_sample)
     pixel = 0
     pattern.each do |color_a|

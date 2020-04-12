@@ -62,6 +62,12 @@ class Layer
     pattern[pixel] = ColorA.new(color, alpha)
   end
 
+  def set_range(range, color, alpha = 1.0)
+    range.each do |pixel|
+      set(pixel, color, alpha)
+    end
+  end
+
   def fill(color, alpha = 1.0)
     @pattern = pattern.collect { ColorA.new(color, alpha) }
   end
@@ -125,6 +131,6 @@ class Layer
   end
 
   def check_pixel_number(pixel)
-    raise PixelOutOfRangeError unless (0..(pattern.size-1)).include?(pixel)
+    raise PixelOutOfRangeError, pixel unless (0..(pattern.size-1)).include?(pixel)
   end
 end

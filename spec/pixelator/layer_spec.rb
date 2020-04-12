@@ -7,6 +7,7 @@ RSpec.describe Layer do
 
   let(:neo) { NeoPixel.new pixel_count: 8 }
   let(:px) { Pixelator.new neo_pixel: neo }
+  let(:base_layer) { px.scene.base }
 
   subject(:layer) { px.layer :new_layer, canvas: (2..5) }
 
@@ -36,6 +37,14 @@ RSpec.describe Layer do
     px.render
     expect(neo.contents)
         .to eq [blk, blk, red, red, red, red, blk, blk]
+  end
+
+  it 'sets a range' do
+    base_layer.set_range (0..1), red
+    base_layer.set_range [3, 5, 6], blue
+    px.render
+    expect(neo.contents)
+        .to eq [red, red, blk, blue, blk, blue, blue, blk]
   end
 
   it 'applies layer opacity' do
@@ -96,7 +105,7 @@ RSpec.describe Layer do
   end
 
   it 'draws a smaller gradient' do
-    px.base.gradient red: 100, green: [0,30], start: 2, width: 4
+    px.base.gradient red: 100, green: [0, 30], start: 2, width: 4
     px.render
     expect(neo.contents)
         .to eq([blk,
@@ -111,7 +120,7 @@ RSpec.describe Layer do
   end
 
   it 'draws a smaller sym gradient' do
-    px.base.gradient red: 100, green: [0,30], start: 1, width: 5, sym: true
+    px.base.gradient red: 100, green: [0, 30], start: 1, width: 5, sym: true
     px.render
     expect(neo.contents)
         .to eq([blk,
@@ -125,26 +134,6 @@ RSpec.describe Layer do
                ])
   end
 
-  it 'scrolls layer' do
-    layer.fill red
-
-    layer.layer_scroller.update 1
-    px.render
-    expect(neo.contents)
-        .to eq [blk, blk, red, red, red, red, blk, blk]
-
-    layer.layer_scroller.start 1
-    layer.layer_scroller.update 3.5
-    px.render
-    expect(neo.contents)
-        .to eq [red, blk, blk, blk, blk, red, red, red]
-
-    layer.layer_scroller.start -2
-    layer.layer_scroller.update 6.5
-    px.render
-    expect(neo.contents)
-        .to eq [blk, blk, red, red, red, red, blk, blk]
-  end
 
   it 'sets opacity by pixel' do
     px.base.fill red
@@ -158,8 +147,8 @@ RSpec.describe Layer do
   end
 
   it 'throws an error when pixel out of range' do
-    expect{ layer.set 4, red }.to raise_error(PixelOutOfRangeError)
-    expect{ layer[-1] = red }.to raise_error(PixelOutOfRangeError)
+    expect { layer.set 4, red }.to raise_error(PixelOutOfRangeError)
+    expect { layer[-1] = red }.to raise_error(PixelOutOfRangeError)
   end
 
 end
