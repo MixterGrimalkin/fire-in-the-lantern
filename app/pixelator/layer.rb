@@ -75,11 +75,11 @@ class Layer
     "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δl=#{layer_scroller} δp=#{pattern_scroller}>"
   end
 
-  def fade_in(time)
+  def fade_in(time = 0)
     modifiers.fade time, 0, 1
   end
 
-  def fade_out(time)
+  def fade_out(time = 0)
     modifiers.fade time, 1, 0
   end
 

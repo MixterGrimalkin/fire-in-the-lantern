@@ -19,16 +19,21 @@ class Modifiers
   end
 
   def fade_pixel(pixel, time, initial_alpha, target_alpha)
-    alphas[pixel] = initial_alpha.to_f
-    initial_alphas[pixel] = initial_alpha.to_f
-    target_alphas[pixel] = target_alpha.to_f
-    target_times[pixel] = time.to_f
-    elapsed_times[pixel] = 0.0
+    if time == 0
+      alphas[pixel] = target_alpha.to_f
+      elapsed_times[pixel] = nil
+    else
+      alphas[pixel] = initial_alpha.to_f
+      initial_alphas[pixel] = initial_alpha.to_f
+      target_alphas[pixel] = target_alpha.to_f
+      target_times[pixel] = time.to_f
+      elapsed_times[pixel] = 0.0
+    end
   end
 
   def update(elapsed_seconds)
     alphas.size.times do |i|
-      if alphas[i]
+      if elapsed_times[i]
         elapsed_times[i] += elapsed_seconds
         alphas[i] = initial_alphas[i] + (
             [1.0, (elapsed_times[i] / target_times[i])].min *
@@ -47,7 +52,7 @@ class Modifiers
     result = []
     pattern.each_with_index do |color_a, i|
       result[i] = if alphas[i]
-                    ColorA.new(color_a.color, alphas[i])
+                    ColorA.new(color_a.color, alphas[i] * color_a.alpha)
                   else
                     pattern[i]
                   end

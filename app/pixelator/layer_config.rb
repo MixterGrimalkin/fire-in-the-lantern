@@ -23,6 +23,7 @@ module LayerConfig
     @opacity = conf.fetch(:opacity, 1.0)
     @visible = conf.fetch(:visible, true)
     @pattern = conf.fetch(:pattern).collect { |string| ColorA.from_s(string) }
+    @modifiers = Modifiers.new pattern.size
     layer_scroller.from_conf(conf[:layer_scroller]) if conf[:layer_scroller]
     pattern_scroller.from_conf(conf[:pattern_scroller]) if conf[:pattern_scroller]
   end
