@@ -75,13 +75,18 @@ class Layer
     "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δl=#{layer_scroller} δp=#{pattern_scroller}>"
   end
 
-  def fade_in(pixels, time, color=nil, alpha=nil)
+  def fade_in(time)
+    modifiers.fade time, 0, 1
+  end
 
+  def fade_out(time)
+    modifiers.fade time, 1, 0
   end
 
   def update
     layer_scroller.check_and_update
     pattern_scroller.check_and_update
+    modifiers.check_and_update
   end
 
   def render_over(base_layer)
@@ -110,7 +115,9 @@ class Layer
   end
 
   def chop_pattern
-    pattern_scroller.scroll(pattern)[0..canvas.size-1]
+    pattern_scroller.scroll(
+        modifiers.apply(pattern)
+    )[0..canvas.size-1]
   end
 
   def check_pixel_number(pixel)

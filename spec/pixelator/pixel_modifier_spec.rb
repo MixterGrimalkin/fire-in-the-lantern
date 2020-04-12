@@ -11,6 +11,8 @@ RSpec.describe 'Pixel Modifiers' do
   let(:black) { Color.new }
   let(:white) { Color.new 255 }
   let(:white_50) { Color.new 127 }
+  let(:red) { Color.new 255, 0, 0 }
+  let(:red_50) { Color.new 127, 0, 0 }
 
   before do
     px.render
@@ -18,23 +20,41 @@ RSpec.describe 'Pixel Modifiers' do
         .to eq [black, black, black, black, black]
   end
 
-  it 'fades in a single pixel' #do
-    # layer.fade_in 2, 1, white, 1.0
-    #
-    # layer.modifiers.update 0.5
-    # px.render
-    # expect(neo.contents)
-    #     .to eq [black, black, white_50, black, black]
-    #
-    # layer.modifiers.update 0.5
-    # px.render
-    # expect(neo.contents)
-    #     .to eq [black, black, white, black, black]
-    #
-    # layer.modifiers.update 0.5
-    # px.render
-    # expect(neo.contents)
-    #     .to eq [black, black, white, black, black]
-  # end
+  it 'fades entire layer in and out' do
+    layer.set(1, red, 0)
+    layer.set(2, white, 0)
+    layer.set(3, red, 0)
+
+    px.render
+    expect(neo.contents).to eq [black, black, black, black, black]
+
+    layer.fade_in 1
+
+    layer.modifiers.update 0.5
+    px.render
+    expect(neo.contents).to eq [black, red_50, white_50, red_50, black]
+
+    layer.modifiers.update 0.5
+    px.render
+    expect(neo.contents).to eq [black, red, white, red, black]
+
+    layer.modifiers.update 0.5
+    px.render
+    expect(neo.contents).to eq [black, red, white, red, black]
+
+    layer.fade_out 1
+
+    layer.modifiers.update 0.5
+    px.render
+    expect(neo.contents).to eq [black, red_50, white_50, red_50, black]
+
+    layer.modifiers.update 0.5
+    px.render
+    expect(neo.contents).to eq [black, black, black, black, black]
+
+    layer.modifiers.update 0.5
+    px.render
+    expect(neo.contents).to eq [black, black, black, black, black]
+  end
 
 end
