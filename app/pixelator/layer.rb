@@ -99,12 +99,12 @@ class Layer
     modifiers.check_and_update
   end
 
-  def render_over(base_layer)
+  def render_over(base_layer, alpha: 1.0)
     return base_layer unless visible
 
     build_buffer(base_layer.size).each_with_index do |color_a, i|
       unless color_a.nil? || color_a.color.nil?
-        base_layer[i] = color_a.color.blend_over(base_layer[i], color_a.alpha * opacity)
+        base_layer[i] = color_a.color.blend_over(base_layer[i], color_a.alpha * opacity * alpha)
       end
     end
     base_layer

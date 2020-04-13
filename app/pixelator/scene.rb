@@ -58,8 +58,12 @@ class Scene
   end
 
   def build_buffer
-    layers.values.inject([BLACK]*pixels.size) do |buffer, layer|
-      layer.render_over buffer
+    render_over [BLACK]*pixels.size
+  end
+
+  def render_over(base_layer, alpha: 1.0)
+    layers.values.inject(base_layer) do |buffer, layer|
+      layer.render_over buffer, alpha: alpha
     end
   end
 
