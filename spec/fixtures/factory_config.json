@@ -5,6 +5,10 @@
     "scenes_dir": "scenes",
     "default_crossfade": 0
   },
+  "OscServer": {
+    "port": 4224,
+    "address": "no_fixed_abode"
+  },
   "NeoPixel": {
     "pixel_count": 99,
     "mode": "grb"

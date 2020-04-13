@@ -17,6 +17,10 @@ class Factory
     @px ||= Pixelator.new(px_config)
   end
 
+  def osc
+    @osc ||= OscServer.new(osc_config)
+  end
+
   def scn
     px.scene
   end
@@ -33,7 +37,7 @@ class Factory
 
   def read_config
     if File.exists? filename
-      symbolize_keys JSON.parse File.read filename
+      write_config DEFAULT_CONFIG.merge(symbolize_keys JSON.parse File.read filename)
     else
       write_config DEFAULT_CONFIG
     end
@@ -60,12 +64,20 @@ class Factory
     config.fetch(:Pixelator).merge(neo_pixel: neo)
   end
 
+  def osc_config
+    config.fetch(:OscServer).merge(neo_pixel: neo)
+  end
+
   DEFAULT_CONFIG = {
       Adapter: 'OscNeoPixel',
       Pixelator: {
           render_period: 0.01,
           scenes_dir: 'scenes',
           default_crossfade: 1
+      },
+      OscServer: {
+          port: 3333,
+          address: 'neo_pixel'
       },
       NeoPixel: {
           pixel_count: 25,

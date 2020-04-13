@@ -1,9 +1,13 @@
 {
   "Adapter": "OscNeoPixel",
   "Pixelator": {
-    "render_period": 0.01,
+    "render_period": 0,
     "scenes_dir": "scenes",
     "default_crossfade": 5
+  },
+  "OscServer": {
+    "port": 3333,
+    "address": "neo_pixel"
   },
   "NeoPixel": {
     "pixel_count": 35,
@@ -15,9 +19,9 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "localhost",
+    "host": "192.168.0.34",
     "port": 3333,
-    "address": "data"
+    "address": "neo_pixel"
   },
   "WsNeoPixel": {
     "pin": 18,

@@ -7,6 +7,7 @@ RSpec.describe Factory do
   let(:neo) { factory.neo }
   let(:px) { factory.px }
   let(:scn) { factory.scn }
+  let(:osc) { factory.osc }
 
   it 'creates objects' do
     expect(neo).to be_a OscNeoPixel
@@ -19,6 +20,11 @@ RSpec.describe Factory do
 
     expect(scn).to be_a Scene
     expect(scn.layers.size).to eq 1
+
+    expect{ osc }.to output(anything).to_stderr
+    expect(osc).to be_a OscServer
+    expect(osc.server_port).to eq 4224
+    expect(osc.osc_address).to eq 'no_fixed_abode'
 
     expect(px.neo_pixel).to eq neo
     expect(px.scene).to eq scn
