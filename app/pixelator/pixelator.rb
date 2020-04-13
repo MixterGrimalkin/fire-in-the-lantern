@@ -46,11 +46,19 @@ class Pixelator
 
     @started = true
 
+    # timing_buffer = []
+
     @render_thread = Thread.new do
       while started
+        # start_refresh = Time.now
         scene.update
         incoming_scene.update if incoming_scene
         render
+        # timing_buffer << (Time.now - start_refresh)
+        # if timing_buffer.size >= 50
+        #   puts "avg #{((timing_buffer.sum / timing_buffer.size)*1000).floor}ms"
+        #   timing_buffer = []
+        # end
         sleep period
       end
     end

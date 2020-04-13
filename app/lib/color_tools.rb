@@ -63,8 +63,8 @@ module ColorTools
       under
     else
       result = []
-      over.each_with_index do |color, i|
-        result << blend(under[i], color, alpha)
+      over.size.times do |i|
+        result << blend(under[i], over[i], alpha)
       end
       result
     end
