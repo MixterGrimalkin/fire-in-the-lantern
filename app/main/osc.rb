@@ -4,6 +4,7 @@ require_relative 'fire_in_the_lantern'
 include FireInTheLantern
 
 message 'Running in Direct OSC mode'
+neo.test
 osc.start
 message 'Press CTRL + C to exit'
 

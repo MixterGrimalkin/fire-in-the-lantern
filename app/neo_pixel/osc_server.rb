@@ -24,8 +24,8 @@ class OscServer
   attr_reader :server, :clients, :server_ip, :server_port, :osc_address
 
   def start
+    message "Starting Server on: #{server_ip}:#{server_port}/#{osc_address}"
     Thread.new do
-      message "Starting Server: #{server_ip}:#{server_port}/#{osc_address}"
       server.run
     end
   end
