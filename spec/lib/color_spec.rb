@@ -9,7 +9,7 @@ RSpec.describe Color do
     expect(Color.new(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
   end
 
-  it 'compares ignoring white' do
+  it 'compares colors' do
     expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 3)).to eq false
     expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3)).to eq true
     expect(Color.new(1, 2, 3) == Color.new(1, 2, 3, 4)).to eq false
@@ -18,9 +18,6 @@ RSpec.describe Color do
     expect(Color.new(1, 2, 3) != Color.new(1, 2, 99)).to eq true
     expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 99, 4)).to eq false
     expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 99, 4)).to eq true
-  end
-
-  it 'compares with white' do
     expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 3, 4)).to eq true
     expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3, 4)).to eq false
     expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 3, 99)).to eq false
