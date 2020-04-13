@@ -43,7 +43,7 @@ module ColorTools
       end
     end
     ColorA.new(
-        avg_array(buffer[:color], zero: Color.new.unbound).bound,
+        avg_array(buffer[:color], zero: Color.new).bound,
         avg_array(buffer[:alpha])
     )
   end

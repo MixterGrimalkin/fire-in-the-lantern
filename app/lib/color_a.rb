@@ -7,14 +7,6 @@ class ColorA
     @alpha = alpha
   end
 
-  def a!
-    self
-  end
-
-  def c!
-    color
-  end
-
   attr_accessor :color, :alpha
 
   def ==(other)
@@ -31,4 +23,13 @@ class ColorA
     comps = color_a_string[1..-2].split('x')
     ColorA.new Color.from_s(comps[0]), comps[1].to_f
   end
+
+  def a!
+    self
+  end
+
+  def c!
+    color
+  end
+
 end

@@ -10,6 +10,7 @@ require_relative '../lib/color'
 require_relative '../lib/color_a'
 require_relative '../lib/color_tools'
 require_relative '../lib/utils'
+require_relative '../lib/errors'
 
 require_relative 'factory'
 

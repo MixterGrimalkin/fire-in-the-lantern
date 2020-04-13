@@ -12,22 +12,14 @@ class Color
     end
   end
 
-  def a!
-    ColorA.new(self)
-  end
-
-  def c!
-    self
-  end
-
   attr_reader :red, :green, :blue, :white, :bounded
 
   def bound
-    Color.new(red, green, blue, white, bounded: true)
+    bounded ? self : Color.new(red, green, blue, white, bounded: true)
   end
 
   def unbound
-    Color.new(red, green, blue, white, bounded: false)
+    bounded ? Color.new(red, green, blue, white, bounded: false) : self
   end
 
   def +(other)
@@ -35,8 +27,8 @@ class Color
         red + other.red,
         green + other.green,
         blue + other.blue,
-        (white || 0) + (other.white || 0),
-        bounded: bounded
+        white || other.white ? (white || 0) + (other.white || 0) : nil,
+        bounded: bounded && other.bounded
     )
   end
 
@@ -45,8 +37,8 @@ class Color
         red - other.red,
         green - other.green,
         blue - other.blue,
-        (white || 0) - (other.white || 0),
-        bounded: bounded
+        white || other.white ? (white || 0) - (other.white || 0) : nil,
+        bounded: bounded && other.bounded
     )
   end
 
@@ -62,6 +54,13 @@ class Color
     (white ? Color.new(255, 255, 255, 255) : Color.new(255, 255, 255)) - self
   end
 
+  def ==(other)
+    red == other.red &&
+        green == other.green &&
+        blue == other.blue &&
+        (white.nil? || other.white.nil? || white == other.white)
+  end
+
   def blend_over(underlay, alpha = 1.0)
     blend(underlay, self, alpha)
   end
@@ -70,17 +69,9 @@ class Color
     blend(self, overlay, alpha)
   end
 
-  def ==(other)
-    red == other.red &&
-        green == other.green &&
-        blue == other.blue &&
-        (white.nil? || other.white.nil? || white == other.white)
-  end
-
   def to_s
     "#{bounded ? '' : '!'}[#{red},#{green},#{blue}#{white ? ",#{white}" : ''}]"
   end
-
   alias :inspect :to_s
 
   def self.from_s(color_string)
@@ -88,4 +79,13 @@ class Color
     Color.new *color_string.gsub('!', '')[1..-2].split(',').collect(&:to_i),
               bounded: !(color_string[0] == '!')
   end
+
+  def a!
+    ColorA.new(self)
+  end
+
+  def c!
+    self
+  end
+
 end

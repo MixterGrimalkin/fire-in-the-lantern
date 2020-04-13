@@ -64,7 +64,7 @@ class Factory
       Pixelator: {
           render_period: 0.01,
           scenes_dir: 'scenes',
-          default_crossfade: 0
+          default_crossfade: 1
       },
       NeoPixel: {
           pixel_count: 25,
@@ -82,7 +82,7 @@ class Factory
       },
       WsNeoPixel: {
           pin: 18,
-          brightness: 127,
+          brightness: 255,
           options: {
               freq: 800_000,
               dma: 5,
