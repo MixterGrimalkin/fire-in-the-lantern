@@ -19,6 +19,9 @@ RSpec.describe Factory do
 
     expect(scn).to be_a Scene
     expect(scn.layers.size).to eq 1
+
+    expect(px.neo_pixel).to eq neo
+    expect(px.scene).to eq scn
   end
 
 end

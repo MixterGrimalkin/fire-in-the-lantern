@@ -3,7 +3,7 @@ require_relative '../../app/lib/color_a'
 
 RSpec.describe Color do
 
-  it 'Caps components' do
+  it 'caps component values' do
     expect(Color.new(300, 0, 0)).to eq Color.new(255, 0, 0)
     expect(Color.new(200, -50, 0)).to eq Color.new(200, 0, 0)
     expect(Color.new(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
@@ -27,9 +27,35 @@ RSpec.describe Color do
     expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3, 99)).to eq true
   end
 
-  it '#with_brightness' do
-    expect(Color.new(100, 50, 20, 10).with_brightness(0.5))
+  it 'adds colors' do
+    expect(Color.new(255, 100, 90, 8) + Color.new(255, 200, 30))
+        .to eq Color.new(255, 255, 120, 8)
+  end
+
+  it 'subtracts colors' do
+    expect(Color.new(255, 100, 90, 8) - Color.new(255, 20, 30, 20))
+        .to eq Color.new(0, 80, 60, 0)
+  end
+
+  it 'multiplies colors' do
+    expect(Color.new(100, 50, 20, 10) * 0.5)
         .to eq Color.new(50, 25, 10, 5)
+    expect(Color.new(100, 50, 20, 10) * 3)
+        .to eq Color.new(255, 150, 60, 30)
+  end
+
+  it 'divides colors' do
+    expect(Color.new(100, 50, 20, 10) / 2)
+        .to eq Color.new(50, 25, 10, 5)
+    expect(Color.new(100, 50, 20, 10) / 20)
+        .to eq Color.new(5, 2, 1, 0)
+  end
+
+  it 'inverts color' do
+    expect(-Color.new(255, 0, 0))
+        .to eq Color.new(0, 255, 255)
+    expect(-Color.new(0, 255, 0, 0))
+        .to eq Color.new(255, 0, 255, 255)
   end
 
   let(:yellow) { Color.new(100, 200, 0) }
@@ -40,7 +66,6 @@ RSpec.describe Color do
   let(:blue) { Color.new(0, 0, 200) }
   let(:purple) { Color.new(180, 10, 220) }
   let(:purple_20) { ColorA.new(purple, 0.2) }
-
 
   it '#blend_over' do
     expect(red.blend_over yellow)
@@ -73,6 +98,34 @@ RSpec.describe Color do
     expect(ColorA.from_s('([190,0,80,10]x0.42)'))
         .to eq ColorA.new(Color.new(190, 0, 80, 10), 0.42)
     expect(ColorA.from_s(purple_20.to_s)).to eq purple_20
+  end
+
+  it 'unbounded to string' do
+    expect(Color.new(10, 9, 8, 7).unbound.to_s)
+        .to eq '![10,9,8,7]'
+    expect(Color.new(1000, -5, 0, -7, bounded: false).to_s)
+        .to eq '![1000,-5,0,-7]'
+  end
+
+  it 'unbounded from string' do
+    expect(Color.from_s('[900,-10,0]'))
+        .to eq Color.new(255, 0, 0)
+    expect(Color.from_s('![900,-10,0]'))
+        .to eq Color.new(900, -10, 0, bounded: false)
+  end
+
+  it '#c!' do
+    expect(Color.new.c!).to be_a Color
+    expect(ColorA.new(Color.new).c!).to be_a Color
+    expect(ColorA.new(Color.new(255, 127, 63, 31)).c!)
+        .to eq Color.new(255, 127, 63, 31).c!
+  end
+
+  it '#a!' do
+    expect(Color.new.a!).to be_a ColorA
+    expect(ColorA.new(Color.new).a!).to be_a ColorA
+    expect(ColorA.new(Color.new(255, 127, 63, 31)).a!)
+        .to eq Color.new(255, 127, 63, 31).a!
   end
 
 end

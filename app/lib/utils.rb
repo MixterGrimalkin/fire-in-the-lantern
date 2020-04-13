@@ -98,15 +98,15 @@ module Utils
     end
   end
 
-  def sum_array(array)
-    return 0 if array.empty?
+  def sum_array(array, zero: 0.0)
+    return zero if array.empty?
 
-    array.inject(0.0) { |sum, value| sum + value }
+    array.inject(zero) { |sum, value| sum + value }
   end
 
-  def avg_array(array)
-    return 0 if array.empty?
+  def avg_array(array, zero: 0.0)
+    return zero if array.empty?
 
-    sum_array(array) / array.size
+    sum_array(array, zero: zero) / array.size
   end
 end

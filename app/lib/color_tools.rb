@@ -30,28 +30,20 @@ module ColorTools
     end
   end
 
-  def mix_colors(color_as)
+  def mix_colors(colors)
     buffer = {
-        red: [], green: [], blue: [], white: [], alpha: []
+        color: [], alpha: []
     }
-    color_as.each do |color_a|
-      if (c = color_a.color)
-        buffer[:red] << c.red
-        buffer[:green] << c.green
-        buffer[:blue] << c.blue
-        buffer[:white] << c.white if c.white
+    colors.collect(&:a!).each do |color_a|
+      if color_a.color
+        buffer[:color] << color_a.color.unbound
         buffer[:alpha] << color_a.alpha
       else
         buffer[:alpha] << 0.0
       end
     end
     ColorA.new(
-        Color.new(
-            avg_array(buffer[:red]),
-            avg_array(buffer[:green]),
-            avg_array(buffer[:blue]),
-            avg_array(buffer[:white]),
-        ),
+        avg_array(buffer[:color], zero: Color.new.unbound).bound,
         avg_array(buffer[:alpha])
     )
   end
@@ -62,14 +54,8 @@ module ColorTools
     elsif over.nil? || alpha == 0.0
       under
     else
-      over_w = over.white || 0
-      under_w = under.white || 0
-      Color.new(
-          (under.red + (alpha * (over.red - under.red))).floor,
-          (under.green + (alpha * (over.green - under.green))).floor,
-          (under.blue + (alpha * (over.blue - under.blue))).floor,
-          (under_w + (alpha * (over_w - under_w))).floor
-      )
+      under, over = [under, over].collect {|c| c.c!.unbound }
+      (under + ((over - under) * alpha)).bound
     end
   end
 

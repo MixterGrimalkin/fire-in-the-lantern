@@ -5,17 +5,18 @@ require 'json'
 
 RSpec.describe Pixelator do
 
-  subject(:px) { Pixelator.new neo_pixel: NeoPixel.new(pixel_count: 10) }
-
-  let(:neo) { px.neo_pixel }
+  let(:neo) { NeoPixel.new pixel_count: 10 }
+  let(:px) { Pixelator.new neo_pixel: neo }
+  let(:scene) { px.scene }
 
   let(:all_pixels) { [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }
 
   let(:black) { Color.new }
   let(:white) { Color.new 255 }
   let(:red) { Color.new 255, 0, 0 }
-  let(:dk_red) { Color.new 127, 0, 0 }
   let(:blue) { Color.new 0, 0, 255 }
+
+  let(:dk_red) { Color.new 127, 0, 0 }
   let(:orange) { Color.new 200, 180, 0 }
   let(:dim_orange) { Color.new 100, 90, 0 }
 
@@ -23,49 +24,15 @@ RSpec.describe Pixelator do
     expect(px.pixel_count).to eq 10
   end
 
-  it 'initializes the base layer' do
-    expect(px[:base].canvas).to eq all_pixels
-    expect(px.base.canvas).to eq all_pixels
-    expect(px.base.color_array).to eq [black]*10
-  end
-
-  it 'can define a new layer' do
-    px.layer :the_lot
-    expect(px[:the_lot].canvas).to eq all_pixels
-  end
-
-  it 'can define a layer by range' do
-    px.layer :mid_four, canvas: (4..7)
-    expect(px[:mid_four].canvas)
-        .to eq [4, 5, 6, 7]
-  end
-
-  it 'can define a layer by array' do
-    px.layer :those_three, canvas: [1, 6, 9]
-    expect(px[:those_three].canvas)
-        .to eq [1, 6, 9]
-  end
-
-  it 'can define a layer by proc' do
-    px.layer :evens, canvas: proc { |p| p % 2 == 0 }
-    expect(px[:evens].canvas)
-        .to eq [0, 2, 4, 6, 8]
-  end
-
-  it 'defines a method for new layers' do
-    px.layer :odds, canvas: proc { |p| p % 2 != 0 }
-    expect(px.scene.odds).to eq px[:odds]
-  end
-
   it 'renders to NeoPixel' do
-    expect(neo).to receive(:show).once
+    expect(px.neo_pixel).to receive(:show).once
     px[0] = red
     px[1] = blue
     px[2] = black
     px[3] = blue
     px[4] = red
     px[5] = orange
-    px[6] = orange.with_brightness 0.5
+    px[6] = orange * 0.5
     px[7] = black
     px[8] = blue
     px[9] = red
@@ -74,16 +41,16 @@ RSpec.describe Pixelator do
         .to eq [red, blue, black, blue, red, orange, dim_orange, black, blue, red]
   end
 
-  context '.start and .stop' do
+  context '#start and #stop' do
     it 'starts and stops the rendering thread' do
       expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
       expect(px.started).to eq false
-      px.start 0.02
+      px.start 0.1
       expect(px.started).to eq true
-      sleep 0.03
+      sleep 0.15
       px.stop
       expect(px.started).to eq false
-      sleep 0.03
+      sleep 0.15
     end
     it 'raises error if already started' do
       px.start
@@ -94,7 +61,7 @@ RSpec.describe Pixelator do
     end
   end
 
-  it '.all_on and .all_off stop rendering thread' do
+  it '#all_on and #all_off stop rendering thread' do
     px.all_on
     expect(neo.contents).to eq [white] * 10
     px.all_off
@@ -123,7 +90,7 @@ RSpec.describe Pixelator do
     expect(neo.contents).to eq [black] * 10
   end
 
-  context 'when there is a pattern running' do
+  context 'given a scene' do
 
     before do
       px.layer :a, canvas: [0, 5, 6]
@@ -180,7 +147,7 @@ RSpec.describe Pixelator do
       ]}.to_json
     end
 
-    it '.clears' do
+    it '#clear' do
       expect(neo.contents)
           .to eq [faded_red, black, white, black, white,
                   faded_red, faded_red, white, black, black]
@@ -194,7 +161,7 @@ RSpec.describe Pixelator do
       expect(px.layers.size).to eq 1
     end
 
-    it '.saves' do
+    it '#save_scene' do
       px[:a].opacity = 0.5
       px[:a].layer_scroller.start 1
       px[:a].layer_scroller.over_sample = 8
@@ -208,7 +175,7 @@ RSpec.describe Pixelator do
       px.save_scene 'my_scene'
     end
 
-    it '.loads' do
+    it '#load_scene' do
       allow(File).to receive(:read)
                          .with('scenes/my_scene.json')
                          .and_return(File.read('./spec/fixtures/scene.json'))
@@ -251,133 +218,7 @@ RSpec.describe Pixelator do
 
   end
 
-  context '#hide and #show' do
-
-    let(:scene) { px.scene }
-    let!(:layer_1) { scene.layer :a, background: blue }
-    let!(:layer_2) { scene.layer :b, canvas: [2, 5, 7], background: red }
-
-    it 'initializes with all layers visible' do
-      px.render
-
-      expect(layer_1.visible).to eq true
-      expect(layer_2.visible).to eq true
-      expect(neo.contents)
-          .to eq [blue, blue, red, blue, blue,
-                  red, blue, red, blue, blue]
-    end
-
-    it 'hides a single layer' do
-      layer_1.hide
-      px.render
-
-      expect(layer_1.visible).to eq false
-      expect(layer_2.visible).to eq true
-      expect(neo.contents)
-          .to eq [black, black, red, black, black,
-                  red, black, red, black, black]
-    end
-
-    it 'solos a single layer' do
-      expect { scene.solo :not_exist }.to raise_error(LayerNotFound)
-
-      scene.solo(:b)
-      px.render
-
-      expect(layer_1.visible).to eq false
-      expect(layer_2.visible).to eq true
-      expect(neo.contents)
-          .to eq [black, black, red, black, black,
-                  red, black, red, black, black]
-    end
-
-    it 'hides all layers' do
-      scene.hide_all
-      px.render
-
-      expect(layer_1.visible).to eq false
-      expect(layer_2.visible).to eq false
-      expect(neo.contents)
-          .to eq [black, black, black, black, black,
-                  black, black, black, black, black]
-    end
-
-    it 'shows a single layer' do
-      scene.hide_all
-      px.render
-
-      expect(layer_1.visible).to eq false
-      expect(layer_2.visible).to eq false
-      expect(neo.contents)
-          .to eq [black, black, black, black, black,
-                  black, black, black, black, black]
-
-      layer_1.show
-      px.render
-
-      expect(layer_1.visible).to eq true
-      expect(layer_2.visible).to eq false
-      expect(neo.contents)
-          .to eq [blue, blue, blue, blue, blue,
-                  blue, blue, blue, blue, blue]
-    end
-
-    it 'shows all layers' do
-      scene.hide_all
-      px.render
-      expect(neo.contents)
-          .to eq [black, black, black, black, black,
-                  black, black, black, black, black]
-
-      scene.show_all
-      px.render
-
-      expect(layer_1.visible).to eq true
-      expect(layer_2.visible).to eq true
-      expect(neo.contents)
-          .to eq [blue, blue, red, blue, blue,
-                  red, blue, red, blue, blue]
-    end
-
-  end
-
-  context 'Layer re-ordering' do
-    let(:scene) { px.scene }
-
-    before do
-      scene.layer(:layer_1, canvas: [1, 5, 9], background: red)
-      scene.layer(:layer_2, background: blue)
-      scene.layer(:layer_3, canvas: [2, 5, 7], background: white)
-      px.render
-      expect(neo.contents)
-          .to eq [blue, blue, white, blue, blue,
-                  white, blue, white, blue, blue]
-    end
-
-    it '#put_top' do
-      expect { scene.put_top(:not_exist) }.to raise_error(LayerNotFound)
-
-      scene.put_top(:layer_1)
-
-      px.render
-      expect(neo.contents)
-          .to eq [blue, red, white, blue, blue,
-                  red, blue, white, blue, red]
-    end
-
-    it '#put_bottom' do
-      expect { scene.put_bottom(:not_exist) }.to raise_error(LayerNotFound)
-
-      scene.put_bottom(:layer_3)
-
-      px.render
-      expect(neo.contents)
-          .to eq [blue, blue, blue, blue, blue,
-                  blue, blue, blue, blue, blue]
-    end
-  end
-
-  context 'Cross-fading' do
+  context 'cross-fading' do
     let(:current_scene) do
       scene = px.scene
       scene.layer :a, background: red

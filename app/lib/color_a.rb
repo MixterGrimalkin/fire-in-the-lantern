@@ -7,6 +7,14 @@ class ColorA
     @alpha = alpha
   end
 
+  def a!
+    self
+  end
+
+  def c!
+    color
+  end
+
   attr_accessor :color, :alpha
 
   def ==(other)
