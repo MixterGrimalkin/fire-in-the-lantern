@@ -100,18 +100,4 @@ RSpec.describe Color do
     expect(ColorA.from_s(purple_20.to_s)).to eq purple_20
   end
 
-  it '#c!' do
-    expect(Color.new.c!).to be_a Color
-    expect(ColorA.new(Color.new).c!).to be_a Color
-    expect(ColorA.new(Color.new(255, 127, 63, 31)).c!)
-        .to eq Color.new(255, 127, 63, 31).c!
-  end
-
-  it '#a!' do
-    expect(Color.new.a!).to be_a ColorA
-    expect(ColorA.new(Color.new).a!).to be_a ColorA
-    expect(ColorA.new(Color.new(255, 127, 63, 31)).a!)
-        .to eq Color.new(255, 127, 63, 31).a!
-  end
-
 end

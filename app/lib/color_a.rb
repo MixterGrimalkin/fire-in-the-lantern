@@ -24,12 +24,4 @@ class ColorA
     ColorA.new Color.from_s(comps[0]), comps[1].to_f
   end
 
-  def a!
-    self
-  end
-
-  def c!
-    color
-  end
-
 end

@@ -68,12 +68,4 @@ class Color
     Color.new *color_string[1..-2].split(',').collect(&:to_i)
   end
 
-  def a!
-    ColorA.new(self)
-  end
-
-  def c!
-    self
-  end
-
 end
