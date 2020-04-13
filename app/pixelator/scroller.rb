@@ -70,7 +70,7 @@ class Scroller
     over_sampled.each do |color_a|
       average_buffer << color_a
       if average_buffer.size == over_sample
-        result[pixel] = mix_colors(average_buffer)
+        result[pixel] = mix_color_as(average_buffer)
         average_buffer = []
         pixel += 1
       end

@@ -13,7 +13,7 @@ RSpec.describe 'ColorTools' do
   let(:average_color_a) { ColorA.new Color.new(60,10,20,2), 0.75 }
 
   it 'computes the average' do
-    expect(mix_colors([color_a_1, color_a_2, color_a_3, color_a_4]))
+    expect(mix_color_as([color_a_1, color_a_2, color_a_3, color_a_4]))
     .to eq average_color_a
   end
 

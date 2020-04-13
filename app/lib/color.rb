@@ -4,50 +4,38 @@ require_relative 'color_a'
 class Color
   include ColorTools
 
-  def initialize(red = 0, green = red, blue = green, white = nil, bounded: true)
-    if (@bounded = bounded)
-      @red, @green, @blue, @white = *cap_comps(red, green, blue, white)
-    else
-      @red, @green, @blue, @white = red, green, blue, white
-    end
+  def initialize(red = 0, green = red, blue = green, white = nil)
+    @real_red, @real_green, @real_blue, @real_white = red, green, blue, white
+    @red, @green, @blue, @white = *cap_comps(red, green, blue, white)
   end
 
-  attr_reader :red, :green, :blue, :white, :bounded
-
-  def bound
-    bounded ? self : Color.new(red, green, blue, white, bounded: true)
-  end
-
-  def unbound
-    bounded ? Color.new(red, green, blue, white, bounded: false) : self
-  end
+  attr_reader :red, :green, :blue, :white,
+              :real_red, :real_green, :real_blue, :real_white
 
   def +(other)
     Color.new(
-        red + other.red,
-        green + other.green,
-        blue + other.blue,
-        white || other.white ? (white || 0) + (other.white || 0) : nil,
-        bounded: bounded && other.bounded
+        real_red + other.real_red,
+        real_green + other.real_green,
+        real_blue + other.real_blue,
+        real_white || other.real_white ? (real_white || 0) + (other.real_white || 0) : nil
     )
   end
 
   def -(other)
     Color.new(
-        red - other.red,
-        green - other.green,
-        blue - other.blue,
-        white || other.white ? (white || 0) - (other.white || 0) : nil,
-        bounded: bounded && other.bounded
+        real_red - other.real_red,
+        real_green - other.real_green,
+        real_blue - other.real_blue,
+        real_white || other.real_white ? (real_white || 0) - (other.real_white || 0) : nil
     )
   end
 
   def *(brightness)
-    Color.new *scale_comps(brightness.to_f, red, green, blue, white), bounded: bounded
+    Color.new *scale_comps(brightness.to_f, real_red, real_green, real_blue, real_white)
   end
 
   def /(dimness)
-    Color.new *scale_comps(1 / dimness.to_f, red, green, blue, white), bounded: bounded
+    Color.new *scale_comps(1 / dimness.to_f, real_red, real_green, real_blue, real_white)
   end
 
   def -@
@@ -70,14 +58,13 @@ class Color
   end
 
   def to_s
-    "#{bounded ? '' : '!'}[#{red},#{green},#{blue}#{white ? ",#{white}" : ''}]"
+    "[#{red},#{green},#{blue}#{white ? ",#{white}" : ''}]"
   end
   alias :inspect :to_s
 
   def self.from_s(color_string)
     return nil unless color_string && !color_string.empty?
-    Color.new *color_string.gsub('!', '')[1..-2].split(',').collect(&:to_i),
-              bounded: !(color_string[0] == '!')
+    Color.new *color_string[1..-2].split(',').collect(&:to_i)
   end
 
   def a!

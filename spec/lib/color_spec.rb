@@ -100,20 +100,6 @@ RSpec.describe Color do
     expect(ColorA.from_s(purple_20.to_s)).to eq purple_20
   end
 
-  it 'unbounded to string' do
-    expect(Color.new(10, 9, 8, 7).unbound.to_s)
-        .to eq '![10,9,8,7]'
-    expect(Color.new(1000, -5, 0, -7, bounded: false).to_s)
-        .to eq '![1000,-5,0,-7]'
-  end
-
-  it 'unbounded from string' do
-    expect(Color.from_s('[900,-10,0]'))
-        .to eq Color.new(255, 0, 0)
-    expect(Color.from_s('![900,-10,0]'))
-        .to eq Color.new(900, -10, 0, bounded: false)
-  end
-
   it '#c!' do
     expect(Color.new.c!).to be_a Color
     expect(ColorA.new(Color.new).c!).to be_a Color
