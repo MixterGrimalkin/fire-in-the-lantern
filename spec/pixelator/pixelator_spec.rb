@@ -13,6 +13,7 @@ RSpec.describe Pixelator do
 
   let(:black) { Color.new }
   let(:white) { Color.new 255 }
+  let(:full_white) { Color.new 255, 255, 255, 255 }
   let(:red) { Color.new 255, 0, 0 }
   let(:blue) { Color.new 0, 0, 255 }
 
@@ -63,7 +64,7 @@ RSpec.describe Pixelator do
 
   it '#all_on and #all_off stop rendering thread' do
     px.all_on
-    expect(neo.contents).to eq [white] * 10
+    expect(neo.contents).to eq [full_white] * 10
     px.all_off
     expect(neo.contents).to eq [black] * 10
 
@@ -74,7 +75,7 @@ RSpec.describe Pixelator do
 
     px.all_on
     expect(px.started).to eq false
-    expect(neo.contents).to eq [white] * 10
+    expect(neo.contents).to eq [full_white] * 10
 
     px.start
     sleep 0.01

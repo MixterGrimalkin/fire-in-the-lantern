@@ -12,22 +12,16 @@ module ColorTools
 
   def validate_comps(r, g, b, w)
     [r, g, b, w].each do |c|
-      unless c.nil? || (0..MAX).include?(c)
-        raise ColorValueOutOfRange, "#{r},#{g},#{b},#{w}"
-      end
+      raise ColorValueOutOfRange, "#{r},#{g},#{b},#{w}" unless (0..MAX).include?(c)
     end
   end
 
   def cap_comps(r, g, b, w)
-    [r, g, b, w].collect do |c|
-      c.nil? ? nil : [0, [MAX, c.to_i].min].max
-    end
+    [r, g, b, w].collect { |c| [0, [MAX, c.to_i].min].max }
   end
 
   def scale_comps(scale, r, g, b, w)
-    [r, g, b, w].collect do |c|
-      c.nil? ? nil : (c * scale).floor
-    end
+    [r, g, b, w].collect { |c| (c * scale).floor }
   end
 
   def mix_color_as(color_as)
@@ -70,7 +64,7 @@ module ColorTools
     else
       result = []
       over.each_with_index do |color, i|
-        result << color.blend_over(under[i], alpha)
+        result << blend(under[i], color, alpha)
       end
       result
     end

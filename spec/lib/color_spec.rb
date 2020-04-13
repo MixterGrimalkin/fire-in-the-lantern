@@ -10,10 +10,10 @@ RSpec.describe Color do
   end
 
   it 'compares ignoring white' do
-    expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 3)).to eq true
-    expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3)).to eq false
-    expect(Color.new(1, 2, 3) == Color.new(1, 2, 3, 4)).to eq true
-    expect(Color.new(1, 2, 3) != Color.new(1, 2, 3, 4)).to eq false
+    expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 3)).to eq false
+    expect(Color.new(1, 2, 3, 4) != Color.new(1, 2, 3)).to eq true
+    expect(Color.new(1, 2, 3) == Color.new(1, 2, 3, 4)).to eq false
+    expect(Color.new(1, 2, 3) != Color.new(1, 2, 3, 4)).to eq true
     expect(Color.new(1, 2, 3) == Color.new(1, 2, 99)).to eq false
     expect(Color.new(1, 2, 3) != Color.new(1, 2, 99)).to eq true
     expect(Color.new(1, 2, 3, 4) == Color.new(1, 2, 99, 4)).to eq false
@@ -53,7 +53,7 @@ RSpec.describe Color do
 
   it 'inverts color' do
     expect(-Color.new(255, 0, 0))
-        .to eq Color.new(0, 255, 255)
+        .to eq Color.new(0, 255, 255, 255)
     expect(-Color.new(0, 255, 0, 0))
         .to eq Color.new(255, 0, 255, 255)
   end

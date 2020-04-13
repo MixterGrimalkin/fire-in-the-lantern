@@ -4,9 +4,9 @@ require_relative 'color_a'
 class Color
   include ColorTools
 
-  def initialize(red = 0, green = red, blue = green, white = nil)
-    @real_red, @real_green, @real_blue, @real_white = red, green, blue, white
+  def initialize(red = 0, green = red, blue = red, white = 0)
     @red, @green, @blue, @white = *cap_comps(red, green, blue, white)
+    @real_red, @real_green, @real_blue, @real_white = red, green, blue, white
   end
 
   attr_reader :red, :green, :blue, :white,
@@ -17,7 +17,7 @@ class Color
         real_red + other.real_red,
         real_green + other.real_green,
         real_blue + other.real_blue,
-        real_white || other.real_white ? (real_white || 0) + (other.real_white || 0) : nil
+        real_white + other.real_white
     )
   end
 
@@ -26,7 +26,7 @@ class Color
         real_red - other.real_red,
         real_green - other.real_green,
         real_blue - other.real_blue,
-        real_white || other.real_white ? (real_white || 0) - (other.real_white || 0) : nil
+        real_white - other.real_white
     )
   end
 
@@ -39,14 +39,14 @@ class Color
   end
 
   def -@
-    (white ? Color.new(255, 255, 255, 255) : Color.new(255, 255, 255)) - self
+    Color.new(255, 255, 255, 255) - self
   end
 
   def ==(other)
     red == other.red &&
         green == other.green &&
         blue == other.blue &&
-        (white.nil? || other.white.nil? || white == other.white)
+        white == other.white
   end
 
   def blend_over(underlay, alpha = 1.0)
@@ -58,8 +58,9 @@ class Color
   end
 
   def to_s
-    "[#{red},#{green},#{blue}#{white ? ",#{white}" : ''}]"
+    "[#{red},#{green},#{blue},#{white}]"
   end
+
   alias :inspect :to_s
 
   def self.from_s(color_string)
