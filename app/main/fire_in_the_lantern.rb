@@ -5,6 +5,7 @@ require_relative '../neo_pixel/ws_neo_pixel'
 require_relative '../neo_pixel/osc_neo_pixel'
 require_relative '../neo_pixel/http_neo_pixel'
 require_relative '../neo_pixel/text_neo_pixel'
+require_relative '../neo_pixel/benchmark_neo_pixel'
 
 require_relative '../lib/color'
 require_relative '../lib/color_a'
@@ -29,8 +30,8 @@ module FireInTheLantern
     end
   end
 
-  def factory
-    @factory ||= Factory.new
+  def factory(filename: '../.fitl.json', adapter_override: nil)
+    @factory ||= Factory.new(filename: filename, adapter_override: adapter_override)
   end
 
 end

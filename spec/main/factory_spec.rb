@@ -2,7 +2,7 @@ require_relative '../../app/main/fire_in_the_lantern'
 
 RSpec.describe Factory do
 
-  subject(:factory) { Factory.new 'spec/fixtures/factory_config.json' }
+  subject(:factory) { Factory.new filename: 'spec/fixtures/factory_config.json' }
 
   let(:neo) { factory.neo }
   let(:px) { factory.px }

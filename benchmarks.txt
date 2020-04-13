@@ -1,0 +1,58 @@
+Raspberry Pi benchmarks for different render_periods
+
+2020-04-13
+
+0.5
+startup               1ms  	1ms 	0ms
+fade to water         -60ms	-36ms	-37ms
+water                 51ms 	41ms	30ms 
+fade to swirls        53ms 	77ms 	51ms
+swirls                62ms 	62ms	71ms
+fade to other_swirls  25ms 	62ms	12ms
+other_swirls          65ms	66ms	64ms
+
+0.1
+startup               0ms  	1ms	0ms
+fade to water         25ms 	25ms	27ms
+water                 30ms 	26ms	27ms
+fade to swirls        79ms 	83ms	79ms
+swirls                68ms 	64ms	67ms
+fade to other_swirls  116ms	115ms	112ms
+other_swirls          67ms 	70ms	70ms
+
+0.05
+startup               0ms  	0ms	0ms
+fade to water         26ms 	29ms	28ms
+water                 32ms 	26ms	27ms
+fade to swirls        86ms 	86ms	84ms
+swirls                63ms 	64ms	63ms
+fade to other_swirls  117ms	116ms	121ms
+other_swirls          66ms 	66ms	66ms
+          
+0.01   					<-- Probably best
+startup               0ms  	0ms
+fade to water         29ms 	29ms
+water                 27ms 	27ms
+fade to swirls        86ms 	86ms
+swirls                64ms 	64ms
+fade to other_swirls  121ms	121ms
+other_swirls          68ms 	68ms
+
+0.005
+startup               1ms  	0ms
+fade to water         29ms 	29ms
+water                 27ms 	27ms
+fade to swirls        93ms 	84ms
+swirls                65ms 	65ms
+fade to other_swirls  121ms	120ms
+other_swirls          68ms	68ms       
+
+0
+startup               0ms  	0ms
+fade to water         30ms 	30ms
+water                 29ms 	29ms
+fade to swirls        95ms 	94ms
+swirls                68ms 	68ms
+fade to other_swirls  135ms	132ms
+other_swirls          71ms 	70ms
+

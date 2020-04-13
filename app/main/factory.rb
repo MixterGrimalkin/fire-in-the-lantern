@@ -1,12 +1,13 @@
 class Factory
   include Utils
 
-  def initialize(filename = '../.fitl.json')
+  def initialize(filename: '../.fitl.json', adapter_override: nil)
     @filename = filename
     @config = read_config
+    @adapter_override = adapter_override
   end
 
-  attr_reader :filename, :config
+  attr_reader :filename, :config, :adapter_override
 
   def neo
     @neo ||= neo_class.new(neo_config)
@@ -44,7 +45,7 @@ class Factory
   end
 
   def neo_class
-    Object.const_get(config.fetch(:Adapter))
+    Object.const_get(adapter_override || config.fetch(:Adapter))
   end
 
   def neo_key
