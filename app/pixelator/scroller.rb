@@ -3,6 +3,8 @@ require_relative '../lib/color_tools'
 class Scroller
   include ColorTools
 
+  OVER_SAMPLE_LIMIT = 10
+
   def initialize
     @over_sample = 1
     @offset = 0
@@ -14,7 +16,7 @@ class Scroller
   attr_reader :offset, :period, :effective_period, :last_updated, :over_sample
 
   def over_sample=(value)
-    @over_sample = value.to_i
+    @over_sample = [value.to_i, OVER_SAMPLE_LIMIT].min
     @offset = 0
     start period if last_updated
   end
@@ -86,7 +88,7 @@ class Scroller
   end
 
   def from_conf(conf)
-    @over_sample = conf[:over_sample]
+    self.over_sample = conf[:over_sample]
     start conf[:period]
   end
 

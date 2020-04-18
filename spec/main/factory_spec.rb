@@ -16,7 +16,7 @@ RSpec.describe Factory do
     expect(neo.address).to eq 'your_house'
 
     expect(px).to be_a Pixelator
-    expect(px.render_period).to eq 4
+    expect(px.render_period).to eq 0.5
 
     expect(scn).to be_a Scene
     expect(scn.layers.size).to eq 1

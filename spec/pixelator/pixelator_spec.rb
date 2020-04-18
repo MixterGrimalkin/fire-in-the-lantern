@@ -68,7 +68,7 @@ RSpec.describe Pixelator do
     px.all_off
     expect(neo.contents).to eq [black] * 10
 
-    px.start
+    px.start 0.01
     sleep 0.01
     expect(px.started).to eq true
     expect(neo.contents).to eq [black] * 10
@@ -77,7 +77,7 @@ RSpec.describe Pixelator do
     expect(px.started).to eq false
     expect(neo.contents).to eq [full_white] * 10
 
-    px.start
+    px.start 0.01
     sleep 0.01
     expect(px.started).to eq true
     expect(neo.contents).to eq [black] * 10

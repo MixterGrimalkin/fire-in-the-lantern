@@ -71,7 +71,8 @@ class Factory
   DEFAULT_CONFIG = {
       Adapter: 'OscNeoPixel',
       Pixelator: {
-          render_period: 0.01,
+          fps: 30,
+          monitor_fps: false,
           scenes_dir: 'scenes',
           default_crossfade: 1
       },

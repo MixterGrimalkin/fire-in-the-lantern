@@ -10,13 +10,14 @@ class Pixelator
   include Utils
   extend Forwardable
 
-  def initialize(neo_pixel:, render_period: 0.01, scenes_dir: 'scenes', default_crossfade: 0)
+  def initialize(neo_pixel:, fps: 30, monitor_fps: false, scenes_dir: 'scenes', default_crossfade: 0)
     @neo_pixel = neo_pixel
-    @render_period = render_period
-    @render_thread = nil
-    @started = false
+    @fps = fps
+    @monitor_fps = monitor_fps
     @scenes_dir = scenes_dir
     @default_crossfade = default_crossfade
+    @render_thread = nil
+    @started = false
     clear
   end
 
@@ -32,8 +33,10 @@ class Pixelator
     neo_pixel.pixel_count
   end
 
-  attr_reader :neo_pixel, :render_period, :started, :scene, :incoming_scene,
+  attr_reader :neo_pixel, :fps, :started, :scene, :incoming_scene,
               :crossfade_time, :default_crossfade, :scenes_dir
+
+  attr_accessor :monitor_fps
 
   def_delegators :scene, :layers, :layer, :base, :[], :[]=
 
@@ -41,17 +44,33 @@ class Pixelator
     neo_pixel.write(build_crossfade_buffer).render
   end
 
+  def render_period
+    1.0 / fps
+  end
+
   def start(period = render_period)
     raise NotAllowed if started
 
     @started = true
 
+    monitor_buffer = []
+
     @render_thread = Thread.new do
       while started
+        ticker = Time.now
         scene.update
         incoming_scene.update if incoming_scene
         render
-        sleep period
+        if (elapsed = Time.now - ticker) < period
+          sleep period - elapsed
+        end
+        if monitor_fps
+          monitor_buffer << (1.0 / (Time.now-ticker))
+          if monitor_buffer.size >= 50
+            puts "Pixelator fps=#{monitor_buffer.sum(0.0) / monitor_buffer.size}"
+            monitor_buffer = []
+          end
+        end
       end
     end
 

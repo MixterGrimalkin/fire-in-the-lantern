@@ -24,6 +24,7 @@ module Utils
 
   def wait_for_interrupt
     while true
+      sleep 0.25
     end
   rescue Interrupt
     # ignored

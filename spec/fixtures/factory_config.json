@@ -1,7 +1,8 @@
 {
   "Adapter": "OscNeoPixel",
   "Pixelator": {
-    "render_period": 4,
+    "fps": 2,
+    "monitor_fps": false,
     "scenes_dir": "scenes",
     "default_crossfade": 0
   },

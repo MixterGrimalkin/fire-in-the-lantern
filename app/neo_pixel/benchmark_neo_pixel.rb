@@ -6,12 +6,9 @@ class BenchmarkNeoPixel < NeoPixel
 
   def initialize(pixel_count:, mode:)
     super(pixel_count: pixel_count, mode: mode)
-    @render_delay = 0.0
     @recordings = {}
     @current_recording = nil
   end
-
-  attr_writer :render_delay
 
   def start_recording(name)
     puts "Recording #{name}"
@@ -36,11 +33,11 @@ class BenchmarkNeoPixel < NeoPixel
         start = data[0]
         sum = 0.0
         data[1..-1].each do |show|
-          sum += (show - start - render_delay)
+          sum += (show - start)
           start = show
         end
         avg = sum / (data.size - 1)
-        [name, "#{(avg*1000).floor}ms"]
+        [name, "#{(avg*1000).floor}ms   #{(1.0/avg).floor}fps"]
       end
     end
     print_table data
@@ -48,6 +45,6 @@ class BenchmarkNeoPixel < NeoPixel
 
   private
 
-  attr_reader :current_recording, :recordings, :render_delay
+  attr_reader :current_recording, :recordings
 
 end
