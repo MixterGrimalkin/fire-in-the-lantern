@@ -30,6 +30,12 @@ module Utils
     # ignored
   end
 
+  def local_ip_address
+    until (addr = Socket.ip_address_list.detect { |intf| intf.ipv4_private? })
+    end
+    addr.ip_address
+  end
+
   def print_table(data)
     max_widths = []
     data.each do |row|

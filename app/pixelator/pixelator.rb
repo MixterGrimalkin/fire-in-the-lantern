@@ -10,11 +10,10 @@ class Pixelator
   include Utils
   extend Forwardable
 
-  def initialize(neo_pixel:, fps: 30, monitor_fps: false, scenes_dir: 'scenes', default_crossfade: 0)
+  def initialize(neo_pixel:, fps: 30, default_crossfade: 0, settings: OpenStruct.new)
+    @settings = settings
     @neo_pixel = neo_pixel
     @fps = fps
-    @monitor_fps = monitor_fps
-    @scenes_dir = scenes_dir
     @default_crossfade = default_crossfade
     @render_thread = nil
     @started = false
@@ -34,7 +33,7 @@ class Pixelator
   end
 
   attr_reader :neo_pixel, :fps, :started, :scene, :incoming_scene,
-              :crossfade_time, :default_crossfade, :scenes_dir
+              :crossfade_time, :default_crossfade
 
   attr_accessor :monitor_fps
 
@@ -64,7 +63,7 @@ class Pixelator
         if (elapsed = Time.now - ticker) < period
           sleep period - elapsed
         end
-        if monitor_fps
+        if settings.monitor_fps
           monitor_buffer << (1.0 / (Time.now-ticker))
           if monitor_buffer.size >= 50
             puts "Pixelator fps=#{monitor_buffer.sum(0.0) / monitor_buffer.size}"
@@ -123,6 +122,10 @@ class Pixelator
     end
   end
 
+  def scenes_dir
+    settings.scenes_dir || 'scenes'
+  end
+
   def inspect
     "#<Pixelator[#{neo_pixel.class}] pixels:#{pixel_count} layers:#{layers.size} #{started ? 'STARTED' : 'STOPPED'}>"
   end
@@ -130,7 +133,7 @@ class Pixelator
   private
 
   def create_scene_from_file(scene_name)
-    result = Scene.new pixel_count
+    result = Scene.new pixel_count, settings: settings
     result.from_conf(
         symbolize_keys(JSON.parse(
             File.read("#{scenes_dir}/#{scene_name}.json")
@@ -160,6 +163,8 @@ class Pixelator
     end
     buffer
   end
+
+  attr_reader :settings
 end
 
 NotAllowed = Class.new(StandardError)

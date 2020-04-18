@@ -12,13 +12,14 @@ class Layer
   include Colors
   include ColorTools
 
-  def initialize(canvas, background: nil, size: nil)
+  def initialize(canvas, background: nil, size: nil, settings: OpenStruct.new)
+    @settings = settings
     @canvas = canvas
     @background = background
     @opacity = 1.0
     @visible = true
-    @layer_scroller = Scroller.new
-    @pattern_scroller = Scroller.new
+    @layer_scroller = Scroller.new settings: settings
+    @pattern_scroller = Scroller.new settings: settings
     resize size || canvas.size
   end
 
@@ -133,4 +134,6 @@ class Layer
   def check_pixel_number(pixel)
     raise PixelOutOfRangeError, pixel unless (0..(pattern.size-1)).include?(pixel)
   end
+
+  attr_reader :settings
 end

@@ -2,8 +2,6 @@
   "Adapter": "OscNeoPixel",
   "Pixelator": {
     "fps": 2,
-    "monitor_fps": false,
-    "scenes_dir": "scenes",
     "default_crossfade": 0
   },
   "OscServer": {
@@ -33,5 +31,10 @@
       "invert": false,
       "channel": 0
     }
+  },
+  "Settings": {
+    "scenes_dir": "scenes",
+    "monitor_fps": false,
+    "max_over_sample": 6
   }
 }

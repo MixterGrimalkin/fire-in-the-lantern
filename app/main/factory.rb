@@ -9,6 +9,10 @@ class Factory
 
   attr_reader :filename, :config, :adapter_override
 
+  def settings
+    @settings ||= OpenStruct.new(config.fetch(:Settings, {}))
+  end
+
   def neo
     @neo ||= neo_class.new(neo_config)
   end
@@ -61,7 +65,7 @@ class Factory
   end
 
   def px_config
-    config.fetch(:Pixelator).merge(neo_pixel: neo)
+    config.fetch(:Pixelator).merge(neo_pixel: neo, settings: settings)
   end
 
   def osc_config
@@ -71,8 +75,6 @@ class Factory
   DEFAULT_CONFIG = {
       Adapter: 'OscNeoPixel',
       Pixelator: {
-          fps: 30,
-          monitor_fps: false,
           scenes_dir: 'scenes',
           default_crossfade: 1
       },
@@ -103,6 +105,11 @@ class Factory
               invert: false,
               channel: 0
           }
+      },
+      Settings: {
+          scenes_dir: 'scenes',
+          monitor_fps: false,
+          max_over_sample: 6
       }
   }
 end

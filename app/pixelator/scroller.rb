@@ -3,9 +3,8 @@ require_relative '../lib/color_tools'
 class Scroller
   include ColorTools
 
-  OVER_SAMPLE_LIMIT = 10
-
-  def initialize
+  def initialize(settings: OpenStruct.new)
+    @settings = settings
     @over_sample = 1
     @offset = 0
     @period = nil
@@ -16,7 +15,7 @@ class Scroller
   attr_reader :offset, :period, :effective_period, :last_updated, :over_sample
 
   def over_sample=(value)
-    @over_sample = [value.to_i, OVER_SAMPLE_LIMIT].min
+    @over_sample = [value.to_i, max_over_sample].min
     @offset = 0
     start period if last_updated
   end
@@ -96,4 +95,12 @@ class Scroller
     "#{period}x#{over_sample}"
   end
   alias :inspect :to_s
+
+  private
+
+  def max_over_sample
+    settings.max_over_sample || 1000
+  end
+
+  attr_reader :settings
 end

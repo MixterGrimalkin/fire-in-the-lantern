@@ -6,7 +6,8 @@ class Scene
   include SceneConfig
   include Colors
 
-  def initialize(pixel_count)
+  def initialize(pixel_count, settings: OpenStruct.new)
+    @settings = settings
     @pixels = (0..(pixel_count-1)).to_a
     clear
   end
@@ -93,7 +94,7 @@ class Scene
 
   def layer(key, canvas: nil, size: nil, background: nil)
     if canvas.nil?
-      layer = Layer.new(pixels, size: size, background: background)
+      layer = Layer.new(pixels, size: size, background: background, settings: settings)
     else
       layer =
           Layer.new(pixels.select do |p|
@@ -103,13 +104,16 @@ class Scene
               when Proc
                 canvas.call p
             end
-          end, size: size, background: background)
+          end, size: size, background: background, settings: settings)
     end
 
     self.class.send(:define_method, key, proc { layer })
     layers[key] = layer
   end
 
+  private
+
+  attr_reader :settings
 end
 
 LayerNotFound = Class.new(StandardError)
