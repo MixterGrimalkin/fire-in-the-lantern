@@ -5,7 +5,12 @@ class OscSwitcher
     @server_port = port
     @osc_address = address
 
-    @server_ip = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}.ip_address
+    addr = nil
+    until addr
+      puts 'Trying to start OSC server....'
+      addr = Socket.ip_address_list.detect{|intf| intf.ipv4_private?}
+    end
+    @server_ip = addr.ip_address
     @server = OSC::EMServer.new server_port
 
     server.add_method "/#{osc_address}" do |message|
