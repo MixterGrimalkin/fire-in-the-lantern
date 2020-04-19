@@ -1,5 +1,6 @@
 require 'io/console'
 require 'enumerator'
+require 'socket'
 
 module Utils
 
@@ -10,6 +11,7 @@ module Utils
 
        p  i  x  e  l  a  t  o  r
 
+
 }
 
   def logo
@@ -17,8 +19,7 @@ module Utils
   end
 
   def message(msg)
-    puts
-    puts "  #{msg}"
+    puts "   #{msg}"
     puts
   end
 

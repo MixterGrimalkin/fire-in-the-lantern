@@ -22,7 +22,7 @@ class Factory
   end
 
   def osc
-    @osc ||= OscServer.new(osc_config)
+    @osc ||= DirectOscServer.new(osc_config)
   end
 
   def scn
@@ -69,21 +69,17 @@ class Factory
   end
 
   def osc_config
-    config.fetch(:OscServer).merge(neo_pixel: neo)
+    config.fetch(:DirectOscServer).merge(neo_pixel: neo)
   end
 
   DEFAULT_CONFIG = {
       Adapter: 'OscNeoPixel',
       Pixelator: {
-          scenes_dir: 'scenes',
-          default_crossfade: 1
-      },
-      OscServer: {
-          port: 3333,
-          address: 'neo_pixel'
+          frame_rate: 30,
+          osc_control_port: 3333
       },
       NeoPixel: {
-          pixel_count: 25,
+          pixel_count: 35,
           mode: :rgb,
       },
       HttpNeoPixel: {
@@ -106,10 +102,15 @@ class Factory
               channel: 0
           }
       },
+      DirectOscServer: {
+          port: 3333,
+          address: 'data'
+      },
       Settings: {
           scenes_dir: 'scenes',
           monitor_fps: false,
-          max_over_sample: 6
+          max_over_sample: 6,
+          default_crossfade: 1
       }
   }
 end

@@ -1,17 +1,15 @@
-require_relative '../neo_pixel/osc_server'
 require_relative 'fire_in_the_lantern'
 
 include FireInTheLantern
 
-message 'Running in Direct OSC mode'
-neo.test
-osc.start
-message 'Press CTRL + C to exit'
+message 'Direct OSC-Control mode'
 
+message osc.to_s
+osc.start
+
+message 'Press CTRL + C to exit'
 wait_for_interrupt
 
 neo.off
 
-puts
-puts 'Done'
-puts
+message 'Done'

@@ -7,10 +7,6 @@ unless (scene_name = ARGV[0])
   exit
 end
 
-if ARGV.include? '-osc'
-  OscSwitcher.new(px).start
-end
-
 px.start
 px.load_scene scene_name
 

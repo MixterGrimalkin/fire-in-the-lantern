@@ -47,7 +47,7 @@ class NeoPixel
         when :grb
           [color.green, color.red, color.blue]
         when :rgbw
-          [color.red, color.green, color.blue, color.white || 0]
+          [color.red, color.green, color.blue, color.white]
         else
           raise BadOutputMode, mode.to_s
       end
@@ -79,7 +79,7 @@ class NeoPixel
   end
 
   def test(time = 1)
-    print 'NeoPixel test running.'
+    print '>> NeoPixel test running.'
     on RED
     sleep time
 

@@ -1,12 +1,8 @@
 {
   "Adapter": "OscNeoPixel",
   "Pixelator": {
-    "fps": 100,
-    "default_crossfade": 5
-  },
-  "OscServer": {
-    "port": 3333,
-    "address": "neo_pixel"
+    "frame_rate": 30,
+    "osc_control_port": 3333
   },
   "NeoPixel": {
     "pixel_count": 35,
@@ -18,7 +14,7 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "localhost",
+    "host": "192.168.0.34",
     "port": 3333,
     "address": "data"
   },
@@ -32,9 +28,14 @@
       "channel": 0
     }
   },
+  "DirectOscServer": {
+    "port": 3333,
+    "address": "data"
+  },
   "Settings": {
     "scenes_dir": "scenes",
     "monitor_fps": false,
-    "max_over_sample": 6
+    "max_over_sample": 6,
+    "default_crossfade": 1
   }
 }

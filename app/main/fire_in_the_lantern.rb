@@ -1,13 +1,13 @@
 require_relative '../pixelator/pixelator'
-require_relative '../pixelator/osc_switcher'
+require_relative '../pixelator/osc_control_hook'
 
 require_relative '../neo_pixel/neo_pixel'
 require_relative '../neo_pixel/text_neo_pixel'
-require_relative '../neo_pixel/benchmark_neo_pixel'
-require_relative '../neo_pixel/osc_neo_pixel'
-require_relative '../neo_pixel/osc_server'
 require_relative '../neo_pixel/http_neo_pixel'
+require_relative '../neo_pixel/osc_neo_pixel'
 require_relative '../neo_pixel/ws_neo_pixel'
+require_relative '../neo_pixel/benchmark_neo_pixel'
+require_relative '../neo_pixel/direct_osc_server'
 
 require_relative '../lib/color'
 require_relative '../lib/color_a'

@@ -10,13 +10,13 @@ class Pixelator
   include Utils
   extend Forwardable
 
-  def initialize(neo_pixel:, fps: 30, default_crossfade: 0, settings: OpenStruct.new)
+  def initialize(neo_pixel:, frame_rate: 30, osc_control_port: nil, settings: OpenStruct.new)
     @settings = settings
     @neo_pixel = neo_pixel
-    @fps = fps
-    @default_crossfade = default_crossfade
+    @frame_rate = frame_rate
     @render_thread = nil
     @started = false
+    OscControlHook.new(self, port: osc_control_port).start if osc_control_port
     clear
   end
 
@@ -32,10 +32,7 @@ class Pixelator
     neo_pixel.pixel_count
   end
 
-  attr_reader :neo_pixel, :fps, :started, :scene, :incoming_scene,
-              :crossfade_time, :default_crossfade
-
-  attr_accessor :monitor_fps
+  attr_reader :neo_pixel, :frame_rate, :started, :scene
 
   def_delegators :scene, :layers, :layer, :base, :[], :[]=
 
@@ -44,7 +41,7 @@ class Pixelator
   end
 
   def render_period
-    1.0 / fps
+    1.0 / frame_rate
   end
 
   def start(period = render_period)
@@ -126,6 +123,10 @@ class Pixelator
     settings.scenes_dir || 'scenes'
   end
 
+  def default_crossfade
+    settings.default_crossfade || 0
+  end
+
   def inspect
     "#<Pixelator[#{neo_pixel.class}] pixels:#{pixel_count} layers:#{layers.size} #{started ? 'STARTED' : 'STOPPED'}>"
   end
@@ -164,7 +165,8 @@ class Pixelator
     buffer
   end
 
-  attr_reader :settings
+  attr_reader :settings, :incoming_scene, :crossfade_time
+
 end
 
 NotAllowed = Class.new(StandardError)
