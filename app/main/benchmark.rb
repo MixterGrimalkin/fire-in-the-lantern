@@ -7,7 +7,7 @@ wait = 3
 
 factory adapter_override: :BenchmarkNeoPixel
 
-puts "Running Pixelator benchmark @ #{px.fps}fps . . . ."
+puts "Running Pixelator benchmark @ #{px.frame_rate}fps . . . ."
 puts
 neo.start_recording 'startup'
 px.start

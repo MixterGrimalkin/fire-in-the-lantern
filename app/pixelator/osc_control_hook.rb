@@ -32,7 +32,7 @@ class OscControlHook
 
   def switch_scene(message)
     scene_name, crossfade = *scene_params(message)
-    pixelator.load_scene scene_name, crossfade: crossfade.to_i
+    pixelator.load_scene scene_name, crossfade: crossfade
     message "Loaded Scene: #{scene_name} (from #{message.ip_address}:#{message.ip_port})"
   rescue Errno::ENOENT
     message "Sorry bud, I don't know how to #{scene_name}"

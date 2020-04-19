@@ -52,6 +52,4 @@ RSpec.describe Factory do
     expect(neo_override.path).to eq 'winding'
   end
 
-
-
 end

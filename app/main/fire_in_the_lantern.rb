@@ -12,6 +12,7 @@ require_relative '../neo_pixel/direct_osc_server'
 require_relative '../lib/color'
 require_relative '../lib/color_a'
 require_relative '../lib/color_tools'
+require_relative '../lib/colors'
 require_relative '../lib/utils'
 require_relative '../lib/errors'
 
