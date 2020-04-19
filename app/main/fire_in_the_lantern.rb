@@ -28,7 +28,7 @@ module FireInTheLantern
       include Colors
       include Utils
       include Forwardable
-      def_delegators :factory, :neo, :px, :osc, :scn, :clear
+      def_delegators :factory, :neo, :px, :osc, :scn, :clear, :settings
       logo
     end
   end

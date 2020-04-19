@@ -1,4 +1,4 @@
-require_relative 'fire_in_the_lantern'
+require_relative '../main/fire_in_the_lantern'
 
 include FireInTheLantern
 

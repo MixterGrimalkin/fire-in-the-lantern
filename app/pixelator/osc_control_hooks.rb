@@ -6,12 +6,12 @@ class OscControlHooks
     @pixelator, @port = pixelator, port
     @server_ip = local_ip_address
 
-    attach_hook 'scene'
-    attach_hook 'brightness'
-    attach_hook 'clear'
-    attach_hook 'stop'
-    attach_hook 'restart'
-    attach_hook 'reboot'
+    attach_hook :scene
+    attach_hook :brightness
+    attach_hook :clear
+    attach_hook :stop
+    attach_hook :restart
+    attach_hook :reboot
   end
 
   attr_reader :pixelator, :server_ip, :port
@@ -30,8 +30,8 @@ class OscControlHooks
   end
 
   def attach_hook(address)
-    server.add_method "/#{address}" do |message|
-      send(address.to_sym, message)
+    server.add_method "/#{address.to_s}" do |message|
+      send(address, message)
     end
   end
 

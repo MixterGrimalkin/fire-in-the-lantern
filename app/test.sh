@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 clear
-ruby main/test.rb $*
+ruby runners/test.rb $*

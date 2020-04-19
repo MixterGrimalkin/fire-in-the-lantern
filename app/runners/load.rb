@@ -1,8 +1,8 @@
-require_relative 'fire_in_the_lantern'
+require_relative '../main/fire_in_the_lantern'
 
 include FireInTheLantern
 
-unless (scene_name = ARGV[0])
+unless (scene_name = (ARGV[0] || settings.default_scene))
   message 'Specify a Scene to load'
   exit
 end
