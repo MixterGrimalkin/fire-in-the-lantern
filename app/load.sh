@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 clear
-ruby main/load_scene.rb $*
+export EXIT=9
+while [ ${EXIT} -eq 9 ]
+do
+    ruby main/load_scene.rb $*
+    EXIT=$?
+done
+
 

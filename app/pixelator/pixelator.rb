@@ -16,7 +16,7 @@ class Pixelator
     @frame_rate = frame_rate
     @render_thread = nil
     @started = false
-    OscControlHook.new(self, port: osc_control_port).start if osc_control_port
+    OscControlHooks.new(self, port: osc_control_port, settings: settings).start if osc_control_port
     clear
   end
 
