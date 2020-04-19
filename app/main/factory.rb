@@ -73,7 +73,7 @@ class Factory
   end
 
   DEFAULT_CONFIG = {
-      Adapter: 'OscNeoPixel',
+      Adapter: 'WsNeoPixel',
       Pixelator: {
           frame_rate: 30,
           osc_control_port: 3333
