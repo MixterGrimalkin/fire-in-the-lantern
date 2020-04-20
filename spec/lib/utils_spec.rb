@@ -1,4 +1,4 @@
-require_relative '../../app/lib/utils'
+require_relative '../../fitl/lib/utils'
 
 RSpec.describe 'Utils Module' do
   include Utils

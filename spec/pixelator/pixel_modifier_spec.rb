@@ -1,6 +1,6 @@
-require_relative '../../app/pixelator/pixelator'
-require_relative '../../app/pixelator/layer'
-require_relative '../../app/neo_pixel/neo_pixel'
+require_relative '../../fitl/pixelator/pixelator'
+require_relative '../../fitl/pixelator/layer'
+require_relative '../../fitl/neo_pixel/neo_pixel'
 
 RSpec.describe 'Pixel Modifiers' do
 

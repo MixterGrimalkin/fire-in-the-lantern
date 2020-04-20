@@ -1,5 +1,5 @@
-require_relative '../../app/neo_pixel/neo_pixel'
-require_relative '../../app/pixelator/pixelator'
+require_relative '../../fitl/neo_pixel/neo_pixel'
+require_relative '../../fitl/pixelator/pixelator'
 
 RSpec.describe Scene do
 

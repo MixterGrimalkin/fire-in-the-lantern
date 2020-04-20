@@ -1,6 +1,6 @@
-require_relative '../../app/lib/color'
-require_relative '../../app/lib/color_a'
-require_relative '../../app/lib/color_tools'
+require_relative '../../fitl/lib/color'
+require_relative '../../fitl/lib/color_a'
+require_relative '../../fitl/lib/color_tools'
 
 RSpec.describe 'ColorTools' do
   include ColorTools

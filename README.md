@@ -10,16 +10,16 @@ and **Direct OSC Control**. These are detailed below.
 
 I haven't packaged this up nicely yet, so to install this software on a Raspberry Pi
 you will need to either clone this repo directly onto the Pi, or clone it to another
-machine and run the `deploy.sh` Bash script to upload the contents of the `/app` 
-directory to `/home/pi/fire-lanterns` on the target Pi. 
+machine and run the `deploy.sh` script to upload the contents of the `/fitl` 
+directory to `/home/pi/fitl` on the target Pi. 
 This script reads the target IP address from the `.pi` file in the repo root, and will 
 create the target directory if it doesn't exist.
 
 The latter is preferable, unless you particularly want to run the `rspec`
 tests on the Pi itself, which probably isn't necessary.
 
-In either case, move to the `/home/pi/fire-lanterns` 
-(or `wherever-you-cloned-it/fire-lanterns/app`) directory and run one of the 
+In either case, move to the `/home/pi/fitl` 
+(or `wherever-you-cloned-it/fire-in-the-lantern/fitl`) directory and run one of the 
 Bash scripts there to start the software in the various modes.
 
 **Note:** You will almost certainly go through a minor Dependency Nightmare to get

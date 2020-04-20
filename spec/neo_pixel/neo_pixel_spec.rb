@@ -1,4 +1,4 @@
-require_relative '../../app/neo_pixel/neo_pixel'
+require_relative '../../fitl/neo_pixel/neo_pixel'
 
 RSpec.describe NeoPixel do
 
