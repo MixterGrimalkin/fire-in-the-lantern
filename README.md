@@ -149,8 +149,6 @@ pi@rasp69:~/fire-lanterns$ sudo ./session.sh -init
 
        p  i  x  e  l  a  t  o  r
 
-   OSC Control Hooks @ 192.168.0.69:3333
-   
    px = #<Pixelator[WsNeoPixel] pixels:35 layers:1 STARTED>
 
 >> px.load_scene 'swirls'

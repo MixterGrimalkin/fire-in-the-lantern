@@ -1,13 +1,14 @@
 class Factory
   include Utils
 
-  def initialize(filename: '../.fitl.json', adapter_override: nil)
+  def initialize(filename: '../.fitl.json', adapter_override: nil, disable_osc_hooks: false)
     @filename = filename
     @config = read_config
     @adapter_override = adapter_override
+    @disable_osc_hooks = disable_osc_hooks
   end
 
-  attr_reader :filename, :config, :adapter_override
+  attr_reader :filename, :config, :adapter_override, :disable_osc_hooks
 
   def settings
     @settings ||= OpenStruct.new(config.fetch(:Settings, {}))
@@ -65,7 +66,9 @@ class Factory
   end
 
   def px_config
-    config.fetch(:Pixelator).merge(neo_pixel: neo, settings: settings)
+    config.fetch(:Pixelator)
+        .merge(neo_pixel: neo, settings: settings)
+        .merge(disable_osc_hooks ? {osc_control_port: nil} : {})
   end
 
   def osc_config

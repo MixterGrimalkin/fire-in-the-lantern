@@ -33,8 +33,12 @@ module FireInTheLantern
     end
   end
 
-  def factory(filename: '../.fitl.json', adapter_override: nil)
-    @factory ||= Factory.new(filename: filename, adapter_override: adapter_override)
+  def factory(filename: '../.fitl.json', adapter_override: nil, disable_osc_hooks: false)
+    @factory ||= Factory.new(
+        filename: filename,
+        adapter_override: adapter_override,
+        disable_osc_hooks: disable_osc_hooks
+    )
   end
 
 end

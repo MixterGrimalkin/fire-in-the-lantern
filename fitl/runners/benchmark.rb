@@ -5,7 +5,7 @@ include FireInTheLantern
 test_scenes = ARGV.empty? ? %w(water swirls other_swirls) : ARGV
 wait = 3
 
-factory adapter_override: :BenchmarkNeoPixel
+factory adapter_override: :BenchmarkNeoPixel, disable_osc_hooks: true
 
 puts "Running Pixelator benchmark @ #{px.frame_rate}fps . . . ."
 puts
