@@ -1,7 +1,7 @@
 {
   "Adapter": "OscNeoPixel",
   "Pixelator": {
-    "frame_rate": 30,
+    "frame_rate": 20,
     "osc_control_port": 3333
   },
   "NeoPixel": {
@@ -14,7 +14,7 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "localhost",
+    "host": "192.168.0.34",
     "port": 3333,
     "address": "data"
   },
@@ -33,10 +33,11 @@
     "address": "data"
   },
   "Settings": {
-    "scenes_dir": "scenes",
+    "scenes_dir": "../scenes/converted",
     "monitor_fps": false,
     "max_over_sample": 6,
     "default_scene": "day",
-    "default_crossfade": 1
+    "default_crossfade": 1,
+    "allow_remote_reboot": false
   }
 }

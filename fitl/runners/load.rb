@@ -7,16 +7,13 @@ unless (scene_name = (ARGV[0] || settings.default_scene))
   exit
 end
 
-px.start
-px.load_scene scene_name
+px.start.load_scene scene_name
 
 message "Loaded Scene: #{scene_name}"
 
-message 'Press CTRL + C to make it stop'
-wait_for_interrupt
+wait_for_interrupt 'Press CTRL + C to make it stop'
 
-px.stop
-px.clear
+px.stop.clear
 
 neo.off
 neo.close

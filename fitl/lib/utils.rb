@@ -23,7 +23,8 @@ module Utils
     puts
   end
 
-  def wait_for_interrupt
+  def wait_for_interrupt(msg = nil)
+    message msg if msg
     while true
       sleep 0.25
     end
@@ -75,6 +76,73 @@ module Utils
 
       return options[page][response.to_i]
     end
+  end
+
+  def in_rows(array, row_size)
+    result = []
+    array.each_slice(row_size) do |slice|
+      row = []
+      slice.each do |option|
+        row << "#{option}   "
+      end
+      result << row
+    end
+    result
+  end
+
+  ENTER = 13
+  BACKSPACE = 127
+  TAB = 9
+  ESC = 27
+
+  INVERT = "\e[7m"
+  NORMAL = "\e[27m"
+
+  def text_menu(options, label = 'option')
+    puts
+    puts "Start typing to select #{label}:"
+    puts
+    print_table in_rows(options.sort, 5)
+    puts
+
+    input = ''
+    escape = false
+
+    until escape
+      char = STDIN.getch
+      match = word_match(input, options)
+      case char.ord
+        when ENTER
+          input = match[:suggestion].strip
+          match[:remainder] = ''
+          escape = true
+        when BACKSPACE
+          input = input[0..-2]
+        when ESC
+          escape = true
+        else
+          input << char
+      end
+      output = "\r#{input}#{INVERT}#{match[:remainder]}#{NORMAL}"
+      print "\r#{' ' * output.length}   "
+      print output
+    end
+    puts
+    puts
+
+    if options.include? input
+      input
+    else
+      nil
+    end
+  end
+
+  def word_match(string, options)
+    match = options.sort.select { |option| option.start_with? string }.first
+    {
+        suggestion: match || '',
+        remainder: match ? match[string.size+1..-1] : ''
+    }
   end
 
   def symbolize_keys(hash)

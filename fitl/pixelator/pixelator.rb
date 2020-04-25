@@ -144,14 +144,14 @@ class Pixelator
   end
 
   def fade_time_elapsed
-    Time.now - @crossfade_started_at
+    (Time.now - @crossfade_started_at).to_f
   end
 
   def build_crossfade_buffer
     buffer = scene.build_buffer
     if crossfade_time && incoming_scene
       incoming_buffer = incoming_scene.build_buffer
-      elapsed = fade_time_elapsed.to_f
+      elapsed = fade_time_elapsed
       if elapsed >= crossfade_time
         @scene = incoming_scene
         @incoming_scene = nil

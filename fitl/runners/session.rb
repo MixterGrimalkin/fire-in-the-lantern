@@ -15,10 +15,11 @@ def layers
 end
 
 def scenes(crossfade = px.default_crossfade)
-  scene = pick_from(
+  scene = text_menu(
       Dir.glob("#{px.scenes_dir}/*.json").collect do |filename|
         filename.split('/')[-1].gsub('.json', '')
-      end
+      end,
+      'Scene'
   )
   px.load_scene(scene, crossfade: crossfade) if scene
 end
