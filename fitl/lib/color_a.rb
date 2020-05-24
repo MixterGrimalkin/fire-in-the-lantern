@@ -45,12 +45,13 @@ class ColorA
       end
     end
 
-    def mix(color_as)
+    def mix(colors)
       color_sum = Color.new
       alpha_sum = 0.0
       color_count = 0
       alpha_count = 0
-      color_as.each do |color_a|
+      colors.each do |color|
+        color_a = ColorA.cast(color)
         if color_a.color
           color_sum += color_a.color
           alpha_sum += color_a.alpha

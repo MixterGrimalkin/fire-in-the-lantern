@@ -28,8 +28,8 @@ class ColorTools
       arc_size.times do |i|
         result[i] = ColorA.create(*COMPONENTS.collect { |c| current[c] })
         if sym
-          mirror_p = size - i - 1
-          result[mirror_p] = result[i]
+          mirror_i = size - i - 1
+          result[mirror_i] = result[i]
         end
         COMPONENTS.each { |c| current[c] += delta[c] }
       end
