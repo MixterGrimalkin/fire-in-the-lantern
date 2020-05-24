@@ -17,5 +17,6 @@ module Colors
   CYAN = Color.new 0, 255, 255
 
   ORANGE = Color.new 255, 170, 0
+  PURPLE = Color.new 170, 0, 255
 
 end
