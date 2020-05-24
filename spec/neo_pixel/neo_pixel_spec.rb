@@ -14,35 +14,35 @@ RSpec.describe NeoPixel do
   let(:empty) { [black, black, black, black] }
   let(:pattern) { [white, cyan, black, yellow] }
 
-  it '#initialize' do
+  it '.initialize' do
     expect_any_instance_of(NeoPixel).not_to receive(:show)
     expect(neo_pixel.contents).to eq empty
   end
 
-  it 'set pixel' do
+  it 'set' do
     expect(neo_pixel[2]).to eq black
     neo_pixel[2] = yellow
-    expect(neo_pixel.contents).to eq [black, black, yellow, black]
     expect(neo_pixel[2]).to eq yellow
+    expect(neo_pixel.contents).to eq [black, black, yellow, black]
   end
 
-  it 'set pixel out of range' do
+  it 'set out of range' do
     expect { neo_pixel[-3] = yellow }.to raise_error BadPixelNumber
     expect { neo_pixel[7] = yellow }.to raise_error BadPixelNumber
   end
 
-  it 'write content' do
+  it '.write' do
     expect_any_instance_of(NeoPixel).not_to receive(:show)
     expect(neo_pixel.write pattern).to eq neo_pixel
     expect(neo_pixel.contents).to eq pattern
   end
 
-  it 'write wrong size content' do
+  it '.write wrong size' do
     expect { neo_pixel.write [black, white] }.to raise_error BadPixelNumber
     expect { neo_pixel.write [black, white, white, cyan, black] }.to raise_error BadPixelNumber
   end
 
-  it '#on and #off' do
+  it '.on and .off' do
     expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
     neo_pixel.on
     expect(neo_pixel.contents).to eq [white, white, white, white]

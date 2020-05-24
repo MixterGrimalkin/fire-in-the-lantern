@@ -1,4 +1,4 @@
-module SceneConfig
+module CueConfig
 
   def to_conf
     {

@@ -14,7 +14,7 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "192.168.0.34",
+    "host": "192.168.0.29",
     "port": 3333,
     "address": "data"
   },
@@ -33,7 +33,8 @@
     "address": "data"
   },
   "Settings": {
-    "scenes_dir": "../scenes/converted",
+    "scenes_dir": "scenes",
+    "cues_dir": "scenes/cues",
     "monitor_fps": false,
     "max_over_sample": 6,
     "default_scene": "day",

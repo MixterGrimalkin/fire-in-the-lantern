@@ -17,8 +17,8 @@ class WsNeoPixel < NeoPixel
 
   def show(buffer)
     p = 0
-    buffer.each_slice(3) do |rgb|
-      ws[p] = Ws2812::Color.new(rgb[0], rgb[1], rgb[2])
+    buffer.each_slice(3) do |slice|
+      ws[p] = Ws2812::Color.new(slice[0], slice[1], slice[2])
       p += 1
     end
     ws.show

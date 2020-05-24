@@ -64,7 +64,7 @@ RSpec.describe Color do
   let(:purple) { Color.new(180, 10, 220) }
   let(:purple_20) { ColorA.new(purple, 0.2) }
 
-  it '#blend_over' do
+  it '.blend_over' do
     expect(red.blend_over yellow)
         .to eq red
 
@@ -82,7 +82,7 @@ RSpec.describe Color do
 
   end
 
-  it '#blend_under' do
+  it '.blend_under' do
     expect(red.blend_over(yellow, 0.25)).to eq yellow.blend_over(red, 0.75)
   end
 

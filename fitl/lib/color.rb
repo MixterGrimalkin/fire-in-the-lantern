@@ -5,12 +5,26 @@ class Color
   include ColorTools
 
   def initialize(red = 0, green = red, blue = red, white = 0)
-    @red, @green, @blue, @white = *cap_comps(red, green, blue, white)
     @real_red, @real_green, @real_blue, @real_white = red, green, blue, white
   end
 
-  attr_reader :red, :green, :blue, :white,
-              :real_red, :real_green, :real_blue, :real_white
+  attr_reader :real_red, :real_green, :real_blue, :real_white
+
+  def red
+    @red ||= cap_comp(real_red)
+  end
+
+  def green
+    @green ||= cap_comp(real_green)
+  end
+
+  def blue
+    @blue ||= cap_comp(real_blue)
+  end
+
+  def white
+    @white ||= cap_comp(real_white)
+  end
 
   def +(other)
     Color.new(

@@ -16,8 +16,12 @@ module ColorTools
     end
   end
 
+  def cap_comp(comp)
+    [0, [MAX, comp.to_i].min].max
+  end
+
   def cap_comps(r, g, b, w)
-    [r, g, b, w].collect { |c| [0, [MAX, c.to_i].min].max }
+    [r, g, b, w].collect { |c| cap_comp(c) }
   end
 
   def scale_comps(scale, r, g, b, w)

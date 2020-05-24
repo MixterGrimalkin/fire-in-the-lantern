@@ -42,7 +42,7 @@ RSpec.describe Pixelator do
         .to eq [red, blue, black, blue, red, orange, dim_orange, black, blue, red]
   end
 
-  context '#start and #stop' do
+  context '.start and .stop' do
     it 'starts and stops the rendering thread' do
       expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
       expect(px.started).to eq false
@@ -62,7 +62,7 @@ RSpec.describe Pixelator do
     end
   end
 
-  it '#all_on and #all_off stop rendering thread' do
+  it '.all_on and .all_off stop rendering thread' do
     px.all_on
     expect(neo.contents).to eq [full_white] * 10
     px.all_off
@@ -91,13 +91,13 @@ RSpec.describe Pixelator do
     expect(neo.contents).to eq [black] * 10
   end
 
-  context 'given a scene' do
+  context 'given a scene with a cue' do
 
     before do
-      px.layer :a, canvas: [0, 5, 6]
-      px.layer :b, canvas: [2, 4, 7]
-      px[:a].fill red, 0.8
-      px[:b].fill white
+      scene.layer :a, canvas: [0, 5, 6]
+      scene.layer :b, canvas: [2, 4, 7]
+      scene[:a].fill red, 0.8
+      scene[:b].fill white
       px.render
     end
 
@@ -107,7 +107,7 @@ RSpec.describe Pixelator do
     let(:faded_red) { Color.new 204, 0, 0 }
     let(:faded_dk_red) { Color.new 102, 0, 0 }
 
-    let(:saved_scene) do
+    let(:saved_cue) do
       {layers: [
           {key: :base,
            canvas: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -148,7 +148,7 @@ RSpec.describe Pixelator do
       ]}.to_json
     end
 
-    it '#clear' do
+    it '.clear' do
       expect(neo.contents)
           .to eq [faded_red, black, white, black, white,
                   faded_red, faded_red, white, black, black]
@@ -162,24 +162,24 @@ RSpec.describe Pixelator do
       expect(px.layers.size).to eq 1
     end
 
-    it '#save_scene' do
-      px[:a].opacity = 0.5
-      px[:a].layer_scroller.start 1
-      px[:a].layer_scroller.over_sample = 8
-      px[:b].pattern_scroller.start -2
-      px[:b].hide
-      px[:b].fade_out 2, bounce: true
+    it '.save_cue' do
+      scene[:a].opacity = 0.5
+      scene[:a].layer_scroller.start 1
+      scene[:a].layer_scroller.over_sample = 8
+      scene[:b].pattern_scroller.start -2
+      scene[:b].hide
+      scene[:b].fade_out 2, bounce: true
 
       expect(File).to receive(:write)
-                          .with('scenes/my_scene.json', saved_scene)
+                          .with('scenes/cues/my_cue.json', saved_cue)
 
-      px.save_scene 'my_scene'
+      px.save_cue 'my_cue'
     end
 
-    it '#load_scene' do
+    it '.load_cue' do
       allow(File).to receive(:read)
-                         .with('scenes/my_scene.json')
-                         .and_return(File.read('./spec/fixtures/scene.json'))
+                         .with('scenes/cues/my_cue.json')
+                         .and_return(File.read('./spec/fixtures/cue.json'))
 
       px.clear
       expect(neo.contents)
@@ -187,27 +187,27 @@ RSpec.describe Pixelator do
                   black, black, black, black, black]
       expect(px.layers.size).to eq 1
 
-      px.load_scene('my_scene')
+      px.load_cue('my_cue')
 
       expect(neo.contents)
           .to eq [faded_dk_red, black, white, black, white,
                   faded_dk_red, faded_dk_red, white, black, black]
-      expect(px.layers.size).to eq 4
-      expect(px[:a].opacity).to eq 0.5
-      expect(px[:a].visible).to eq true
-      expect(px[:a].modifiers.active?).to eq false
-      expect(px[:a].layer_scroller.period).to eq 1
-      expect(px[:a].layer_scroller.over_sample).to eq 4
+      expect(scene.layers.size).to eq 4
+      expect(scene[:a].opacity).to eq 0.5
+      expect(scene[:a].visible).to eq true
+      expect(scene[:a].modifiers.active?).to eq false
+      expect(scene[:a].layer_scroller.period).to eq 1
+      expect(scene[:a].layer_scroller.over_sample).to eq 4
 
-      expect(px[:b].opacity).to eq(1.0)
-      expect(px[:b].visible).to eq true
-      expect(px[:b].modifiers.active?).to eq false
-      expect(px[:b].pattern_scroller.period).to eq -2
-      expect(px[:b].pattern_scroller.over_sample).to eq 1
+      expect(scene[:b].opacity).to eq(1.0)
+      expect(scene[:b].visible).to eq true
+      expect(scene[:b].modifiers.active?).to eq false
+      expect(scene[:b].pattern_scroller.period).to eq -2
+      expect(scene[:b].pattern_scroller.over_sample).to eq 1
 
-      expect(px[:c].visible).to eq false
-      expect(px[:c].modifiers.active?).to eq true
-      expect(px[:c].modifiers.pixel_config(0))
+      expect(scene[:c].visible).to eq false
+      expect(scene[:c].modifiers.active?).to eq true
+      expect(scene[:c].modifiers.pixel_config(0))
           .to include(
                   bouncer: true,
                   initial_alpha: 0.0,
