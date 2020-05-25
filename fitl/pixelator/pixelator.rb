@@ -1,12 +1,11 @@
-require_relative '../lib/color'
-require_relative '../lib/color_tools'
+require_relative '../color/colors'
 require_relative '../lib/utils'
 require_relative 'scene'
 require 'forwardable'
 require 'json'
 
 class Pixelator
-  include ColorTools
+  include Colors
   include Utils
   extend Forwardable
 

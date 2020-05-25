@@ -1,4 +1,4 @@
-require_relative '../lib/colors'
+require_relative '../color/colors'
 require_relative 'layer'
 require_relative 'cue'
 

@@ -1,6 +1,4 @@
-require_relative '../lib/color'
-require_relative '../lib/colors'
-require_relative '../lib/color_tools'
+require_relative '../color/colors'
 
 class NeoPixel
   include Colors

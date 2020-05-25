@@ -24,9 +24,9 @@ RSpec.describe 'Pixel Modifiers' do
   end
 
   it 'knows if it is active' do
-    expect(layer.modifiers.active?).to eq false
+    expect(layer.fader.active?).to eq false
     layer.fade_in 1
-    expect(layer.modifiers.active?).to eq true
+    expect(layer.fader.active?).to eq true
   end
 
   it 'fades entire layer in and out' do
@@ -40,15 +40,15 @@ RSpec.describe 'Pixel Modifiers' do
 
     layer.fade_in 1
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red_50, white_50, red_25, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red, white, red_50, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red, white, red_50, black]
 
@@ -57,15 +57,15 @@ RSpec.describe 'Pixel Modifiers' do
     px.render
     expect(neo.contents).to eq [black, red, white, red_50, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red_50, white_50, red_25, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, black, black, black, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, black, black, black, black]
   end
@@ -80,23 +80,23 @@ RSpec.describe 'Pixel Modifiers' do
     px.render
     expect(neo.contents).to eq [black, black, black, black, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red_25, white_25, red_12, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red_50, white_50, red_25, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red_25, white_25, red_12, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, black, black, black, black]
 
-    layer.modifiers.update 0.5
+    layer.fader.update 0.5
     px.render
     expect(neo.contents).to eq [black, red_25, white_25, red_12, black]
   end

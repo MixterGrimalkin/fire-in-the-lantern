@@ -1,6 +1,12 @@
 require_relative 'color'
+require_relative 'color_a'
+require_relative 'tools'
 
 module Colors
+
+  RGB = [:red, :green, :blue]
+  RGBW = RGB + [:white]
+  RGBW_A = RGBW + [:alpha]
 
   BLACK = Color.new
   WHITE = Color.new 255
@@ -17,6 +23,10 @@ module Colors
   CYAN = Color.new 0, 255, 255
 
   ORANGE = Color.new 255, 170, 0
-  PURPLE = Color.new 170, 0, 255
+  INDIGO = Color.new 160, 0, 255
+  VIOLET = Color.new 255, 0, 160
+
+  EMPTY = ColorA.new
+  BLACKOUT = ColorA.new Color.new
 
 end

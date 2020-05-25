@@ -114,15 +114,15 @@ RSpec.describe Pixelator do
            background: black,
            opacity: 1.0,
            visible: true,
-           pattern: [black_100, black_100, black_100, black_100, black_100,
-                     black_100, black_100, black_100, black_100, black_100]
+           contents: [black_100, black_100, black_100, black_100, black_100,
+                      black_100, black_100, black_100, black_100, black_100]
           },
           {key: :a,
            canvas: [0, 5, 6],
            background: nil,
            opacity: 0.5,
            visible: true,
-           pattern: [red_80, red_80, red_80],
+           contents: [red_80, red_80, red_80],
            layer_scroller: {
                period: 1.0,
                over_sample: 8
@@ -133,12 +133,12 @@ RSpec.describe Pixelator do
            background: nil,
            opacity: 1.0,
            visible: false,
-           pattern: [white_100, white_100, white_100],
+           contents: [white_100, white_100, white_100],
            pattern_scroller: {
                period: -2.0,
                over_sample: 1
            },
-           modifiers: {
+           fader: {
                bouncers: [true, true, true],
                initial_alphas: [1.0, 1.0, 1.0],
                target_alphas: [0.0, 0.0, 0.0],
@@ -195,19 +195,19 @@ RSpec.describe Pixelator do
       expect(scene.layers.size).to eq 4
       expect(scene[:a].opacity).to eq 0.5
       expect(scene[:a].visible).to eq true
-      expect(scene[:a].modifiers.active?).to eq false
+      expect(scene[:a].fader.active?).to eq false
       expect(scene[:a].layer_scroller.period).to eq 1
       expect(scene[:a].layer_scroller.over_sample).to eq 4
 
       expect(scene[:b].opacity).to eq(1.0)
       expect(scene[:b].visible).to eq true
-      expect(scene[:b].modifiers.active?).to eq false
+      expect(scene[:b].fader.active?).to eq false
       expect(scene[:b].pattern_scroller.period).to eq -2
       expect(scene[:b].pattern_scroller.over_sample).to eq 1
 
       expect(scene[:c].visible).to eq false
-      expect(scene[:c].modifiers.active?).to eq true
-      expect(scene[:c].modifiers.pixel_config(0))
+      expect(scene[:c].fader.active?).to eq true
+      expect(scene[:c].fader.pixel_config(0))
           .to include(
                   bouncer: true,
                   initial_alpha: 0.0,

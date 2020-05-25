@@ -1,14 +1,15 @@
-require_relative '../../fitl/lib/color'
-require_relative '../../fitl/lib/color_a'
+require_relative '../../fitl/color/colors'
 
-RSpec.describe Color do
+include Colors
+
+RSpec.describe Colors::Color do
 
   it '.initialize' do
     expect(Color.new).to eq(Color.new(0, 0, 0, 0))
     expect(Color.new(255)).to eq(Color.new(255, 255, 255, 0))
   end
 
-  it 'returns cropped component values' do
+  it '.clip' do
     expect(Color.new(300, 0, 0)).to eq Color.new(255, 0, 0)
     expect(Color.new(200, -50, 0)).to eq Color.new(200, 0, 0)
     expect(Color.new(200, 50, 0, 900)).to eq Color.new(200, 50, 0, 255)
@@ -71,7 +72,7 @@ RSpec.describe Color do
     expect(red.blend_over yellow, 0.5).to eq orange
 
     expect(full_white.blend_over red, 0.25).to eq Color.new 200, 50, 50, 50
-    expect(red.blend_over full_white, 0.25).to eq Color.new(200, 150, 150, 150)
+    expect(red.blend_over full_white, 0.25).to eq Color.new 200, 150, 150, 150
   end
 
   it '.blend_under' do
@@ -88,11 +89,12 @@ RSpec.describe Color do
     expect(Color.blend_range(yellows, reds, 0.0)).to eq yellows
     expect(Color.blend_range(yellows, reds, 0.5)).to eq oranges
     expect { Color.blend_range(yellows, wrong_yellows) }
-        .to raise_error(Color::BlendRangeMismatch)
+        .to raise_error(BlendRangeMismatch)
   end
 
   it '.to_s and .from_s' do
-    expect(Color.from_s('[190,0,80,10]')).to eq Color.new(190, 0, 80, 10)
+    expect(Color.from_s('(190,0,80,10)')).to eq Color.new(190, 0, 80, 10)
+    expect(Color.new(209, 109, 180).to_s).to eq '(209,109,180,0)'
     expect(Color.from_s(yellow.to_s)).to eq yellow
   end
 end

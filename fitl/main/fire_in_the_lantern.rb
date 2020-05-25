@@ -9,12 +9,8 @@ require_relative '../neo_pixel/ws_neo_pixel'
 require_relative '../neo_pixel/benchmark_neo_pixel'
 require_relative '../neo_pixel/direct_osc_server'
 
-require_relative '../lib/color'
-require_relative '../lib/color_a'
-require_relative '../lib/color_tools'
-require_relative '../lib/colors'
+require_relative '../color/colors'
 require_relative '../lib/utils'
-require_relative '../lib/errors'
 
 require_relative 'factory'
 

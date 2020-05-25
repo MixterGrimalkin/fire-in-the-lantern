@@ -1,7 +1,7 @@
-require_relative '../lib/color_tools'
+require_relative '../color/colors'
 
 class Scroller
-  include ColorTools
+  include Colors
 
   def initialize(settings: OpenStruct.new)
     @settings = settings
@@ -50,7 +50,7 @@ class Scroller
     end
   end
 
-  def scroll(pattern)
+  def apply(pattern)
     @offset %= ((offset >= 0 ? pattern.size : -pattern.size) * over_sample)
 
     over_sampled = [ColorA.new] * (pattern.size * over_sample)
@@ -71,7 +71,7 @@ class Scroller
     over_sampled.each do |color_a|
       average_buffer << color_a
       if average_buffer.size == over_sample
-        result[pixel] = mix_color_as(average_buffer)
+        result[pixel] = ColorA.mix(average_buffer)
         average_buffer = []
         pixel += 1
       end

@@ -1,6 +1,6 @@
 require_relative 'modifiers_config'
 
-class Modifiers
+class Fader
   include ModifiersConfig
 
   def initialize(size)
