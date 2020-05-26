@@ -8,14 +8,14 @@ require 'ostruct'
 class Layer
   include Colors
 
-  def initialize(size, fill: nil, settings: OpenStruct.new)
+  def initialize(size, fill: nil, scroller: nil, settings: OpenStruct.new)
     @settings = settings
     @size = size
     @visible = true
     @opacity = 1.0
     fill(fill)
 
-    @scroller = Scroller.new settings: settings
+    @scroller = scroller || Scroller.new(size, settings: settings)
     @fader = Fader.new size
   end
 

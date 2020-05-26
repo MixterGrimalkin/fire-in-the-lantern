@@ -8,10 +8,10 @@ module Colors
         [ColorA.cast(color)] * size
       end
 
-      def blocks(*args)
+      def blocks(*color_size)
         result = []
-        args.each_slice(2) do |slice|
-          result << block(slice[0], slice[1])
+        color_size.each_slice(2) do |color, size|
+          result << block(color, size)
         end
         result.flatten
       end

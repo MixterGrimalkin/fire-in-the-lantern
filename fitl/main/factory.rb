@@ -112,7 +112,7 @@ class Factory
       Settings: {
           scenes_dir: 'scenes',
           monitor_fps: false,
-          max_over_sample: 6,
+          max_oversample: 6,
           default_scene: 'day',
           default_crossfade: 1,
           allow_remote_reboot: false
