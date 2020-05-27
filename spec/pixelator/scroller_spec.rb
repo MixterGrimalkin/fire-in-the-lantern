@@ -5,9 +5,11 @@ include Colors
 
 RSpec.describe Scroller do
 
-  subject(:scroller) { Scroller.new 12, period: 0.5, oversample: 1 }
+  subject(:scroller) { Scroller.new size: layer_size, period: 0.5, oversample: 1 }
 
-  let(:layer) { Layer.new 12, scroller: scroller }
+  let(:layer) { Layer.new size: layer_size, scroller: scroller }
+
+  let(:layer_size) { 12 }
 
   let(:canvas_size) { 6 }
   let(:blue_base) { [blue] * canvas_size }
@@ -62,6 +64,13 @@ RSpec.describe Scroller do
     expect(scroller.offset).to eq 7
     expect(layer.render_over(blue_base))
         .to eq [red, red, red, blue, blue, red]
+
+    scroller.stop
+
+    scroller.update(3)
+    expect(scroller.offset).to eq 7
+    expect(layer.render_over(blue_base))
+        .to eq [red, red, red, blue, blue, red]
   end
 
   it 'scrolls backwards' do
@@ -77,6 +86,24 @@ RSpec.describe Scroller do
     expect(scroller.offset).to eq -7
     expect(layer.render_over(blue_base))
         .to eq [red, blue, blue, red, blue, red]
+  end
+
+  it 'scroller controlled from layer' do
+    layer.scroll -0.5
+    expect(scroller.active).to eq true
+
+    scroller.update(1)
+    expect(scroller.offset).to eq -2
+    expect(layer.render_over(blue_base))
+        .to eq [red, red, blue, red, red, red]
+
+    layer.stop_scroll
+    expect(scroller.active).to eq false
+
+    scroller.update(1)
+    expect(scroller.offset).to eq -2
+    expect(layer.render_over(blue_base))
+        .to eq [red, red, blue, red, red, red]
   end
 
   it 'resets offset when scroll loops forwards' do
@@ -96,33 +123,48 @@ RSpec.describe Scroller do
         .to eq [red, red, red, blue, red, red]
   end
 
+  context 'Oversampling' do
+    let(:layer_size) { 6 }
 
-# context 'Oversampling' do
-#   let(:before_scroll) { [black, color_full, color_full, black, black, black] }
-#   let(:after_scroll_without_oversampling) { [black, black, color_full, color_full, black, black] }
-#   let(:after_scroll_with_oversampling) { [black, black, color_75, color_full, color_25, black] }
-#   before do
-#     layer.fill color_full
-#     px.render
-#   end
-#   context 'without oversampling' do
-#     it 'scrolls by 1 pixel' do
-#       expect(neo.contents).to eq before_scroll
-#       layer.layer_scroller.start 1
-#       layer.layer_scroller.update 1.25
-#       px.render
-#       expect(neo.contents).to eq after_scroll_without_oversampling
-#     end
-#   end
-#   context 'with 4x oversampling' do
-#     it 'scrolls by 1.25 effective pixels' do
-#       expect(neo.contents).to eq before_scroll
-#       layer.layer_scroller.over_sample = 4
-#       layer.layer_scroller.start 1
-#       layer.layer_scroller.update 1.25
-#       px.render
-#       expect(neo.contents).to eq after_scroll_with_oversampling
-#     end
-#   end
-# end
+    let(:before_scroll) { [black, color_full, color_full, black, black, black] }
+    let(:after_scroll_without_oversampling) { [black, black, color_full, color_full, black, black] }
+    let(:after_scroll_with_oversampling) { [black, black, color_75, color_full, color_25, black] }
+
+    it 'scrolls without oversampling' do
+      layer.draw(before_scroll)
+      expect(layer.render_over(blue_base))
+          .to eq before_scroll
+
+      scroller.start
+      scroller.period = 1
+      scroller.update 1.25
+
+      expect(scroller.offset).to eq 1
+      expect(layer.render_over(blue_base))
+          .to eq after_scroll_without_oversampling
+    end
+
+    it 'scrolls with oversampling' do
+      layer.draw(before_scroll)
+      expect(layer.render_over(blue_base))
+          .to eq before_scroll
+
+      scroller.start
+      scroller.period = 1
+      scroller.oversample = 4
+      expect(scroller.effective_period).to eq 0.25
+      expect(scroller.effective_size).to eq 24
+
+      scroller.update 1.25
+
+      expect(scroller.offset).to eq 5
+      expect(layer.render_over(blue_base))
+          .to eq after_scroll_with_oversampling
+
+      scroller.oversample = 10
+      expect(scroller.effective_period).to eq 0.1
+      expect(scroller.effective_size).to eq 60
+      expect(scroller.offset).to eq 12
+    end
+  end
 end

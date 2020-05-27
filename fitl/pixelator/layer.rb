@@ -1,22 +1,23 @@
 require_relative '../color/colors'
 require_relative '../lib/errors'
-require_relative 'layer_config'
+
 require_relative 'scroller'
 require_relative 'fader'
+
 require 'ostruct'
 
 class Layer
   include Colors
 
-  def initialize(size, fill: nil, scroller: nil, settings: OpenStruct.new)
+  def initialize(size:, visible: true, opacity: 1.0, fill: nil, scroller: nil, fader: nil, settings: OpenStruct.new)
     @settings = settings
     @size = size
-    @visible = true
-    @opacity = 1.0
+    @visible = visible
+    @opacity = opacity
     fill(fill)
 
-    @scroller = scroller || Scroller.new(size, settings: settings)
-    @fader = Fader.new size
+    @scroller = scroller || Scroller.new(size: size, settings: settings)
+    @fader = fader || Fader.new(size)
   end
 
   attr_reader :size, :scroller, :fader
@@ -24,12 +25,12 @@ class Layer
 
   # Drawing
 
-  def fill(color, alpha = 1.0)
-    self.contents = [ColorA.cast(color, alpha)] * size
-  end
-
   def clear
     fill ColorA.new
+  end
+
+  def fill(color, alpha = 1.0)
+    self.contents = [ColorA.cast(color, alpha)] * size
   end
 
   def [](pixel)
@@ -78,6 +79,20 @@ class Layer
     contents.collect(&:alpha)
   end
 
+  # Scroller
+
+  def scroll(period = nil, oversample = nil)
+    scroller.period = period if period
+    scroller.oversample = oversample if oversample
+    scroller.start
+  end
+
+  def stop_scroll
+    scroller.stop
+  end
+
+  # Fader
+
   def fade_in(time = 0, min: 0, max: 1, bounce: false)
     fade time, start: min, target: max, bounce: bounce
   end
@@ -90,13 +105,11 @@ class Layer
     fader.fade time, start: start, target: target, bounce: bounce
   end
 
+  # Update and Render
+
   def update
     scroller.check_and_update
     fader.check_and_update
-  end
-
-  def inspect
-    "#<Layer(#{size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δ=#{scroller}>"
   end
 
   def render_over(base_layer, canvas: default_canvas, alpha: 1.0)
@@ -111,6 +124,10 @@ class Layer
           end
     end
     result
+  end
+
+  def inspect
+    "#<Layer(#{size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δ=#{scroller}>"
   end
 
   private
@@ -132,7 +149,7 @@ class Layer
   end
 
   def default_canvas
-    (0..(size-1)).to_a
+    @default_canvas ||= (0..(size-1)).to_a
   end
 
   def check_pixel_number(pixel)
@@ -145,6 +162,4 @@ class Layer
 
   attr_reader :settings
   attr_accessor :contents
-
-
 end

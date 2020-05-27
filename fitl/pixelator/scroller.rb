@@ -3,20 +3,20 @@ require_relative '../color/colors'
 class Scroller
   include Colors
 
-  def initialize(size, period: 1.0, oversample: nil, settings: OpenStruct.new)
+  def initialize(size:, active: false, period: 1, oversample: 1, settings: OpenStruct.new)
     @settings = settings
     @size = size
+    @active = active
     @period = period
-    @oversample = oversample || max_oversample
+    @oversample = oversample
     refresh_effectives
 
     @active = false
     @offset = 0
   end
 
-  attr_reader :size, :active, :offset, :period,
-              :effective_period, :effective_size,
-              :last_updated, :oversample
+  attr_reader :active, :offset, :size, :period, :oversample,
+              :effective_size, :effective_period
 
   def period=(value)
     @period = value.to_f
@@ -24,10 +24,9 @@ class Scroller
   end
 
   def oversample=(value)
-    @offset /= oversample
+    @offset = ((offset.to_f / oversample) * value).floor
     @oversample = [1, [value.to_i, max_oversample].min].max
     refresh_effectives
-    ref
   end
 
   def refresh_effectives
@@ -35,33 +34,31 @@ class Scroller
     @effective_size = size * oversample
   end
 
-  def check_and_update
-    update(Time.now - last_updated) if active
-  end
-
   def start
     @active = true
     @last_updated = Time.now
-    self
   end
 
   def stop
     @active = false
-    self
+  end
+
+  def check_and_update
+    update(Time.now - last_updated) if active
   end
 
   def update(elapsed_seconds)
     return unless active
 
     if elapsed_seconds >= effective_period.abs
-      @offset += (elapsed_seconds / effective_period)
+      @offset += (elapsed_seconds / effective_period).floor
       @offset %= (offset > 0 ? effective_size : -effective_size)
       @last_updated = Time.now
     end
   end
 
   def apply(pattern)
-    oversampled = [ColorA.new] * (pattern.size * oversample)
+    oversampled = [nil] * (pattern.size * oversample)
     pixel = 0
     pattern.each do |color_a|
       oversample.times do
@@ -73,7 +70,7 @@ class Scroller
 
     return oversampled if oversample == 1
 
-    result = [ColorA.new] * pattern.size
+    result = [nil] * pattern.size
     average_buffer = []
     pixel = 0
     oversampled.each do |color_a|
@@ -91,32 +88,21 @@ class Scroller
     {
         size: size,
         period: period,
-        oversample: oversample
+        oversample: oversample,
+        active: active
     }
   end
 
-  class << self
-
-    def from_h(hash)
-
-    end
-
-
-  end
-
-
   def to_s
-    "#{period}x#{over_sample}"
+    "#{period}x#{oversample}:#{active ? 'ON' : 'OFF'}"
   end
   alias :inspect :to_s
 
-  DEFAULT_OVERSAMPLE = 25
-
   private
 
-  def max_oversample
-    settings.max_oversample || DEFAULT_OVERSAMPLE
-  end
+  attr_reader :last_updated, :settings
 
-  attr_reader :settings
+  def max_oversample
+    settings.max_oversample || 30
+  end
 end

@@ -25,7 +25,7 @@ RSpec.describe Colors::ColorA do
     expect(ColorA.cast(Color.new)).to eq(ColorA.new(Color.new, 1.0))
   end
 
-  it '.red .green .blue. white' do
+  it '.red .green .blue .white' do
     expect(orange.red).to eq 200
     expect(black.green).to eq 0
     expect(purple.blue).to eq 180
@@ -45,5 +45,4 @@ RSpec.describe Colors::ColorA do
     expect(ColorA.from_s('[x0.9]')).to eq(ColorA.new(nil, 0.9))
     expect(ColorA.from_s(purple.to_s)).to eq purple
   end
-
 end

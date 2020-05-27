@@ -73,20 +73,4 @@ RSpec.describe Colors::Tools do
                 ColorA.create(180, 10, 7)])
   end
 
-  # it 'creates a color wheel' do
-  #   expect(ColorTools.wheel(Color.new(100, 0, 0),
-  #                           Color.new(0, 100, 0),
-  #                           Color.new(100, 0, 0),
-  #                           size: 9))
-  #       .to eq([ColorA.create(100, 0, 0),
-  #               ColorA.create(75, 25, 0),
-  #               ColorA.create(50, 50, 0),
-  #               ColorA.create(25, 75, 0),
-  #               ColorA.create(0, 100, 0),
-  #               ColorA.create(25, 75, 0),
-  #               ColorA.create(50, 50, 0),
-  #               ColorA.create(75, 25, 0),
-  #               ColorA.create(100, 0, 0)])
-  # end
-
 end

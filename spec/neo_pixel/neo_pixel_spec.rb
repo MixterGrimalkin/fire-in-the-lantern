@@ -1,5 +1,7 @@
 require_relative '../../fitl/neo_pixel/neo_pixel'
 
+include Colors
+
 RSpec.describe NeoPixel do
 
   subject(:neo_pixel) { NeoPixel.new pixel_count: 4, mode: mode }
@@ -12,7 +14,7 @@ RSpec.describe NeoPixel do
   let(:cyan) { Color.new 0, 200, 255 }
 
   let(:empty) { [black, black, black, black] }
-  let(:contents) { [white, cyan, black, yellow] }
+  let(:pattern) { [white, cyan, black, yellow] }
 
   it '.initialize' do
     expect_any_instance_of(NeoPixel).not_to receive(:show)

@@ -5,7 +5,7 @@ include Colors
 
 RSpec.describe Layer do
 
-  subject(:layer) { Layer.new 4 }
+  subject(:layer) { Layer.new size: 4 }
 
   let(:base) { [BLACK, BLACK, BLACK, BLACK] }
   let(:blue_base) { [blue, blue, blue, blue] }
@@ -114,9 +114,9 @@ RSpec.describe Layer do
   end
 
   it 'pre-fills a layer' do
-    layer = Layer.new 3, fill: red
+    layer = Layer.new size: 3, fill: red
     expect(layer.to_a).to eq [red_a, red_a, red_a]
-    layer = Layer.new 3, fill: blue_a
+    layer = Layer.new size: 3, fill: blue_a
     expect(layer.to_a).to eq [blue_a, blue_a, blue_a]
   end
 
