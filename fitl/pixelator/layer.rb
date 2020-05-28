@@ -9,19 +9,50 @@ require 'ostruct'
 class Layer
   include Colors
 
-  def initialize(size:, visible: true, opacity: 1.0, fill: nil, scroller: nil, fader: nil, settings: OpenStruct.new)
+  def initialize(size:, name: '',
+                 visible: true, opacity: 1.0, fill: nil,
+                 scroller: nil, fader: nil,
+                 contents: nil,
+                 settings: OpenStruct.new
+  )
     @settings = settings
+    @name = name
     @size = size
     @visible = visible
     @opacity = opacity
-    fill(fill)
 
-    @scroller = scroller || Scroller.new(size: size, settings: settings)
+    if contents && contents.size == size
+      self.contents = contents.collect do |element|
+        case element
+          when ColorA
+            element
+          when String
+            ColorA.from_s element
+          else
+            ColorA.new
+        end
+      end
+    else
+      fill(fill)
+    end
+
+    @scroller =
+        case scroller
+          when Scroller
+            @scroller = scroller
+          when Hash
+            @scroller = Scroller.new({size: size, settings: settings}.merge(scroller))
+          else
+            Scroller.new(size: size, settings: settings)
+        end
+
     @fader = fader || Fader.new(size)
   end
 
   attr_reader :size, :scroller, :fader
-  attr_accessor :visible, :opacity
+
+  attr_accessor :visible, :opacity, :name, :contents
+  private :contents=
 
   # Drawing
 
@@ -105,6 +136,23 @@ class Layer
     fader.fade time, start: start, target: target, bounce: bounce
   end
 
+  # Save
+
+  def to_h
+    {
+        name: name,
+        size: size,
+        visible: visible,
+        opacity: opacity,
+        scroller: scroller.to_h,
+        contents: contents.collect(&:to_s)
+    }
+  end
+
+  def inspect
+    "#<Layer(#{size}) α=#{opacity} δ=#{scroller} #{visible ? 'ON ' : 'OFF'}>"
+  end
+
   # Update and Render
 
   def update
@@ -124,10 +172,6 @@ class Layer
           end
     end
     result
-  end
-
-  def inspect
-    "#<Layer(#{size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δ=#{scroller}>"
   end
 
   private
@@ -161,5 +205,4 @@ class Layer
   end
 
   attr_reader :settings
-  attr_accessor :contents
 end

@@ -30,7 +30,7 @@ RSpec.describe NeoPixel do
 
   it 'set out of range' do
     expect { neo_pixel[-3] = yellow }.to raise_error BadPixelNumber
-    expect { neo_pixel[7] = yellow }.to raise_error BadPixelNumber
+    expect { neo_pixel[7] }.to raise_error BadPixelNumber
   end
 
   it '.write' do

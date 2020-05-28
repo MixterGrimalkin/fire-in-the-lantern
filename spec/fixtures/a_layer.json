@@ -1,0 +1,15 @@
+{
+  "name": "My Lovely Layer",
+  "size": 2,
+  "visible": true,
+  "opacity": 0.5,
+  "scroller": {
+    "period": -0.8,
+    "oversample": 9,
+    "active": true
+  },
+  "contents": [
+    "[(100,200,0,50)x1.0]",
+    "[(100,0,50,0)x0.5]"
+  ]
+}

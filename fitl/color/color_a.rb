@@ -77,8 +77,13 @@ module Colors
 
       def from_s(color_a_string)
         return nil unless color_a_string && !color_a_string.empty?
-        comps = color_a_string[1..-2].split('x')
-        ColorA.new Color.from_s(comps[0]), comps[1].to_f
+        color_string, alpha_string = color_a_string[1..-2].split('x')
+        ColorA.new Color.from_s(color_string), alpha_string.to_f
+      end
+
+      def from_string_array(array)
+        return nil unless array
+        array.collect { |color_a_string| ColorA.from_s color_a_string }
       end
 
     end

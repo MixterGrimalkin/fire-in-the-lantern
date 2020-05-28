@@ -26,10 +26,6 @@ class Factory
     @osc ||= DirectOscServer.new(osc_config)
   end
 
-  def scn
-    px.scene
-  end
-
   def clear
     px.clear
   end
@@ -110,11 +106,13 @@ class Factory
           address: 'data'
       },
       Settings: {
-          scenes_dir: 'scenes',
-          monitor_fps: false,
+          asset_locations: {
+              story: 'stories',
+              scene: 'scenes',
+              cue: 'cues',
+              layer: 'layers',
+          },
           max_oversample: 6,
-          default_scene: 'day',
-          default_crossfade: 1,
           allow_remote_reboot: false
       }
   }

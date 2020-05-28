@@ -1,15 +1,14 @@
 require_relative '../../fitl/neo_pixel/neo_pixel'
 require_relative '../../fitl/pixelator/pixelator'
+require_relative '../../fitl/color/tools'
 
-require 'json'
+include Colors
 
 RSpec.describe Pixelator do
 
-  let(:neo) { NeoPixel.new pixel_count: 10 }
-  let(:px) { Pixelator.new neo_pixel: neo }
-  let(:scene) { px.scene }
+  subject(:px) { Pixelator.new neo_pixel: neo }
 
-  let(:all_pixels) { [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }
+  let(:neo) { NeoPixel.new pixel_count: 10 }
 
   let(:black) { Color.new }
   let(:white) { Color.new 255 }
@@ -21,22 +20,105 @@ RSpec.describe Pixelator do
   let(:orange) { Color.new 200, 180, 0 }
   let(:dim_orange) { Color.new 100, 90, 0 }
 
-  it 'initializes pixels' do
+  it '.initialize' do
     expect(px.pixel_count).to eq 10
+    expect(px.mode).to eq :layer
+  end
+
+  context 'Layer mode' do
+    before do
+      px.layer_mode
+    end
+
+    it 'creates layer' do
+      expect(px.mode).to eq :layer
+      expect(px.get).to be_a Layer
+    end
+
+    it 'builds layer' do
+      px.build({size: 20,
+                visible: true,
+                opacity: 0.5,
+                fill: red})
+      layer = px.get
+      expect(layer).to be_a Layer
+      expect(layer.size).to eq 20
+      expect(layer.visible).to eq true
+      expect(layer.opacity).to eq 0.5
+      expect(px.buffer).to eq [red / 2] * 10
+    end
+
+    it 'loads layer' do
+      expect(File)
+          .to receive(:read).with('layers/a_layer.json')
+                  .and_return(File.read('./spec/fixtures/a_layer.json'))
+
+      px.load_file 'a_layer'
+      layer = px.get
+      expect(layer.name).to eq 'My Lovely Layer'
+      expect(layer.size).to eq 2
+      expect(layer.visible).to eq true
+      expect(layer.opacity).to eq 0.5
+      expect(layer.scroller.period).to eq -0.8
+      expect(layer.scroller.oversample).to eq 9
+      expect(layer.scroller.active).to eq true
+      expect(layer.contents).to eq [ColorA.create(100, 200, 0, 50, 1.0), ColorA.create(100, 0, 50, 0, 0.5)]
+    end
+
+    it 'saves layer' do
+      expect(File)
+          .to receive(:write).with('layers/a_layer.json', File.read('./spec/fixtures/a_layer.json'))
+
+      px.build({size: 2,
+                name: 'My Lovely Layer',
+                opacity: 0.5,
+                scroller: Scroller.new(size: 2, period: -0.8, oversample: 9, active: false)
+               })
+      px.get[0] = Color.new(100, 200, 0, 50)
+      px.get.set(1, Color.new(100, 0, 50), 0.5)
+      px.get.scroll
+
+      px.save_file 'a_layer'
+    end
+  end
+
+  context 'Cue mode' do
+    before do
+      px.cue_mode
+    end
+
+    it 'creates cue' do
+      expect(px.mode).to eq :cue
+      expect(px.get).to be_a Cue
+    end
+  end
+
+  context 'Scene mode' do
+    before do
+      px.scene_mode
+    end
+
+    it 'creates scene' do
+      expect(px.mode).to eq :scene
+      expect(px.get).to be_a Scene
+    end
+  end
+
+  context 'Story mode' do
+    before do
+      px.story_mode
+    end
+
+    it 'creates story' do
+      expect(px.mode).to eq :story
+      expect(px.get).to be_a Story
+    end
   end
 
   it 'renders to NeoPixel' do
     expect(px.neo_pixel).to receive(:show).once
-    px[0] = red
-    px[1] = blue
-    px[2] = black
-    px[3] = blue
-    px[4] = red
-    px[5] = orange
-    px[6] = orange * 0.5
-    px[7] = black
-    px[8] = blue
-    px[9] = red
+    px.get.draw([red, blue, black, blue, red,
+                orange, orange / 2, black, blue, red])
     px.render
     expect(neo.contents)
         .to eq [red, blue, black, blue, red, orange, dim_orange, black, blue, red]
@@ -45,6 +127,7 @@ RSpec.describe Pixelator do
   context '.start and .stop' do
     it 'starts and stops the rendering thread' do
       expect_any_instance_of(NeoPixel).to receive(:show).exactly(3).times
+      expect_any_instance_of(Layer).to receive(:update).twice
       expect(px.started).to eq false
       px.start 0.1
       expect(px.started).to eq true
@@ -55,210 +138,11 @@ RSpec.describe Pixelator do
     end
     it 'raises error if already started' do
       px.start
-      expect { px.start }.to raise_error NotAllowed
+      expect { px.start }.to raise_error AlreadyStarted
     end
     it 'raises error if already stopped' do
-      expect { px.stop }.to raise_error NotAllowed
+      expect { px.stop }.to raise_error NotStarted
     end
   end
 
-  it '.all_on and .all_off stop rendering thread' do
-    px.all_on
-    expect(neo.contents).to eq [full_white] * 10
-    px.all_off
-    expect(neo.contents).to eq [black] * 10
-
-    px.start 0.01
-    sleep 0.01
-    expect(px.started).to eq true
-    expect(neo.contents).to eq [black] * 10
-
-    px.all_on
-    expect(px.started).to eq false
-    expect(neo.contents).to eq [full_white] * 10
-
-    px.start 0.01
-    sleep 0.01
-    expect(px.started).to eq true
-    expect(neo.contents).to eq [black] * 10
-
-    px.base.fill red
-    sleep 0.01
-    expect(neo.contents).to eq [red] * 10
-
-    px.all_off
-    expect(px.started).to eq false
-    expect(neo.contents).to eq [black] * 10
-  end
-
-  context 'given a scene with a cue' do
-
-    before do
-      scene.layer :a, canvas: [0, 5, 6]
-      scene.layer :b, canvas: [2, 4, 7]
-      scene[:a].fill red, 0.8
-      scene[:b].fill white
-      px.render
-    end
-
-    let(:black_100) { ColorA.new black }
-    let(:white_100) { ColorA.new white }
-    let(:red_80) { ColorA.new red, 0.8 }
-    let(:faded_red) { Color.new 204, 0, 0 }
-    let(:faded_dk_red) { Color.new 102, 0, 0 }
-
-    let(:saved_cue) do
-      {layers: [
-          {key: :base,
-           canvas: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-           background: black,
-           opacity: 1.0,
-           visible: true,
-           contents: [black_100, black_100, black_100, black_100, black_100,
-                      black_100, black_100, black_100, black_100, black_100]
-          },
-          {key: :a,
-           canvas: [0, 5, 6],
-           background: nil,
-           opacity: 0.5,
-           visible: true,
-           contents: [red_80, red_80, red_80],
-           layer_scroller: {
-               period: 1.0,
-               over_sample: 8
-           }
-          },
-          {key: :b,
-           canvas: [2, 4, 7],
-           background: nil,
-           opacity: 1.0,
-           visible: false,
-           contents: [white_100, white_100, white_100],
-           pattern_scroller: {
-               period: -2.0,
-               over_sample: 1
-           },
-           fader: {
-               bouncers: [true, true, true],
-               initial_alphas: [1.0, 1.0, 1.0],
-               target_alphas: [0.0, 0.0, 0.0],
-               target_times: [2.0, 2.0, 2.0]
-           }
-          }
-      ]}.to_json
-    end
-
-    it '.clear' do
-      expect(neo.contents)
-          .to eq [faded_red, black, white, black, white,
-                  faded_red, faded_red, white, black, black]
-      expect(px.layers.size).to eq 3
-
-      px.clear
-
-      expect(neo.contents)
-          .to eq [black, black, black, black, black,
-                  black, black, black, black, black]
-      expect(px.layers.size).to eq 1
-    end
-
-    it '.save_cue' do
-      scene[:a].opacity = 0.5
-      scene[:a].layer_scroller.start 1
-      scene[:a].layer_scroller.over_sample = 8
-      scene[:b].pattern_scroller.start -2
-      scene[:b].hide
-      scene[:b].fade_out 2, bounce: true
-
-      expect(File).to receive(:write)
-                          .with('scenes/cues/my_cue.json', saved_cue)
-
-      px.save_cue 'my_cue'
-    end
-
-    it '.load_cue' do
-      allow(File).to receive(:read)
-                         .with('scenes/cues/my_cue.json')
-                         .and_return(File.read('./spec/fixtures/cue.json'))
-
-      px.clear
-      expect(neo.contents)
-          .to eq [black, black, black, black, black,
-                  black, black, black, black, black]
-      expect(px.layers.size).to eq 1
-
-      px.load_cue('my_cue')
-
-      expect(neo.contents)
-          .to eq [faded_dk_red, black, white, black, white,
-                  faded_dk_red, faded_dk_red, white, black, black]
-      expect(scene.layers.size).to eq 4
-      expect(scene[:a].opacity).to eq 0.5
-      expect(scene[:a].visible).to eq true
-      expect(scene[:a].fader.active?).to eq false
-      expect(scene[:a].layer_scroller.period).to eq 1
-      expect(scene[:a].layer_scroller.over_sample).to eq 4
-
-      expect(scene[:b].opacity).to eq(1.0)
-      expect(scene[:b].visible).to eq true
-      expect(scene[:b].fader.active?).to eq false
-      expect(scene[:b].pattern_scroller.period).to eq -2
-      expect(scene[:b].pattern_scroller.over_sample).to eq 1
-
-      expect(scene[:c].visible).to eq false
-      expect(scene[:c].fader.active?).to eq true
-      expect(scene[:c].fader.pixel_config(0))
-          .to include(
-                  bouncer: true,
-                  initial_alpha: 0.0,
-                  current_alpha: 0.0,
-                  target_alpha: 1.0,
-                  target_time: 0.5
-              )
-    end
-
-  end
-
-  context 'cross-fading' do
-    let(:current_scene) do
-      scene = px.scene
-      scene.layer :a, background: red
-      scene
-    end
-    let(:new_scene) do
-      scene = Scene.new(px.pixel_count)
-      scene.layer :a, background: blue
-      scene
-    end
-
-    it 'switches scene' do
-      expect(px.scene).to eq current_scene
-      px.set_scene new_scene
-      expect(px.scene).to eq new_scene
-    end
-
-    it 'fades in a scene' #do
-      # expect(px).to receive(:fade_time_elapsed).and_return(0, 0.5, 1, 2)
-      #
-      # expect(px.scene).to eq current_scene
-      # px.set_scene new_scene, crossfade: 2
-      # expect(px.scene).to eq current_scene
-      #
-      # px.render
-      # expect(neo.contents).to eq [red] * 10
-      #
-      # px.render
-      # expect(neo.contents).to eq [blue.blend_over(red, 0.25)] * 10
-      #
-      # px.render
-      # expect(neo.contents).to eq [blue.blend_over(red, 0.5)] * 10
-      #
-      # px.render
-      # expect(neo.contents).to eq [blue] * 10
-      # expect(px.scene).to eq new_scene
-      #
-      # px.render
-      # expect(neo.contents).to eq [blue] * 10
-    # end
-  end
 end

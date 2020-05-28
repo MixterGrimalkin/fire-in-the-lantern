@@ -145,6 +145,10 @@ module Utils
     }
   end
 
+  def read_json(filename)
+    symbolize_keys JSON.parse File.read filename
+  end
+
   def symbolize_keys(hash)
     result = {}
     hash.each do |key, value|

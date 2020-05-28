@@ -3,19 +3,20 @@ require_relative '../color/colors'
 class Scroller
   include Colors
 
-  def initialize(size:, active: false, period: 1, oversample: 1, settings: OpenStruct.new)
-    @settings = settings
+  def initialize(size:, period: 1, oversample: 1, active: false, settings: OpenStruct.new)
     @size = size
-    @active = active
     @period = period
     @oversample = oversample
+    @active = active
+    @settings = settings
+
     refresh_effectives
 
-    @active = false
     @offset = 0
+    @last_updated = Time.now
   end
 
-  attr_reader :active, :offset, :size, :period, :oversample,
+  attr_reader :offset, :size, :period, :oversample, :active,
               :effective_size, :effective_period
 
   def period=(value)
@@ -36,7 +37,6 @@ class Scroller
 
   def start
     @active = true
-    @last_updated = Time.now
   end
 
   def stop
@@ -86,7 +86,6 @@ class Scroller
 
   def to_h
     {
-        size: size,
         period: period,
         oversample: oversample,
         active: active

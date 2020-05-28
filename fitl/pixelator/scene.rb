@@ -8,11 +8,11 @@ class Scene
   include Colors
   extend Forwardable
 
-  def initialize(pixel_count, settings: OpenStruct.new)
-    @pixels = (0..(pixel_count-1)).to_a
+  def initialize(size:, settings: OpenStruct.new)
+    @pixels = (0..(size-1)).to_a
     @settings = settings
-    @selected_cue = nil
-    clear
+    # @selected_cue = nil
+    # clear
   end
 
   def clear
@@ -22,8 +22,6 @@ class Scene
   def new_cue(name)
 
   end
-
-
 
   def cue
     selected_cue ||= :default
@@ -47,8 +45,12 @@ class Scene
     layers[name]
   end
 
+  def render_over(base_layer)
+    base_layer
+  end
+
   def update
-    cue.update
+    # cue.update
   end
 
   def build_buffer

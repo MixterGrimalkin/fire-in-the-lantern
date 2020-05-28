@@ -45,4 +45,9 @@ RSpec.describe Colors::ColorA do
     expect(ColorA.from_s('[x0.9]')).to eq(ColorA.new(nil, 0.9))
     expect(ColorA.from_s(purple.to_s)).to eq purple
   end
+
+  it '.from_string_array' do
+    expect(ColorA.from_string_array %w([(10,20,30,40)x1.0] [(50,60,70,80)x0.5]))
+    .to eq [ColorA.create(10, 20, 30, 40, 1.0), ColorA.create(50, 60, 70, 80, 0.5)]
+  end
 end

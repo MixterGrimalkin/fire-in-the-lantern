@@ -32,9 +32,12 @@
     "address": "no_fixed_abode"
   },
   "Settings": {
-    "scenes_dir": "making",
-    "monitor_fps": true,
-    "max_over_sample": 9,
-    "default_crossfade": 1.9
+    "asset_locations": {
+      "story": "a/tall",
+      "scene": "making_a",
+      "cue": "credits",
+      "layer": "multiple"
+    },
+    "max_oversample": 9
   }
 }

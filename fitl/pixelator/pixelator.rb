@@ -1,42 +1,91 @@
 require_relative '../color/colors'
 require_relative '../lib/utils'
+require_relative 'story'
 require_relative 'scene'
-require 'forwardable'
+require_relative 'cue'
+require_relative 'layer'
+
 require 'json'
 
 class Pixelator
   include Colors
   include Utils
-  extend Forwardable
 
-  def initialize(neo_pixel:, frame_rate: 30, osc_control_port: nil, settings: OpenStruct.new)
-    @settings = settings
+  def initialize(neo_pixel:, mode: :layer, frame_rate: 30, osc_control_port: nil, settings: OpenStruct.new)
     @neo_pixel = neo_pixel
+    @mode = mode
     @frame_rate = frame_rate
-    @render_thread = nil
-    @started = false
+    @settings = settings
+
     OscControlHooks.new(self, port: osc_control_port, settings: settings).start if osc_control_port
+
+    @base = [BLACK] * pixel_count
+    @started = false
     clear
   end
 
-  def clear
-    @scene = Scene.new(pixel_count)
-    @incoming_scene = nil
-    @crossfade_time = nil
-    @crossfade_started_at = nil
-    render
-  end
+  attr_reader :neo_pixel, :frame_rate, :started, :base, :settings
 
   def pixel_count
     neo_pixel.pixel_count
   end
 
-  attr_reader :neo_pixel, :frame_rate, :started, :scene
+  attr_accessor :object
+  private :object=
+  alias_method :get, :object
 
-  def_delegators :scene, :layers, :layer, :base, :[], :[]=
+  def clear
+    self.object = self.send("new_#{mode}".to_sym)
+    render
+  end
+
+  def build(config)
+    self.object = self.send("build_#{mode}".to_sym, config)
+  end
+
+  def load_file(name)
+    self.object = self.send("load_#{mode}".to_sym, name)
+  end
+
+  def save_file(name)
+    File.write filename(name), JSON.pretty_generate(object.to_h)
+  end
+
+  MODES = [Layer, Cue, Scene, Story]
+
+  attr_accessor :mode
+  private :mode=
+
+  MODES.each do |mode_class|
+    mode = mode_class.name.downcase
+
+    define_method (new_method = "new_#{mode}") do
+      mode_class.new size: pixel_count, settings: settings
+    end
+    private new_method.to_sym
+
+    define_method (build_method = "build_#{mode}") do |config|
+      mode_class.new({settings: settings}.merge(config))
+    end
+    private build_method.to_sym
+
+    define_method (load_method = "load_#{mode}") do |name|
+      self.send(build_method.to_sym, read_json(filename(name)))
+    end
+    private load_method.to_sym
+
+    define_method "#{mode}_mode" do
+      self.mode = mode.to_sym
+      clear
+    end
+  end
+
+  def buffer
+    object.render_over(base)
+  end
 
   def render
-    neo_pixel.write(build_crossfade_buffer).render
+    neo_pixel.write(buffer).render
   end
 
   def render_period
@@ -44,27 +93,19 @@ class Pixelator
   end
 
   def start(period = render_period)
-    raise NotAllowed if started
+    raise AlreadyStarted if started
 
     @started = true
-
-    monitor_buffer = []
 
     @render_thread = Thread.new do
       while started
         ticker = Time.now
-        scene.update
-        incoming_scene.update if incoming_scene
+
+        object.update
         render
+
         if (elapsed = Time.now - ticker) < period
           sleep period - elapsed
-        end
-        if settings.monitor_fps
-          monitor_buffer << (1.0 / (Time.now-ticker))
-          if monitor_buffer.size >= 50
-            puts "Pixelator fps=#{monitor_buffer.sum(0.0) / monitor_buffer.size}"
-            monitor_buffer = []
-          end
         end
       end
     end
@@ -73,7 +114,7 @@ class Pixelator
   end
 
   def stop
-    raise NotAllowed unless started
+    raise NotStarted unless started
 
     @started = false
     @render_thread.join
@@ -81,91 +122,25 @@ class Pixelator
     self
   end
 
-  def all_on
-    stop if started
-    neo_pixel.on
-    self
-  end
-
-  def all_off
-    stop if started
-    neo_pixel.off
-    self
-  end
-
-  def save_scene(scene_name)
-    File.write(
-        "#{scenes_dir}/#{scene_name}.json",
-        scene.to_conf.to_json
-    )
-    "Saved #{scene_name}"
-  end
-
-  def load_scene(scene_name, crossfade: default_crossfade)
-    set_scene create_scene_from_file(scene_name), crossfade: crossfade
-    render
-    "Loaded #{scene_name}"
-  end
-
-  def set_scene(new_scene, crossfade: default_crossfade)
-    if crossfade == 0
-      @scene = new_scene
-      @crossfade_time = nil
-    else
-      @incoming_scene = new_scene
-      @crossfade_time = crossfade
-      @crossfade_started_at = Time.now
-    end
-  end
-
-  def scenes_dir
-    settings.scenes_dir || 'scenes'
-  end
-
-  def default_crossfade
-    settings.default_crossfade || 0
-  end
-
   def inspect
     "#<Pixelator[#{neo_pixel.class}] pixels:#{pixel_count} layers:#{layers.size} #{started ? 'STARTED' : 'STOPPED'}>"
   end
 
+  def filename(name)
+    "#{asset_locations[mode]}/#{name}.json"
+  end
+
   private
 
-  def create_scene_from_file(scene_name)
-    result = Scene.new pixel_count, settings: settings
-    result.from_conf(
-        symbolize_keys(JSON.parse(
-            File.read("#{scenes_dir}/#{scene_name}.json")
-        ))
-    )
-    result
+  def asset_locations
+    settings.asset_locations || {
+        story: 'stories',
+        scene: 'scenes',
+        cue: 'cues',
+        layer: 'layers',
+    }
   end
-
-  def fade_time_elapsed
-    (Time.now - @crossfade_started_at).to_f
-  end
-
-  def build_crossfade_buffer
-    buffer = scene.build_buffer
-    if crossfade_time && incoming_scene
-      incoming_buffer = incoming_scene.build_buffer
-      elapsed = fade_time_elapsed
-      if elapsed >= crossfade_time
-        @scene = incoming_scene
-        @incoming_scene = nil
-        @crossfade_time = nil
-        buffer = incoming_buffer
-      else
-        alpha = elapsed / crossfade_time
-        buffer = blend_range buffer, incoming_buffer, alpha
-      end
-    end
-    buffer
-  end
-
-  attr_reader :settings, :incoming_scene, :crossfade_time
-
 end
 
-NotAllowed = Class.new(StandardError)
+AlreadyStarted = Class.new(StandardError)
+NotStarted = Class.new(StandardError)

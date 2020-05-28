@@ -6,10 +6,11 @@ class Cue
   include CueConfig
   include Colors
 
-  def initialize(pixels, settings: OpenStruct.new)
-    @pixels = pixels
+  def initialize(size:, canvas: (0..(size-1)).to_a, settings: OpenStruct.new)
+    @size = size
+    @pixels = canvas
     @settings = settings
-    clear
+    # clear
   end
 
   def clear
@@ -34,7 +35,7 @@ class Cue
   end
 
   def update
-    layers.values.each(&:update)
+    # layers.values.each(&:update)
   end
 
   def put_top(layer_key)
@@ -63,9 +64,10 @@ class Cue
   end
 
   def render_over(base_layer, alpha: 1.0)
-    layers.values.inject(base_layer) do |buffer, layer|
-      layer.render_over buffer, alpha: alpha
-    end
+    base_layer
+    # layers.values.inject(base_layer) do |buffer, layer|
+    #   layer.render_over buffer, alpha: alpha
+    # end
   end
 
   def [](key)
