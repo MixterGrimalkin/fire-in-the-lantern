@@ -1,4 +1,5 @@
-require_relative 'neo_pixel'
+require_relative '../neo_pixel'
+
 require 'forwardable'
 require 'ws2812'
 

@@ -1,5 +1,6 @@
-require_relative 'neo_pixel'
-require_relative '../lib/utils'
+require_relative '../neo_pixel'
+
+require_relative '../../lib/utils'
 
 class BenchmarkNeoPixel < NeoPixel
   include Utils

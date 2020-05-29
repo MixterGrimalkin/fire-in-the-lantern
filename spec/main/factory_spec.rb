@@ -1,4 +1,4 @@
-require_relative '../../fitl/main/fire_in_the_lantern'
+require_relative '../spec_helper'
 
 RSpec.describe Factory do
 

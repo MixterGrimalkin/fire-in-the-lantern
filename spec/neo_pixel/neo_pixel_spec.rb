@@ -1,4 +1,4 @@
-require_relative '../../fitl/neo_pixel/neo_pixel'
+require_relative '../spec_helper'
 
 include Colors
 
@@ -21,14 +21,14 @@ RSpec.describe NeoPixel do
     expect(neo_pixel.contents).to eq empty
   end
 
-  it 'set' do
+  it '.[]' do
     expect(neo_pixel[2]).to eq black
     neo_pixel[2] = yellow
     expect(neo_pixel[2]).to eq yellow
     expect(neo_pixel.contents).to eq [black, black, yellow, black]
   end
 
-  it 'set out of range' do
+  it '.[] out of bounds' do
     expect { neo_pixel[-3] = yellow }.to raise_error BadPixelNumber
     expect { neo_pixel[7] }.to raise_error BadPixelNumber
   end
@@ -61,7 +61,7 @@ RSpec.describe NeoPixel do
     end
   end
 
-  context 'valid output modes' do
+  context 'valid output mode' do
     before do
       neo_pixel[0] = white
       neo_pixel[1] = cyan
@@ -99,5 +99,4 @@ RSpec.describe NeoPixel do
       end
     end
   end
-
 end

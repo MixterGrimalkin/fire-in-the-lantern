@@ -1,15 +1,16 @@
 require_relative '../pixelator/pixelator'
 require_relative '../pixelator/osc_control_hooks'
 
-require_relative '../neo_pixel/neo_pixel'
-require_relative '../neo_pixel/text_neo_pixel'
-require_relative '../neo_pixel/http_neo_pixel'
-require_relative '../neo_pixel/osc_neo_pixel'
-require_relative '../neo_pixel/ws_neo_pixel'
-require_relative '../neo_pixel/benchmark_neo_pixel'
 require_relative '../neo_pixel/direct_osc_server'
+require_relative '../neo_pixel/neo_pixel'
 
-require_relative '../color/colors'
+require_relative '../neo_pixel/impl/ws_neo_pixel'
+require_relative '../neo_pixel/impl/osc_neo_pixel'
+require_relative '../neo_pixel/impl/http_neo_pixel'
+require_relative '../neo_pixel/impl/text_neo_pixel'
+require_relative '../neo_pixel/impl/benchmark_neo_pixel'
+
+require_relative '../color/tools'
 require_relative '../lib/utils'
 
 require_relative 'factory'

@@ -1,3 +1,5 @@
+require_relative '../neo_pixel'
+
 require 'osc-ruby'
 
 class OscNeoPixel < NeoPixel

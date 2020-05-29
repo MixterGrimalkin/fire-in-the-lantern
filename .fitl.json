@@ -1,5 +1,5 @@
 {
-  "Adapter": "OscNeoPixel",
+  "Adapter": "TextNeoPixel",
   "Pixelator": {
     "frame_rate": 30,
     "osc_control_port": 3333
