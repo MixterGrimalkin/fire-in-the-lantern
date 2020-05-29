@@ -1,9 +1,6 @@
 require_relative '../color/colors'
 require_relative '../lib/utils'
-require_relative 'story'
-require_relative 'scene'
-require_relative 'cue'
-require_relative 'layer'
+require_relative 'asset_builder'
 
 require 'json'
 
@@ -16,6 +13,7 @@ class Pixelator
     @mode = mode
     @frame_rate = frame_rate
     @settings = settings
+    @builder = AssetBuilder.new(default_size: pixel_count, settings: settings)
 
     OscControlHooks.new(self, port: osc_control_port, settings: settings).start if osc_control_port
 
@@ -24,10 +22,22 @@ class Pixelator
     clear
   end
 
-  attr_reader :neo_pixel, :frame_rate, :started, :base, :settings
+  attr_reader :neo_pixel, :frame_rate, :started, :base, :builder, :settings
+  private :base, :builder
 
   def pixel_count
     neo_pixel.pixel_count
+  end
+
+  attr_accessor :mode
+  private :mode=
+
+  AssetBuilder::ASSET_TYPES.each do |type|
+    define_method "#{type}_mode" do
+      self.mode = type
+      clear
+      self
+    end
   end
 
   attr_accessor :object
@@ -35,49 +45,22 @@ class Pixelator
   alias_method :get, :object
 
   def clear
-    self.object = self.send("new_#{mode}".to_sym)
+    self.object = builder.send("new_#{mode}".to_sym)
     render
+    self
   end
 
   def build(config)
-    self.object = self.send("build_#{mode}".to_sym, config)
+    self.object = builder.send("build_#{mode}".to_sym, config)
   end
 
   def load_file(name)
-    self.object = self.send("load_#{mode}".to_sym, name)
+    self.object = builder.send("load_#{mode}".to_sym, name)
   end
 
   def save_file(name)
-    File.write filename(name), JSON.pretty_generate(object.to_h)
+    builder.send("save_#{mode}".to_sym, name, object)
   end
-
-  MODES = [Layer, Cue, Scene, Story]
-
-  attr_accessor :mode
-  private :mode=
-
-  MODES.each do |mode_class|
-    mode = mode_class.name.downcase
-
-    define_method "new_#{mode}" do
-      mode_class.new size: pixel_count, settings: settings
-    end
-
-    define_method "build_#{mode}" do |config|
-      mode_class.new({settings: settings}.merge(config))
-    end
-
-    define_method "load_#{mode}" do |name|
-      mode_class.new({settings: settings}.merge(read_json filename(name)))
-    end
-
-    define_method "#{mode}_mode" do
-      self.mode = mode.to_sym
-      clear
-      self
-    end
-  end
-
 
   def render_period
     1.0 / frame_rate
@@ -113,7 +96,7 @@ class Pixelator
   end
 
   def stop
-    raise NotStarted unless started
+    return unless started
 
     @started = false
     @render_thread.join
@@ -126,20 +109,9 @@ class Pixelator
   end
 
   def filename(name)
-    "#{asset_locations[mode]}/#{name}.json"
+    builder.filename(mode, name)
   end
 
-  private
-
-  def asset_locations
-    settings.asset_locations || {
-        story: 'stories',
-        scene: 'scenes',
-        cue: 'cues',
-        layer: 'layers',
-    }
-  end
 end
 
 AlreadyStarted = Class.new(StandardError)
-NotStarted = Class.new(StandardError)

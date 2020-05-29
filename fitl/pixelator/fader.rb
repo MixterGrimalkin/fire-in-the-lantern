@@ -12,7 +12,10 @@ class Fader
     @target_times = [nil] * size
     @elapsed_times = [nil] * size
     @last_updated = Time.now
+    @active = false
   end
+
+  attr_accessor :active
 
   attr_reader :size, :alphas, :bouncers, :initial_alphas, :target_alphas,
               :target_times, :elapsed_times, :last_updated
@@ -84,6 +87,14 @@ class Fader
                   end
     end
     result
+  end
+
+  def to_s
+    active ? '▶' : '⏸'
+  end
+
+  def inspect
+    "<Fader active=#{active}>"
   end
 
 end

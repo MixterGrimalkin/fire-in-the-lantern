@@ -8,6 +8,7 @@ require 'ostruct'
 
 class Layer
   include Colors
+  include Utils
 
   def initialize(size:, name: '',
                  visible: true, opacity: 1.0, fill: nil,
@@ -150,7 +151,12 @@ class Layer
   end
 
   def inspect
-    "<Layer[#{visible ? '✔' : '✗'}] #{size} α:#{opacity} δ:#{scroller}>"
+    vis = visible ? '✔' : '✗'
+    sze = colorize(size, bold: true)
+    scr = "δ=#{scroller}"
+    fdr = "Φ=#{fader}"
+    opa = "α=#{opacity}"
+    "<Layer[#{vis}] #{sze} #{scr} #{fdr} #{opa}>"
   end
 
   # Update and Render

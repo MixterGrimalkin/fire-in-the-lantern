@@ -1,5 +1,5 @@
 {
-  "Adapter": "TextNeoPixel",
+  "Adapter": "OscNeoPixel",
   "Pixelator": {
     "frame_rate": 30,
     "osc_control_port": 3333
@@ -14,7 +14,7 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "192.168.0.34",
+    "host": "localhost",
     "port": 3333,
     "address": "data"
   },
@@ -39,7 +39,7 @@
       "cue": "cues",
       "layer": "layers"
     },
-    "max_oversample": 6,
+    "max_oversample": 25,
     "allow_remote_reboot": false
   }
 }

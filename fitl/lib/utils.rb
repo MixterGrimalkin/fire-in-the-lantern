@@ -204,6 +204,6 @@ module Utils
     bg_colour_code = BG_COLOURS[bg_colour]
     font_options = options.select { |k, v| v && FONT_OPTIONS.key?(k) }.keys
     font_options = font_options.map { |e| FONT_OPTIONS[e] }.join(';').squeeze
-    return "\e[#{bg_colour_code};#{font_options};#{colour_code}m#{text}\e[0m".squeeze(';')
+    "\e[#{bg_colour_code};#{font_options};#{colour_code}m#{text}\e[0m".squeeze(';')
   end
 end

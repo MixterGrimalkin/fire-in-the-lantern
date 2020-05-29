@@ -140,8 +140,8 @@ RSpec.describe Pixelator do
       px.start
       expect { px.start }.to raise_error AlreadyStarted
     end
-    it 'raises error if already stopped' do
-      expect { px.stop }.to raise_error NotStarted
+    it 'does not raise error if already stopped' do
+      expect { px.stop }.to_not raise_error
     end
   end
 
