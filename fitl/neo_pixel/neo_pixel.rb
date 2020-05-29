@@ -68,6 +68,11 @@ class NeoPixel
     # --> Shutdown display here <-- #
   end
 
+  def to_s
+    "<#{self.class.name} #{mode.to_s.upcase}x#{pixel_count}>"
+  end
+  alias :inspect :to_s
+
   def rgb_count
     if mode == :rgbw
       ((pixel_count * 4) / 3.0).ceil

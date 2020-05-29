@@ -39,9 +39,9 @@ class Layer
     @scroller =
         case scroller
           when Scroller
-            @scroller = scroller
+            scroller
           when Hash
-            @scroller = Scroller.new({size: size, settings: settings}.merge(scroller))
+            Scroller.new({size: size, settings: settings}.merge(scroller))
           else
             Scroller.new(size: size, settings: settings)
         end
@@ -150,7 +150,7 @@ class Layer
   end
 
   def inspect
-    "#<Layer(#{size}) α=#{opacity} δ=#{scroller} #{visible ? 'ON ' : 'OFF'}>"
+    "<Layer[#{visible ? '✔' : '✗'}] #{size} α:#{opacity} δ:#{scroller}>"
   end
 
   # Update and Render

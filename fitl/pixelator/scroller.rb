@@ -93,7 +93,7 @@ class Scroller
   end
 
   def to_s
-    "#{period}x#{oversample}:#{active ? 'ON' : 'OFF'}"
+    "<Scroller[#{active ? '▶' : '■'}] #{period}x#{oversample}>"
   end
   alias :inspect :to_s
 

@@ -7,7 +7,8 @@ unless (scene_name = (ARGV[0] || settings.default_scene))
   exit
 end
 
-px.start.load_scene scene_name
+px.scene_mode
+px.start.load_file scene_name
 
 message "Loaded Scene: #{scene_name}"
 

@@ -59,34 +59,25 @@ class Pixelator
   MODES.each do |mode_class|
     mode = mode_class.name.downcase
 
-    define_method (new_method = "new_#{mode}") do
+    define_method "new_#{mode}" do
       mode_class.new size: pixel_count, settings: settings
     end
-    private new_method.to_sym
 
-    define_method (build_method = "build_#{mode}") do |config|
+    define_method "build_#{mode}" do |config|
       mode_class.new({settings: settings}.merge(config))
     end
-    private build_method.to_sym
 
-    define_method (load_method = "load_#{mode}") do |name|
-      self.send(build_method.to_sym, read_json(filename(name)))
+    define_method "load_#{mode}" do |name|
+      mode_class.new({settings: settings}.merge(read_json filename(name)))
     end
-    private load_method.to_sym
 
     define_method "#{mode}_mode" do
       self.mode = mode.to_sym
       clear
+      self
     end
   end
 
-  def buffer
-    object.render_over(base)
-  end
-
-  def render
-    neo_pixel.write(buffer).render
-  end
 
   def render_period
     1.0 / frame_rate
@@ -113,6 +104,14 @@ class Pixelator
     self
   end
 
+  def buffer
+    object.render_over(base)
+  end
+
+  def render
+    neo_pixel.write(buffer).render
+  end
+
   def stop
     raise NotStarted unless started
 
@@ -123,7 +122,7 @@ class Pixelator
   end
 
   def inspect
-    "#<Pixelator[#{neo_pixel.class}] pixels:#{pixel_count} layers:#{layers.size} #{started ? 'STARTED' : 'STOPPED'}>"
+    "<Pixelator[#{started ? '▶' : '■'}] adapter:#{neo_pixel} mode:#{mode}>"
   end
 
   def filename(name)
