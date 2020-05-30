@@ -1,10 +1,11 @@
 class OscControlHooks
   include Utils
 
-  def initialize(pixelator, port: '3333', settings: OpenStruct.new)
+  def initialize(pixelator, port: '3333', assets: Assets.new)
     @settings = settings
     @pixelator, @port = pixelator, port
     @server_ip = local_ip_address
+    @assets = assets
 
     attach_hook :scene
     attach_hook :brightness
@@ -80,7 +81,7 @@ class OscControlHooks
   end
 
   def reboot(_message)
-    if settings.allow_remote_reboot
+    if assets.settings.allow_remote_reboot
       message '!!! Rebooting Pixelator Machine !!!'
       pixelator.clear
       `reboot`
@@ -89,6 +90,6 @@ class OscControlHooks
     end
   end
 
-  attr_reader :settings
+  attr_reader :assets
 
 end

@@ -2,15 +2,16 @@ require_relative '../main/fire_in_the_lantern'
 
 include FireInTheLantern
 
-unless (scene_name = (ARGV[0] || settings.default_scene))
-  message 'Specify a Scene to load'
+unless (media_type = ARGV[0]) && (media_name = ARGV[1])
+  message 'Usage: load.sh [layer|cue|scene|story] [name]'
   exit
 end
 
-px.scene_mode
-px.start.load_file scene_name
+px.send("#{media_type}_mode".to_sym)
 
-message "Loaded Scene: #{scene_name}"
+px.start.load_file media_name
+
+message "Loaded #{media_type}: #{media_name}"
 
 wait_for_interrupt 'Press CTRL + C to make it stop'
 

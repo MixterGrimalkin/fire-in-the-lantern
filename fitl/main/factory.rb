@@ -10,10 +10,6 @@ class Factory
 
   attr_reader :filename, :config, :adapter_override, :disable_osc_hooks
 
-  def settings
-    @settings ||= OpenStruct.new(config.fetch(:Settings, {}))
-  end
-
   def neo
     @neo ||= neo_class.new(neo_config)
   end
@@ -24,6 +20,17 @@ class Factory
 
   def osc
     @osc ||= DirectOscServer.new(osc_config)
+  end
+
+  def assets
+    @assets ||= Assets.new(
+        default_size: neo.pixel_count,
+        settings: settings
+    )
+  end
+
+  def settings
+    @settings ||= OpenStruct.new(config.fetch(:Settings, {}))
   end
 
   def clear
@@ -63,7 +70,7 @@ class Factory
 
   def px_config
     config.fetch(:Pixelator)
-        .merge(neo_pixel: neo, settings: settings)
+        .merge(neo_pixel: neo, assets: assets)
         .merge(disable_osc_hooks ? {osc_control_port: nil} : {})
   end
 
@@ -106,7 +113,7 @@ class Factory
           address: 'data'
       },
       Settings: {
-          asset_locations: {
+          media_locations: {
               story: 'stories',
               scene: 'scenes',
               cue: 'cues',

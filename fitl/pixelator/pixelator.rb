@@ -1,6 +1,6 @@
 require_relative '../color/colors'
 require_relative '../lib/utils'
-require_relative 'asset_builder'
+require_relative 'assets'
 
 require 'json'
 
@@ -8,22 +8,21 @@ class Pixelator
   include Colors
   include Utils
 
-  def initialize(neo_pixel:, mode: :layer, frame_rate: 30, osc_control_port: nil, settings: OpenStruct.new)
+  def initialize(neo_pixel:, mode: :layer, frame_rate: 30, osc_control_port: nil, assets: Assets.new)
     @neo_pixel = neo_pixel
     @mode = mode
     @frame_rate = frame_rate
-    @settings = settings
-    @builder = AssetBuilder.new(default_size: pixel_count, settings: settings)
+    @assets = assets
 
-    OscControlHooks.new(self, port: osc_control_port, settings: settings).start if osc_control_port
+    OscControlHooks.new(self, port: osc_control_port, assets: assets).start if osc_control_port
 
     @base = [BLACK] * pixel_count
     @started = false
     clear
   end
 
-  attr_reader :neo_pixel, :frame_rate, :started, :base, :builder, :settings
-  private :base, :builder
+  attr_reader :neo_pixel, :frame_rate, :started, :base, :assets
+  private :base, :assets
 
   def pixel_count
     neo_pixel.pixel_count
@@ -32,7 +31,7 @@ class Pixelator
   attr_accessor :mode
   private :mode=
 
-  AssetBuilder::ASSET_TYPES.each do |type|
+  Assets::MEDIA_TYPES.each do |type|
     define_method "#{type}_mode" do
       self.mode = type
       clear
@@ -40,26 +39,26 @@ class Pixelator
     end
   end
 
-  attr_accessor :object
-  private :object=
-  alias_method :get, :object
+  attr_accessor :media
+  private :media=
+  alias_method :get, :media
 
   def clear
-    self.object = builder.send("new_#{mode}".to_sym)
+    self.media = assets.send("new_#{mode}".to_sym)
     render
     self
   end
 
   def build(config)
-    self.object = builder.send("build_#{mode}".to_sym, config)
+    self.media = assets.send("build_#{mode}".to_sym, config)
   end
 
   def load_file(name)
-    self.object = builder.send("load_#{mode}".to_sym, name)
+    self.media = assets.send("load_#{mode}".to_sym, name)
   end
 
   def save_file(name)
-    builder.send("save_#{mode}".to_sym, name, object)
+    assets.send("save_#{mode}".to_sym, name, media)
   end
 
   def render_period
@@ -75,7 +74,7 @@ class Pixelator
       while started
         ticker = Time.now
 
-        object.update
+        media.update
         render
 
         if (elapsed = Time.now - ticker) < period
@@ -88,7 +87,7 @@ class Pixelator
   end
 
   def buffer
-    object.render_over(base)
+    media.render_over(base)
   end
 
   def render
@@ -109,7 +108,7 @@ class Pixelator
   end
 
   def filename(name)
-    builder.filename(mode, name)
+    assets.media_filename(mode, name)
   end
 
 end

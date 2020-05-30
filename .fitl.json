@@ -14,7 +14,7 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "localhost",
+    "host": "192.168.0.34",
     "port": 3333,
     "address": "data"
   },
@@ -33,7 +33,7 @@
     "address": "data"
   },
   "Settings": {
-    "asset_locations": {
+    "media_locations": {
       "story": "stories",
       "scene": "scenes",
       "cue": "cues",

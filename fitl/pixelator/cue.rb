@@ -6,10 +6,10 @@ class Cue
   include CueConfig
   include Colors
 
-  def initialize(size:, canvas: (0..(size-1)).to_a, settings: OpenStruct.new)
+  def initialize(size:, canvas: (0..(size-1)).to_a, assets: Assets.new)
     @size = size
     @pixels = canvas
-    @settings = settings
+    @assets = assets
     # clear
   end
 
@@ -115,7 +115,7 @@ class Cue
 
   private
 
-  attr_reader :settings
+  attr_reader :assets
 end
 
 LayerNotFound = Class.new(StandardError)

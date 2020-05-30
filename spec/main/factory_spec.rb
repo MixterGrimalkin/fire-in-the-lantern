@@ -8,7 +8,7 @@ RSpec.describe Factory do
   let(:px) { factory.px }
   let(:scn) { factory.scn }
   let(:osc) { factory.osc }
-  let(:settings) { factory.settings }
+  let(:settings) { factory.assets.settings }
 
   let(:factory_with_override) do
     Factory.new filename: 'spec/fixtures/factory_config.json', adapter_override: :HttpNeoPixel

@@ -3,12 +3,12 @@ require_relative '../color/colors'
 class Scroller
   include Colors
 
-  def initialize(size:, period: 1, oversample: 1, active: false, settings: OpenStruct.new)
+  def initialize(size:, period: 1, oversample: 1, active: false, assets: Assets.new)
     @size = size
     @period = period
     @oversample = oversample
     @active = active
-    @settings = settings
+    @assets = assets
 
     refresh_effectives
 
@@ -113,9 +113,9 @@ class Scroller
 
   private
 
-  attr_reader :last_updated, :settings
+  attr_reader :last_updated, :assets
 
   def max_oversample
-    settings.max_oversample || 30
+    assets.settings.max_oversample || 30
   end
 end

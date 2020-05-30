@@ -32,7 +32,7 @@
     "address": "no_fixed_abode"
   },
   "Settings": {
-    "asset_locations": {
+    "media_locations": {
       "story": "a/tall",
       "scene": "making_a",
       "cue": "credits",

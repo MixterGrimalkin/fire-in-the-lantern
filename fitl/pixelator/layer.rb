@@ -14,13 +14,13 @@ class Layer
                  visible: true, opacity: 1.0, fill: nil,
                  scroller: nil, fader: nil,
                  contents: nil,
-                 settings: OpenStruct.new
+                 assets: Assets.new
   )
-    @settings = settings
     @name = name
     @size = size
     @visible = visible
     @opacity = opacity
+    @assets = assets
 
     if contents && contents.size == size
       self.contents = contents.collect do |element|
@@ -42,18 +42,21 @@ class Layer
           when Scroller
             scroller
           when Hash
-            Scroller.new({size: size, settings: settings}.merge(scroller))
+            Scroller.new(scroller.merge(size: size, assets: assets))
           else
-            Scroller.new(size: size, settings: settings)
+            Scroller.new(size: size, assets: assets)
         end
 
     @fader = fader || Fader.new(size)
   end
 
   attr_reader :size, :scroller, :fader
-
   attr_accessor :visible, :opacity, :name, :contents
   private :contents=
+
+  def resize(new_size)
+
+  end
 
   # Drawing
 
@@ -210,5 +213,4 @@ class Layer
     raise PixelOutOfRangeError, pixel unless check_pixel_number(pixel)
   end
 
-  attr_reader :settings
 end

@@ -8,9 +8,9 @@ class Scene
   include Colors
   extend Forwardable
 
-  def initialize(size:, settings: OpenStruct.new)
+  def initialize(size:, assets: Assets.new)
     @pixels = (0..(size-1)).to_a
-    @settings = settings
+    @assets = assets
     # @selected_cue = nil
     # clear
   end
@@ -30,10 +30,10 @@ class Scene
 
     return cues[selected_cue] if selected_cue
 
-    cue[selected_cue = :default] ||= Cue.new(pixels, settings: settings)
+    cue[selected_cue = :default] ||= Cue.new(pixels, assets)
   end
 
-  attr_reader :pixels, :cues, :selected_cue
+  attr_reader :pixels, :cues
 
   def_delegators :cue,
                  :hide_all, :show_all, :solo, :put_top, :put_bottom,
@@ -59,5 +59,5 @@ class Scene
 
   private
 
-  attr_reader :settings
+  attr_reader :assets
 end

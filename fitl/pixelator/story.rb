@@ -3,12 +3,12 @@ require_relative '../../fitl/color/colors'
 class Story
   include Colors
 
-  def initialize(size:, settings: OpenStruct.new)
+  def initialize(size:, assets: Assets.new)
     @size = size
-    @settings = settings
+    @assets = assets
   end
 
-  attr_reader :size, :settings
+  attr_reader :size, :assets
 
   def update
 
