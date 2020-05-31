@@ -6,14 +6,9 @@ class TextNeoPixel < NeoPixel
 
   def initialize(pixel_count:, mode: :rgb)
     super(pixel_count: pixel_count, mode: mode)
-    @shows_to_ignore = 3
   end
 
   def show(buffer)
-    unless shows_to_ignore <= 0
-      self.shows_to_ignore = shows_to_ignore - 1
-      return
-    end
     output = ''
     buffer.each_slice(3) do |rgb|
       output << pixel_symbol(*rgb)
@@ -22,8 +17,6 @@ class TextNeoPixel < NeoPixel
   end
 
   private
-
-  attr_accessor :shows_to_ignore
 
   def pixel_symbol(r, g, b)
     has_red = r > 64

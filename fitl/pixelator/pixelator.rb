@@ -61,6 +61,14 @@ class Pixelator
     assets.send("save_#{mode}".to_sym, name, media)
   end
 
+  def buffer
+    media.render_over(base)
+  end
+
+  def render
+    neo_pixel.write(buffer).render
+  end
+
   def render_period
     1.0 / frame_rate
   end
@@ -84,14 +92,6 @@ class Pixelator
     end
 
     self
-  end
-
-  def buffer
-    media.render_over(base)
-  end
-
-  def render
-    neo_pixel.write(buffer).render
   end
 
   def stop
