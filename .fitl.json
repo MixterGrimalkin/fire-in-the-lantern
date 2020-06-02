@@ -14,7 +14,7 @@
     "path": "data"
   },
   "OscNeoPixel": {
-    "host": "192.168.0.34",
+    "host": "localhost",
     "port": 3333,
     "address": "data"
   },

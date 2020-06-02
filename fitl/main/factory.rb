@@ -24,7 +24,7 @@ class Factory
 
   def assets
     @assets ||= Assets.new(
-        default_size: neo.pixel_count,
+        pixel_count: neo.pixel_count,
         settings: settings
     )
   end
@@ -65,7 +65,8 @@ class Factory
   end
 
   def neo_config
-    config.fetch(:NeoPixel).merge(config.fetch(neo_key, {}))
+    config.fetch(:NeoPixel)
+        .merge(config.fetch(neo_key, {}))
   end
 
   def px_config
@@ -75,7 +76,8 @@ class Factory
   end
 
   def osc_config
-    config.fetch(:DirectOscServer).merge(neo_pixel: neo)
+    config.fetch(:DirectOscServer)
+        .merge(neo_pixel: neo, assets: assets)
   end
 
   DEFAULT_CONFIG = {

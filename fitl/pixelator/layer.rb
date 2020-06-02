@@ -10,7 +10,7 @@ class Layer
   include Colors
   include Utils
 
-  def initialize(size:, name: '',
+  def initialize(size:, name: nil,
                  visible: true, opacity: 1.0, fill: nil,
                  scroller: nil, fader: nil,
                  contents: nil,
@@ -169,8 +169,9 @@ class Layer
     fader.check_and_update
   end
 
-  def render_over(base_layer, canvas: default_canvas, alpha: 1.0)
+  def render_over(base_layer, canvas: nil, alpha: 1.0)
     return base_layer unless visible || alpha == 0.0
+    canvas = (canvas || default_canvas).to_a
     result = []
     expand_content(base_layer.size, canvas).each_with_index do |color_a, i|
       result[i] =

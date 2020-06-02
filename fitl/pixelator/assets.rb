@@ -1,4 +1,5 @@
 require_relative '../lib/utils'
+require_relative '../../fitl/color/colors'
 
 require_relative 'story'
 require_relative 'scene'
@@ -7,13 +8,18 @@ require_relative 'layer'
 
 class Assets
   include Utils
+  include Colors
 
-  def initialize(default_size: 10, settings: OpenStruct.new)
-    @default_size = default_size
+  def initialize(pixel_count: 10, settings: OpenStruct.new)
+    @pixel_count = pixel_count
     @settings = settings
   end
 
-  attr_accessor :default_size, :settings
+  attr_reader :pixel_count, :settings
+
+  def base_layer
+    @base_layer ||= [BLACK] * pixel_count
+  end
 
   MEDIA_CLASSES = [Layer, Cue, Scene, Story]
 
@@ -23,7 +29,7 @@ class Assets
     media_type = MEDIA_TYPES[i]
 
     define_method "new_#{media_type}" do
-      asset_class.new size: default_size, assets: self
+      asset_class.new size: pixel_count, assets: self
     end
 
     define_method "build_#{media_type}" do |config|

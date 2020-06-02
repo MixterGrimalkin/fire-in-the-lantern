@@ -51,6 +51,8 @@ class NeoPixel
       end
     end.flatten
 
+    log_render
+
     while buffer.size % 3 != 0
       buffer << 0
     end
@@ -66,6 +68,26 @@ class NeoPixel
 
   def close
     # --> Shutdown display here <-- #
+  end
+
+  FPS_SAMPLE_WINDOW = 5
+
+  def log_render
+    @times ||= []
+    @fps ||= []
+    if @last_render
+      @times << (Time.now - @last_render)
+      if @times.size >= FPS_SAMPLE_WINDOW
+        avg_time = @times.sum.to_f / @times.size
+        @fps << (1.0 / avg_time)
+        @times = []
+      end
+    end
+    @last_render = Time.now
+  end
+
+  def fps
+    puts sprintf '%.2f', @fps[-20..-1].join(', ')
   end
 
   def to_s

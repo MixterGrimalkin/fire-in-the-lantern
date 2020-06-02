@@ -1,54 +1,46 @@
 require_relative '../../fitl/neo_pixel/neo_pixel'
 require_relative '../../fitl/pixelator/pixelator'
 
+include Colors
+
 RSpec.describe Cue do
 
-  let(:neo) { NeoPixel.new pixel_count: 10 }
-  let(:px) { Pixelator.new neo_pixel: neo }
-  let(:scene) { px.scene }
+  subject(:cue) { Cue.new size: 5 }
 
-  let(:all_pixels) { [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }
+  let(:base_layer) { [black] * 5 }
 
   let(:black) { Color.new }
   let(:white) { Color.new 255 }
   let(:red) { Color.new 255, 0, 0 }
   let(:blue) { Color.new 0, 0, 255 }
 
-  # it 'initializes the base layer' do
-  #   expect(scene[:base].canvas).to eq all_pixels
-  #   expect(scene.base.canvas).to eq all_pixels
-  #   expect(scene.base.color_array).to eq [Color.new]*10
-  #   expect(scene.base.alpha_array).to eq [1.0]*10
-  # end
-  #
-  # it 'can define a new layer' do
-  #   scene.layer :the_lot
-  #   expect(scene[:the_lot].canvas).to eq all_pixels
-  # end
-  #
-  # it 'can define a layer by range' do
-  #   scene.layer :mid_four, canvas: (4..7)
-  #   expect(scene[:mid_four].canvas)
-  #       .to eq [4, 5, 6, 7]
-  # end
-  #
-  # it 'can define a layer by array' do
-  #   scene.layer :those_three, canvas: [1, 6, 9]
-  #   expect(scene[:those_three].canvas)
-  #       .to eq [1, 6, 9]
-  # end
-  #
-  # it 'can define a layer by proc' do
-  #   scene.layer :evens, canvas: proc { |p| p % 2 == 0 }
-  #   expect(scene[:evens].canvas)
-  #       .to eq [0, 2, 4, 6, 8]
-  # end
-  #
-  # it 'defines a method for new layers' do
-  #   scene.layer :odds, canvas: proc { |p| p % 2 != 0 }
-  #   expect(scene.odds).to eq scene[:odds]
-  # end
-  #
+  it 'initializes' do
+    expect(cue.playing?).to eq false
+    expect(cue.render_over(base_layer))
+        .to eq base_layer
+  end
+
+  let(:layer_1) { Layer.new(name: 'this_layer', size: 50, fill: white) }
+  let(:layer_2) { Layer.new(name: 'other_layer', size: 50, fill: red) }
+
+  it 'adds layers' do
+    cue.add_layer layer_1
+    cue.add_layer layer_2, [0, 2]
+    expect(cue.layers.size).to eq 2
+    expect(cue.render_over(base_layer))
+        .to eq base_layer
+
+    cue.play
+
+    expect(cue.render_over(base_layer))
+        .to eq [red, white, red, white, white]
+
+    cue.stop
+
+    expect(cue.render_over(base_layer))
+        .to eq base_layer
+  end
+
   # context '#hide and #show' do
   #   let!(:layer_1) { scene.layer :a, background: blue }
   #   let!(:layer_2) { scene.layer :b, canvas: [2, 5, 7], background: red }
