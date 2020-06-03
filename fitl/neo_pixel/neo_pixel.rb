@@ -87,7 +87,7 @@ class NeoPixel
   end
 
   def fps
-    puts sprintf '%.2f', @fps[-20..-1].join(', ')
+    puts @fps[-20..-1].collect { |v| '%.2f' % v }.join(', ')
   end
 
   def to_s

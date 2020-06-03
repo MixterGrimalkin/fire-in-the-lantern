@@ -3,12 +3,14 @@ require_relative '../../fitl/color/colors'
 class Story
   include Colors
 
-  def initialize(size:, assets: Assets.new)
+  def initialize(size:, name:, assets: Assets.new)
     @size = size
+    @name = name
     @assets = assets
   end
 
   attr_reader :size, :assets
+  attr_accessor :name
 
   def update
 

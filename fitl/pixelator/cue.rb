@@ -6,23 +6,18 @@ class Cue
   include CueConfig
   include Colors
 
-  def initialize(size: nil, name: nil, layer_defs: [], assets: Assets.new)
+  def initialize(size: nil, name: nil, layer_reg: [], assets: Assets.new)
     @size = size || assets.pixel_count
     @name = name
     @playing = false
     @assets = assets
-
     clear
 
-    layer_defs.each do |layer_def|
-      if layer_def.is_a? Layer
-        add_layer layer_def
-      elsif (conf = layer_def[:layer_conf])
-        build_layer conf, layer_def[:canvas]
-      elsif layer_def[:from_file]
-        link_layer layer_def[:name]
+    layer_reg.each do |entry|
+      if (name = entry[:from_file])
+        link_layer name, canvas: entry[:canvas]
       else
-        # wtf?
+        build_layer entry[:layer_def], canvas: entry[:canvas]
       end
     end
   end
@@ -66,28 +61,49 @@ class Cue
   end
 
   def playing
-    sleep 1
+    wait_for 1
     # Your code here
   end
 
   def clear
-    @layers = {}
+    self.layer_register = {}
   end
 
   def build_layer(config, canvas = nil)
-    add_layer assets.build_layer(config), canvas, type: :embedded
+    add_layer assets.build_layer(config), canvas, external: false
   end
 
   def link_layer(name, canvas = nil)
-    add_layer assets.load_layer(name), canvas, type: :linked
+    add_layer assets.load_layer(name), canvas, external: true
   end
 
-  def add_layer(layer, canvas = nil, type: :embedded)
-    layers[(layer.name || 'layer').to_sym] = {
+  def add_layer(layer, canvas = nil, external: false)
+    layer_register[layer.name.to_sym] = {
         layer: layer,
         canvas: canvas,
-        type: type
+        external: external
     }
+  end
+
+  def layers
+    layer_register.values.collect { |entry| entry[:layer] }
+  end
+
+  def layer(key)
+    check_layer! key
+    layer_register[key][:layer]
+  end
+
+  def link_out(key)
+    check_layer! key, false
+    entry = layer_register[key]
+    assets.save_layer entry[:layer].name, entry[:layer]
+    entry[:external] = true
+  end
+
+  def copy_in(key)
+    check_layer! key, true
+    layer_register[key][:external] = false
   end
 
   def apply_canvas(layer_key, canvas = nil)
@@ -98,34 +114,29 @@ class Cue
     {
         name: name,
         size: size,
-        layers: [
-            layers.collect do |key, entry|
-              case entry[:type]
-                when :embedded
-                  {
-                      name: entry.layer.name,
-                      canvas: entry.canvas,
-                      layer_conf: entry.layer.to_h
-                  }
-                when :linked
-                  {
-                      name: entry.layer.name,
-                      canvas: entry.canvas,
-                      from_file: true
-                  }
-                else
-                  # ignored
-              end
-            end
-        ]
+        layer_reg: layer_register.collect do |_key, entry|
+          if entry[:external]
+            {from_file: entry[:layer].name}
+          else
+            {layer_def: entry[:layer].to_h}
+          end.merge(canvas: entry[:canvas])
+        end
     }
   end
 
   def self.from_h(hash)
-
+    cue = Cue.new size: hash.fetch(:size), name: hash.fetch(:name)
+    hash[:layers].each do |entry|
+      if (name = entry[:from_file])
+        cue.link_layer name, canvas: entry[:canvas]
+      else
+        cue.build_layer entry[:layer_def], canvas: entry[:canvas]
+      end
+    end
+    cue
   end
 
-  attr_reader :size, :layers
+  attr_reader :size
 
   def hide_all
     layers.values.each(&:hide)
@@ -144,52 +155,58 @@ class Cue
   def update
     return unless playing?
 
-    layers.each do |_, entry|
-      entry[:layer].update
-    end
+    layers.each(&:update)
   end
 
   def put_top(layer_key)
     check_layer! layer_key
 
     new_layers = {}
-    layers.each do |key, layer|
+    layer_register.each do |key, layer|
       new_layers[key] = layer unless key==layer_key
     end
     new_layers[layer_key] = layers[layer_key]
-    @layers = new_layers
+    self.layer_register = new_layers
   end
 
   def put_bottom(layer_key)
     check_layer! layer_key
 
     new_layers = {layer_key => layers[layer_key]}
-    layers.each do |key, layer|
+    layer_register.each do |key, layer|
       new_layers[key] = layer unless key==layer_key
     end
-    @layers = new_layers
+    self.layer_register = new_layers
   end
 
   def render_over(base_layer, alpha: 1.0)
     return base_layer unless playing?
 
-    layers.each do |key, layer_def|
-      base_layer = layer_def[:layer].render_over(base_layer, canvas: layer_def[:canvas], alpha: alpha)
+    layer_register.each do |_key, entry|
+      base_layer = entry[:layer].render_over(base_layer, canvas: entry[:canvas], alpha: alpha)
     end
     base_layer
   end
 
   private
 
-  def check_layer(key)
-    !layers[key].nil?
+  def check_layer(key, external = nil)
+    return false unless layer_register[key]
+
+    external.nil? || layer_register[key][:external]
   end
 
-  def check_layer!(key)
-    raise LayerNotFound, key.to_s unless check_layer(key)
+  def check_layer!(key, external = nil)
+    raise LayerNotFound, "#{key.to_s}#{
+    if external.nil?
+      ''
+    else
+      "#{external ? ':linked' : ':embedded'}"
+    end}" unless check_layer(key, external)
   end
 
   attr_reader :assets
+  attr_accessor :layer_register
 end
 
 LayerNotFound = Class.new(StandardError)

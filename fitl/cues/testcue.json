@@ -1,0 +1,14 @@
+{
+  "name": "testcue",
+  "size": 35,
+  "layer_reg": [
+    {
+      "from_file": "redblue",
+      "canvas": null
+    },
+    {
+      "from_file": "caterpillar",
+      "canvas": null
+    }
+  ]
+}

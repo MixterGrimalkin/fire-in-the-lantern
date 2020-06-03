@@ -21,6 +21,13 @@ class Assets
     @base_layer ||= [BLACK] * pixel_count
   end
 
+  def new_media_name(type)
+    @counters ||= {}
+    @counters[type] ||= 0
+    @counters[type] += 1
+    "#{type}_#{@counters[type]}"
+  end
+
   MEDIA_CLASSES = [Layer, Cue, Scene, Story]
 
   MEDIA_TYPES = MEDIA_CLASSES.collect { |asset_class| asset_class.name.downcase.to_sym }
@@ -29,11 +36,11 @@ class Assets
     media_type = MEDIA_TYPES[i]
 
     define_method "new_#{media_type}" do
-      asset_class.new size: pixel_count, assets: self
+      asset_class.new name: new_media_name(media_type), size: pixel_count, assets: self
     end
 
     define_method "build_#{media_type}" do |config|
-      asset_class.new(config.merge(assets: self))
+      asset_class.new({name: new_media_name(media_type)}.merge(config).merge(assets: self))
     end
 
     define_method "load_#{media_type}" do |name|
@@ -41,7 +48,7 @@ class Assets
     end
 
     define_method "save_#{media_type}" do |name, media|
-      File.write media_filename(media_type, name), JSON.pretty_generate(media.to_h)
+      File.write media_filename(media_type, name), JSON.pretty_generate(media.to_h.merge(name: name))
       media
     end
   end

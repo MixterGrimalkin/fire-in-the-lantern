@@ -55,7 +55,7 @@ RSpec.describe Pixelator do
 
       px.load_file 'a_layer'
       layer = px.get
-      expect(layer.name).to eq 'My Lovely Layer'
+      expect(layer.name).to eq 'a_layer'
       expect(layer.size).to eq 2
       expect(layer.visible).to eq true
       expect(layer.opacity).to eq 0.5

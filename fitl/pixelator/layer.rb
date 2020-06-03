@@ -159,7 +159,7 @@ class Layer
     scr = "δ=#{scroller}"
     fdr = "Φ=#{fader}"
     opa = "α=#{opacity}"
-    "<Layer[#{vis}] #{sze} #{scr} #{fdr} #{opa}>"
+    "<Layer:#{name}[#{vis}] #{sze} #{scr} #{fdr} #{opa}>"
   end
 
   # Update and Render

@@ -8,12 +8,15 @@ class Scene
   include Colors
   extend Forwardable
 
-  def initialize(size:, assets: Assets.new)
+  def initialize(size:, name:, assets: Assets.new)
     @pixels = (0..(size-1)).to_a
+    @name = name
     @assets = assets
     # @selected_cue = nil
     # clear
   end
+
+  attr_accessor :name
 
   def clear
     @cues = {}
