@@ -1,3 +1,5 @@
+require 'rspec'
+
 require_relative '../../fitl/neo_pixel/neo_pixel'
 require_relative '../../fitl/pixelator/pixelator'
 require_relative '../../fitl/color/tools'

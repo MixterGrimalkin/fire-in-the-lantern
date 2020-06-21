@@ -27,15 +27,18 @@ RSpec.describe Cue do
     cue.add_layer layer_1
     cue.add_layer layer_2, [0, 2]
     expect(cue.layers.size).to eq 2
+    expect(cue.layer(:this_layer)).to eq layer_1
     expect(cue.render_over(base_layer))
         .to eq base_layer
 
     cue.play
+    expect(cue.playing?).to eq true
 
     expect(cue.render_over(base_layer))
         .to eq [red, white, red, white, white]
 
     cue.stop
+    expect(cue.playing?).to eq false
 
     expect(cue.render_over(base_layer))
         .to eq base_layer

@@ -1,9 +1,6 @@
-require_relative 'modifiers_config'
-
 class Fader
-  include ModifiersConfig
 
-  def initialize(size)
+  def initialize(size:)
     @size = size
     @alphas = [nil] * size
     @bouncers = [false] * size
@@ -94,7 +91,7 @@ class Fader
   end
 
   def inspect
-    "<Fader active=#{active}>"
+    "<Fader[#{to_s}]>"
   end
 
 end

@@ -4,11 +4,15 @@
   "layer_reg": [
     {
       "from_file": "redblue",
-      "canvas": null
+      "canvas": {
+        "canvas": null
+      }
     },
     {
       "from_file": "caterpillar",
-      "canvas": null
+      "canvas": {
+        "canvas": null
+      }
     }
   ]
 }

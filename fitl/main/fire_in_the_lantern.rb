@@ -1,4 +1,5 @@
 require_relative '../pixelator/pixelator'
+require_relative '../pixelator/envelope'
 require_relative '../pixelator/osc_control_hooks'
 
 require_relative '../neo_pixel/direct_osc_server'

@@ -3,6 +3,20 @@ require_relative '../../fitl/lib/utils'
 RSpec.describe 'Utils Module' do
   include Utils
 
+  context 'mathsy stuff' do
+    it '.interpolate' do
+      expect(interpolate 0, 10, 0).to eq 0.0
+      expect(interpolate 0, 10, -1).to eq 0.0
+
+      expect(interpolate 0, 10, 0.2).to eq 2.0
+      expect(interpolate 0, 10, 0.5).to eq 5.0
+      expect(interpolate 0, 10, 0.75).to eq 7.5
+
+      expect(interpolate 0, 10, 1).to eq 10.0
+      expect(interpolate 0, 10, 2).to eq 10.0
+    end
+  end
+
   context '#symbolize_keys' do
     let(:hash_before) do
       {'a' => 123,

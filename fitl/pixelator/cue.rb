@@ -22,51 +22,24 @@ class Cue
     end
   end
 
+  def clear
+    self.layer_register = {}
+  end
+
   def playing?
     @playing
   end
 
   attr_accessor :name
 
-  attr_accessor :play_thread
-  private :play_thread, :play_thread=
+  # Layers
 
-  attr_writer :playing
-  private :playing=
-
-  def play
-    return if playing?
-
-    self.playing = true
-
-    self.play_thread = Thread.new do
-      while playing?
-        playing
-      end
-    end
-  end
-
-  def wait_for(seconds)
-    elapsed = 0.0
-    while playing? && elapsed < seconds
-      sleep 1
-      elapsed += 1
-    end
-  end
-
-  def stop
-    return unless playing?
-
-    self.playing = false
-  end
-
-  def playing
-    wait_for 1
-    # Your code here
-  end
-
-  def clear
-    self.layer_register = {}
+  def add_layer(layer, canvas = nil, external: false)
+    layer_register[layer.name.to_sym] = {
+        layer: layer,
+        canvas: canvas,
+        external: external
+    }
   end
 
   def build_layer(config, canvas = nil)
@@ -75,14 +48,6 @@ class Cue
 
   def link_layer(name, canvas = nil)
     add_layer assets.load_layer(name), canvas, external: true
-  end
-
-  def add_layer(layer, canvas = nil, external: false)
-    layer_register[layer.name.to_sym] = {
-        layer: layer,
-        canvas: canvas,
-        external: external
-    }
   end
 
   def layers
@@ -107,7 +72,21 @@ class Cue
   end
 
   def apply_canvas(layer_key, canvas = nil)
-    layers[layer_key][:canvas] = canvas
+    layer_register[layer_key][:canvas] = canvas
+  end
+
+  # Play
+
+  def play
+    return if playing?
+
+    self.playing = true
+  end
+
+  def stop
+    return unless playing?
+
+    self.playing = false
   end
 
   def to_h
@@ -124,32 +103,20 @@ class Cue
     }
   end
 
-  def self.from_h(hash)
-    cue = Cue.new size: hash.fetch(:size), name: hash.fetch(:name)
-    hash[:layers].each do |entry|
-      if (name = entry[:from_file])
-        cue.link_layer name, canvas: entry[:canvas]
-      else
-        cue.build_layer entry[:layer_def], canvas: entry[:canvas]
-      end
-    end
-    cue
-  end
-
   attr_reader :size
 
   def hide_all
-    layers.values.each(&:hide)
+    layers.each(&:hide)
   end
 
   def show_all
-    layers.values.each(&:show)
+    layers.each(&:show)
   end
 
   def solo(layer_key)
     check_layer! layer_key
     hide_all
-    layers[layer_key].show
+    layer(layer_key).show
   end
 
   def update
@@ -162,25 +129,25 @@ class Cue
     check_layer! layer_key
 
     new_layers = {}
-    layer_register.each do |key, layer|
-      new_layers[key] = layer unless key==layer_key
+    layer_register.each do |key, entry|
+      new_layers[key] = entry unless key==layer_key
     end
-    new_layers[layer_key] = layers[layer_key]
+    new_layers[layer_key] = layer_register[layer_key]
     self.layer_register = new_layers
   end
 
   def put_bottom(layer_key)
     check_layer! layer_key
 
-    new_layers = {layer_key => layers[layer_key]}
-    layer_register.each do |key, layer|
-      new_layers[key] = layer unless key==layer_key
+    new_layers = {layer_key => layer_register[layer_key]}
+    layer_register.each do |key, entry|
+      new_layers[key] = entry unless key==layer_key
     end
     self.layer_register = new_layers
   end
 
   def render_over(base_layer, alpha: 1.0)
-    return base_layer unless playing?
+    return base_layer unless (playing? && alpha > 0)
 
     layer_register.each do |_key, entry|
       base_layer = entry[:layer].render_over(base_layer, canvas: entry[:canvas], alpha: alpha)
@@ -193,7 +160,7 @@ class Cue
   def check_layer(key, external = nil)
     return false unless layer_register[key]
 
-    external.nil? || layer_register[key][:external]
+    external.nil? || (external == layer_register[key][:external])
   end
 
   def check_layer!(key, external = nil)
@@ -206,7 +173,9 @@ class Cue
   end
 
   attr_reader :assets
-  attr_accessor :layer_register
+  attr_writer :playing
+  attr_accessor :layer_register, :play_thread
+
 end
 
 LayerNotFound = Class.new(StandardError)

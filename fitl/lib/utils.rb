@@ -190,6 +190,13 @@ module Utils
     sum_array(array, zero: zero) / array.size
   end
 
+  def interpolate(x, y, progress)
+    return x.to_f if progress <= 0
+    return y.to_f if progress >= 1
+
+    x + ((y - x) * progress.to_f)
+  end
+
   CONSOLE_FG_COLOURS = {
       default: '38',
       black: '30', dark_gray: '1;30', gray: '37', white: '1;37', brown: '33',

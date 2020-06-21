@@ -124,6 +124,10 @@ RSpec.describe Layer do
     layer.fill red
     expect(layer.render_over blue_base, canvas: [1, 2])
         .to eq [blue, red, red, blue]
+    expect(layer.render_over blue_base, canvas: [0, 4, 5])
+        .to eq [red, blue, blue, blue]
+    expect(layer.render_over blue_base, canvas: [-2, 8])
+        .to eq [blue, blue, red, blue]
   end
 
 end

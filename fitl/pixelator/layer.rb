@@ -47,7 +47,7 @@ class Layer
             Scroller.new(size: size, assets: assets)
         end
 
-    @fader = fader || Fader.new(size)
+    @fader = fader || Fader.new(size: size)
   end
 
   attr_reader :size, :scroller, :fader
@@ -165,12 +165,14 @@ class Layer
   # Update and Render
 
   def update
+    return unless visible
+
     scroller.check_and_update
     fader.check_and_update
   end
 
   def render_over(base_layer, canvas: nil, alpha: 1.0)
-    return base_layer unless visible || alpha == 0.0
+    return base_layer unless visible && alpha > 0.0
     canvas = (canvas || default_canvas).to_a
     result = []
     expand_content(base_layer.size, canvas).each_with_index do |color_a, i|
@@ -207,11 +209,10 @@ class Layer
   end
 
   def check_pixel_number(pixel)
-    (0..(size-1)).include?(pixel)
+    0 <= pixel && pixel < size
   end
 
   def check_pixel_number!(pixel)
     raise PixelOutOfRangeError, pixel unless check_pixel_number(pixel)
   end
-
 end
