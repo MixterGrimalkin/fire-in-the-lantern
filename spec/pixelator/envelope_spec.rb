@@ -15,12 +15,14 @@ RSpec.describe Envelope do
   let(:sustain) { 2 }
   let(:release) { 1 }
   let(:loop) { false }
+  let(:enable_thread) { false }
 
   subject do
     Envelope.new object, method, off: 4, max: 8, loop: loop,
                  attack_time: attack, attack_profile: {0.25 => 0.25, 0.75 => 1.0},
                  sustain_time: sustain, sustain_profile: 0.75,
-                 release_time: release, release_profile: {0.5 => 0.25, 1.0 => 0.125}
+                 release_time: release, release_profile: {0.5 => 0.25, 1.0 => 0.125},
+                 enable_thread: enable_thread
   end
 
   it 'generates curves' do
@@ -104,6 +106,7 @@ RSpec.describe Envelope do
     let(:attack) { 1 }
     let(:sustain) { 0.5 }
     let(:release) { 0.25 }
+    let(:enable_thread) { true }
 
     it 'updates the object' do
       expect(object.dial).to eq 0.0

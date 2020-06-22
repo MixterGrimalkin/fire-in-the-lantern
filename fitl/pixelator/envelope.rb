@@ -4,7 +4,8 @@ class Envelope
   def initialize(object, method, off: 0.0, max: 1.0, loop: false,
                  attack_time: 1, attack_profile: {},
                  sustain_time: 1, sustain_profile: 1.0,
-                 release_time: 1, release_profile: {})
+                 release_time: 1, release_profile: {},
+                 enable_thread: false)
     @object = object
     @method = method
     @off = off.to_f
@@ -16,6 +17,7 @@ class Envelope
     @sustain_profile = sustain_profile.to_f
     @release_time = release_time
     @release_profile = release_profile
+    @enable_thread = enable_thread
     @started_at = nil
     @started = false
   end
@@ -24,6 +26,7 @@ class Envelope
               :attack_time, :attack_profile,
               :sustain_time, :sustain_profile,
               :release_time, :release_profile,
+              :enable_thread,
               :started_at, :started
 
   def sustain_value
@@ -35,15 +38,19 @@ class Envelope
 
     @started_at = Time.now
 
-    Thread.new do
-      @started = true
-      while started
-        update
-        sleep 0.01
+    if enable_thread
+      Thread.new do
+        @started = true
+        while started
+          update
+          sleep 0.01
+        end
       end
-    end
-
-    until started
+      until started
+        # Wait for thread to start
+      end
+    else
+      @started = true
     end
   end
 

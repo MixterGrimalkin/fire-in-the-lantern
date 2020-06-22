@@ -1,9 +1,7 @@
 require_relative '../color/colors'
-require_relative 'cue_config'
 require_relative 'layer'
 
 class Cue
-  include CueConfig
   include Colors
 
   def initialize(size: nil, name: nil, layer_reg: [], assets: Assets.new)
