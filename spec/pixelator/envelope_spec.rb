@@ -4,11 +4,9 @@ require 'ostruct'
 
 require 'byebug'
 
-RUN_SIMULATION = false
-
 RSpec.describe Envelope do
 
-  let(:object) { OpenStruct.new(dial: 0) }
+  let(:target) { OpenStruct.new(dial: 0) }
   let(:method) { :dial= }
 
   let(:attack) { 4 }
@@ -18,7 +16,7 @@ RSpec.describe Envelope do
   let(:enable_thread) { false }
 
   subject do
-    Envelope.new object, method, off: 4, max: 8, loop: loop,
+    Envelope.new target, method, off: 4, max: 8, loop: loop,
                  attack_time: attack, attack_profile: {0.25 => 0.25, 0.75 => 1.0},
                  sustain_time: sustain, sustain_profile: 0.75,
                  release_time: release, release_profile: {0.5 => 0.25, 1.0 => 0.125},
@@ -86,52 +84,36 @@ RSpec.describe Envelope do
     end
   end
 
-  if RUN_SIMULATION
-    context 'Simulator' do
-      let(:loop) { true }
-      it 'sim' do
-        started = Time.now
-        subject.start
-        puts
-        while (Time.now - started) < 35
-          block = '#' * (object.dial * 2).floor
-          print "\r#{block}                     "
-        end
-        subject.stop
-      end
-    end
-  end
-
-  context 'Thread' do
+  context 'when thread is enabled' do
     let(:attack) { 1 }
     let(:sustain) { 0.5 }
     let(:release) { 0.25 }
     let(:enable_thread) { true }
 
     it 'updates the object' do
-      expect(object.dial).to eq 0.0
+      expect(target.dial).to eq 0.0
       sleep 0.1
-      expect(object.dial).to eq 0.0
+      expect(target.dial).to eq 0.0
 
       subject.start
-      expect(object.dial).to be_within(0.01).of 4.0
+      expect(target.dial).to be_within(0.01).of 4.0
 
       sleep 0.5
-      expect(object.dial).to be_between(2, 8)
+      expect(target.dial).to be_between(2, 8)
 
       sleep 0.75
-      expect(object.dial).to eq 6
+      expect(target.dial).to eq 6
 
       subject.stop
 
       sleep 0.75
-      expect(object.dial).to eq 6
+      expect(target.dial).to eq 6
     end
   end
 
   context 'default envelope' do
     subject do
-      Envelope.new object, :dial=
+      Envelope.new target, :dial=
     end
     it 'initialises' do
       expect(subject.send(:attack_curve)).to eq [[0.0, 0.0], [1.0, 1.0]]
@@ -141,6 +123,26 @@ RSpec.describe Envelope do
       expect(subject.value_at 1.5).to eq 1.0
       expect(subject.value_at 2.5).to eq 0.5
       expect(subject.value_at 3.5).to eq 0.0
+    end
+  end
+
+  context 'given no clue' do
+    subject do
+      Envelope.new target
+    end
+    it 'raises an error' do
+      expect { subject }.to raise_error(Unclear)
+    end
+  end
+
+  context 'given a proc' do
+    subject do
+      Envelope.new(target, attack_time: 0.1, max: 5) { |value| print "[#{value}]" }
+    end
+    it 'runs the proc' do
+      subject.start
+      sleep 0.2
+      expect { subject.update }.to output('[5.0]').to_stdout
     end
   end
 

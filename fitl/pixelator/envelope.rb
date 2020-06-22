@@ -1,12 +1,18 @@
 class Envelope
   include Utils
 
-  def initialize(object, method, off: 0.0, max: 1.0, loop: false,
+  def initialize(target, method = nil, off: 0.0, max: 1.0, loop: false,
                  attack_time: 1, attack_profile: {},
                  sustain_time: 1, sustain_profile: 1.0,
                  release_time: 1, release_profile: {},
-                 enable_thread: false)
-    @object = object
+                 enable_thread: false, &block)
+    @target = target
+    @proc = if block_given?
+              block
+            else
+              raise Unclear, 'Unclear what you want this Envelope to do' if method.nil?
+              ->(value) { target.send(method.to_sym, value) }
+            end
     @method = method
     @off = off.to_f
     @max = max.to_f
@@ -22,12 +28,18 @@ class Envelope
     @started = false
   end
 
-  attr_reader :object, :method, :off, :max, :loop,
+  attr_reader :target, :method, :off, :max, :loop,
               :attack_time, :attack_profile,
               :sustain_time, :sustain_profile,
               :release_time, :release_profile,
               :enable_thread,
-              :started_at, :started
+              :started_at, :started, :proc
+
+  def update
+    return unless started
+
+    proc.call value_at(Time.now - started_at)
+  end
 
   def sustain_value
     @sustain_value ||= (sustain_profile * max)
@@ -78,12 +90,6 @@ class Envelope
 
   private
 
-  def update
-    return unless started
-
-    object.send(method, value_at(Time.now - started_at))
-  end
-
   def value_from_curve(curve, time)
     curve.each_with_index do |node, i|
       next if i.zero?
@@ -132,3 +138,6 @@ class Envelope
     {0.0 => sustain_value, 1.0 => off}
   end
 end
+
+Unclear = Class.new(StandardError)
+
