@@ -121,6 +121,7 @@ class Factory
               cue: 'cues',
               layer: 'layers',
           },
+          auto_play: true,
           max_oversample: 6,
           allow_remote_reboot: false
       }

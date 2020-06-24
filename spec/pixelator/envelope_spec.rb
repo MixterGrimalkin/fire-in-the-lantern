@@ -137,7 +137,7 @@ RSpec.describe Envelope do
 
   context 'given a proc' do
     subject do
-      Envelope.new(target, attack_time: 0.1, max: 5) { |value| print "[#{value}]" }
+      Envelope.new(attack_time: 0.1, max: 5) { |value| print "[#{value}]" }
     end
     it 'runs the proc' do
       subject.start

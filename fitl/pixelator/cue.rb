@@ -13,9 +13,9 @@ class Cue
 
     layer_reg.each do |entry|
       if (name = entry[:from_file])
-        link_layer name, canvas: entry[:canvas]
+        link_layer name, entry[:canvas]
       else
-        build_layer entry[:layer_def], canvas: entry[:canvas]
+        build_layer entry[:layer_def], entry[:canvas]
       end
     end
   end
@@ -42,6 +42,10 @@ class Cue
 
   def build_layer(config, canvas = nil)
     add_layer assets.build_layer(config), canvas, external: false
+  end
+
+  def import_layer(name, canvas = nil)
+    add_layer assets.load_layer(name), canvas, external: false
   end
 
   def link_layer(name, canvas = nil)

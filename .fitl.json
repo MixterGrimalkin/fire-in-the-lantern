@@ -39,6 +39,7 @@
       "cue": "cues",
       "layer": "layers"
     },
+    "auto_play": true,
     "max_oversample": 25,
     "allow_remote_reboot": false
   }

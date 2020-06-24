@@ -1,7 +1,7 @@
 class Envelope
   include Utils
 
-  def initialize(target, method = nil, off: 0.0, max: 1.0, loop: false,
+  def initialize(target = nil, method = nil, off: 0.0, max: 1.0, loop: false,
                  attack_time: 1, attack_profile: {},
                  sustain_time: 1, sustain_profile: 1.0,
                  release_time: 1, release_profile: {},
@@ -10,7 +10,7 @@ class Envelope
     @proc = if block_given?
               block
             else
-              raise Unclear, 'Unclear what you want this Envelope to do' if method.nil?
+              raise Unclear, 'Provide block or specify target and method' if target.nil? || method.nil?
               ->(value) { target.send(method.to_sym, value) }
             end
     @method = method

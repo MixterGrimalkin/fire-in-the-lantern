@@ -52,10 +52,6 @@ class Layer
   attr_accessor :visible, :opacity, :name, :contents
   private :contents=
 
-  def resize(new_size)
-
-  end
-
   # Drawing
 
   def clear
