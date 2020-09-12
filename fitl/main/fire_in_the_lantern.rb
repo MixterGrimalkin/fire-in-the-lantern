@@ -19,6 +19,17 @@ require_relative 'factory'
 require 'forwardable'
 require 'json'
 
+def require_all(asset_name)
+  Dir.glob("#{asset_name}/*.rb") do |filename|
+    require_relative "../#{filename}"
+  end
+end
+
+require_all 'layers'
+require_all 'cues'
+# require_all 'scenes'
+# require_all 'stories'
+
 module FireInTheLantern
 
   def self.included(base)
@@ -26,7 +37,9 @@ module FireInTheLantern
       include Colors
       include Utils
       include Forwardable
-      def_delegators :factory, :neo, :px, :osc, :clear, :settings
+      def_delegators :factory,
+                     :neo, :px, :osc, :clear, :settings,
+                     :layer, :cue, :scene, :story
       logo
     end
   end

@@ -32,23 +32,35 @@ class Assets
 
   MEDIA_TYPES = MEDIA_CLASSES.collect { |asset_class| asset_class.name.downcase.to_sym }
 
+  def media_config(config = {})
+    {size: pixel_count, assets: self}.merge(config)
+  end
+
   MEDIA_CLASSES.each_with_index do |asset_class, i|
     media_type = MEDIA_TYPES[i]
 
     define_method "new_#{media_type}" do
-      asset_class.new name: new_media_name(media_type), size: pixel_count, assets: self
+      asset_class.new media_config
     end
 
-    define_method "build_#{media_type}" do |config|
-      asset_class.new({name: new_media_name(media_type)}.merge(config).merge(assets: self))
+    define_method "build_#{media_type}" do |name, config|
+      begin
+        asset_subclass = name.is_a?(Class) ? name : Object.const_get(name)
+        if asset_subclass < asset_class
+          return asset_subclass.new media_config(config)
+        end
+      rescue NameError
+        # ignored
+      end
+      asset_class.new media_config(config)
     end
 
     define_method "load_#{media_type}" do |name|
-      asset_class.new(read_json(media_filename(media_type, name)).merge(assets: self))
+      asset_class.new media_config(read_json(media_filename(media_type, name)))
     end
 
-    define_method "save_#{media_type}" do |name, media|
-      File.write media_filename(media_type, name), JSON.pretty_generate(media.to_h.merge(name: name))
+    define_method "save_#{media_type}" do |media|
+      File.write media_filename(media_type, media.name), JSON.pretty_generate(media.to_h)
       media
     end
   end

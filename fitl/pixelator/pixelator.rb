@@ -37,6 +37,10 @@ class Pixelator
       clear
       self
     end
+
+    define_method "#{type}_mode?" do
+      self.mode == type
+    end
   end
 
   attr_accessor :media
@@ -49,15 +53,15 @@ class Pixelator
     self
   end
 
-  def build(config)
-    self.media = assets.send("build_#{mode}".to_sym, config)
+  def build(name, config = {})
+    self.media = assets.send("build_#{mode}".to_sym, name, config)
   end
 
   def load_file(name)
     self.media = assets.send("load_#{mode}".to_sym, name)
   end
 
-  def save_file(name)
+  def save_file(name = media.name)
     assets.send("save_#{mode}".to_sym, name, media)
   end
 

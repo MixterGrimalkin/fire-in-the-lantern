@@ -10,11 +10,15 @@ class Layer
   include Colors
   include Utils
 
-  def initialize(size:, name: nil,
-                 visible: true, opacity: 1.0, fill: nil,
-                 scroller: nil,
-                 contents: nil,
-                 assets: Assets.new
+  def initialize(
+      size:,
+      name: 'Layer',
+      visible: true,
+      opacity: 1.0,
+      fill: nil,
+      scroller: nil,
+      contents: nil,
+      assets: Assets.new
   )
     @name = name
     @size = size
@@ -151,7 +155,7 @@ class Layer
 
   def render_over(base_layer, canvas: nil, alpha: 1.0)
     return base_layer unless visible && alpha > 0.0
-    canvas = (canvas || default_canvas).to_a
+    canvas = canvas&.to_a || default_canvas
     result = []
     expand_content(base_layer.size, canvas).each_with_index do |color_a, i|
       result[i] =

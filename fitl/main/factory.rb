@@ -22,6 +22,30 @@ class Factory
     @osc ||= DirectOscServer.new(osc_config)
   end
 
+  def layer
+    px_media :layer
+  end
+
+  def cue
+    px_media :cue
+  end
+
+  def scene
+    px_media :scene
+  end
+
+  def story
+    px_media :story
+  end
+
+  def px_media(type)
+    if px.send("#{type}_mode?".to_sym)
+      px.get
+    else
+      puts "Pixelator is not in #{type} mode"
+    end
+  end
+
   def assets
     @assets ||= Assets.new(
         pixel_count: neo.pixel_count,

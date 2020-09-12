@@ -93,10 +93,10 @@
         "name": "ripple_1",
         "size": 200,
         "visible": true,
-        "opacity": 0.2,
+        "opacity": 0.3,
         "scroller": {
-          "period": 0.3,
-          "oversample": 20,
+          "period": 0.6,
+          "oversample": 10,
           "active": true
         },
         "contents": [
@@ -309,9 +309,9 @@
         "name": "ripple_2",
         "size": 200,
         "visible": true,
-        "opacity": 0.2,
+        "opacity": 0.3,
         "scroller": {
-          "period": -0.3,
+          "period": -0.5,
           "oversample": 20,
           "active": true
         },

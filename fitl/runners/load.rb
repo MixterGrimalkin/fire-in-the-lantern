@@ -9,7 +9,7 @@ end
 
 px.send("#{media_type}_mode".to_sym)
 
-px.start.load_file media_name
+px.start.build media_name
 
 message "Loaded #{media_type}: #{media_name}"
 
