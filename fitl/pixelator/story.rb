@@ -3,7 +3,7 @@ require_relative '../../fitl/color/colors'
 class Story
   include Colors
 
-  def initialize(size:, name:, assets: Assets.new)
+  def initialize(size:, name: 'story', assets: Assets.new)
     @size = size
     @name = name
     @assets = assets

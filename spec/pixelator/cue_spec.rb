@@ -25,7 +25,7 @@ RSpec.describe Cue do
 
   it 'adds layers' do
     cue.add_layer layer_1
-    cue.add_layer layer_2, [0, 2]
+    cue.add_layer layer_2, canvas: [0, 2]
     expect(cue.layers.size).to eq 2
     expect(cue.layer(:this_layer)).to eq layer_1
     expect(cue.render_over(base_layer))

@@ -6,7 +6,7 @@ class Cue
   include Colors
   include LayerSet
 
-  def initialize(size: nil, name: nil, assets: Assets.new)
+  def initialize(size: nil, name: 'cue', assets: Assets.new)
     @size = size || assets.pixel_count
     @name = name
     @playing = false

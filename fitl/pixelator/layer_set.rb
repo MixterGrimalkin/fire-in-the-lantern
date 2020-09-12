@@ -28,7 +28,7 @@ module LayerSet
   def add_layer(layer, canvas: nil, external: false)
     layer_register[unique_name(layer)] = {
         layer: layer,
-        canvas: canvas.to_a,
+        canvas: canvas&.to_a,
         external: external
     }
     layer

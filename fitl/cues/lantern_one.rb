@@ -19,7 +19,7 @@ class LanternOne < Cue
                 canvas: UPPER_RING,
                 config: {
                     name: 'red_grad',
-                    size: 100,
+                    size: 60,
                     from: RED,
                     to: BLACK,
                     sym: false
@@ -30,7 +30,7 @@ class LanternOne < Cue
                 canvas: UPPER_RING,
                 config: {
                     name: 'yellow_grad',
-                    size: 100,
+                    size: 90,
                     from: BLACK,
                     to: YELLOW,
                     sym: false
@@ -51,7 +51,7 @@ class LanternOne < Cue
     build_layer(FadeLayer,
                 canvas: LOWER_RING,
                 config: {
-                    colors: [BLUE * 0.7, GREEN * 0.3],
+                    colors: [BLUE * 0.8, GREEN * 0.6],
                     period: 2
                 })
   end

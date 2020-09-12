@@ -8,7 +8,7 @@ class Scene
   include Colors
   extend Forwardable
 
-  def initialize(size:, name:, assets: Assets.new)
+  def initialize(size:, name: 'scene', assets: Assets.new)
     @pixels = (0..(size-1)).to_a
     @name = name
     @assets = assets

@@ -38,7 +38,7 @@ RSpec.describe Pixelator do
     end
 
     it 'builds layer' do
-      px.build({size: 20,
+      px.build(Layer, {size: 20,
                 visible: true,
                 opacity: 0.5,
                 fill: red})
@@ -71,8 +71,8 @@ RSpec.describe Pixelator do
       expect(File)
           .to receive(:write).with('layers/a_layer.json', File.read('./spec/fixtures/a_layer.json'))
 
-      px.build({size: 2,
-                name: 'My Lovely Layer',
+      px.build(Layer, {size: 2,
+                name: 'a_layer',
                 opacity: 0.5,
                 scroller: Scroller.new(size: 2, period: -0.8, oversample: 9, active: false)
                })
@@ -80,7 +80,7 @@ RSpec.describe Pixelator do
       px.get.set(1, Color.new(100, 0, 50), 0.5)
       px.get.scroll
 
-      px.save_file 'a_layer'
+      px.save_file
     end
   end
 

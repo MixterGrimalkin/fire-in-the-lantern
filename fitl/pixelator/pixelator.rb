@@ -61,8 +61,8 @@ class Pixelator
     self.media = assets.send("load_#{mode}".to_sym, name)
   end
 
-  def save_file(name = media.name)
-    assets.send("save_#{mode}".to_sym, name, media)
+  def save_file
+    assets.send("save_#{mode}".to_sym, media)
   end
 
   def buffer
