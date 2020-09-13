@@ -1,9 +1,9 @@
 class FadeLayer < Layer
   def initialize(
-    name: 'fade',
+    name: 'fade_',
     size:,
-    colors: [],
-    period: 1,
+    colors: [RED, BLUE],
+    period: 3,
     assets: Assets.new
   )
     super(name: name, size: size, assets: assets)

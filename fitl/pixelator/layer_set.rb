@@ -107,8 +107,9 @@ module LayerSet
 
   def unique_name(layer)
     name = layer.name.to_s
-    return name.to_sym unless check_layer(name)
-
+    if name[-1] == '_'
+      name = "#{name}1"
+    end
     counter = 1
     while check_layer(name)
       name = "#{name}_#{counter += 1}"
@@ -131,6 +132,7 @@ module LayerSet
       "#{external ? ':linked' : ':embedded'}"
     end}" unless check_layer(key, external)
   end
+
+  LayerNotFound = Class.new(StandardError)
 end
 
-LayerNotFound = Class.new(StandardError)

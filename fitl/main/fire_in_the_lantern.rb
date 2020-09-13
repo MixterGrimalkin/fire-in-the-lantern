@@ -1,37 +1,16 @@
-require_relative '../pixelator/pixelator'
-require_relative '../pixelator/envelope'
-require_relative '../pixelator/osc_control_hooks'
+FITL = %{
+    ___
+   (_  '_ _   '  _// _   /  _  _/_ _
+   /  // (-  //) //)(-  (__(//)/(-/ /)
 
-require_relative '../neo_pixel/direct_osc_server'
-require_relative '../neo_pixel/neo_pixel'
+       p  i  x  e  l  a  t  o  r
 
-require_relative '../neo_pixel/impl/ws_neo_pixel'
-require_relative '../neo_pixel/impl/osc_neo_pixel'
-require_relative '../neo_pixel/impl/http_neo_pixel'
-require_relative '../neo_pixel/impl/text_neo_pixel'
-require_relative '../neo_pixel/impl/benchmark_neo_pixel'
 
-require_relative '../color/tools'
-require_relative '../lib/utils'
+}
 
-require_relative 'factory'
-
-require 'forwardable'
-require 'json'
-
-def require_all(asset_name)
-  Dir.glob("#{asset_name}/*.rb") do |filename|
-    require_relative "../#{filename}"
-  end
-end
-
-require_all 'layers'
-require_all 'cues'
-# require_all 'scenes'
-# require_all 'stories'
+require_relative 'requirer'
 
 module FireInTheLantern
-
   def self.included(base)
     base.class_eval do
       include Colors
@@ -40,16 +19,19 @@ module FireInTheLantern
       def_delegators :factory,
                      :neo, :px, :osc, :clear, :settings,
                      :layer, :cue, :scene, :story
-      logo
+      puts FITL
     end
   end
 
-  def factory(filename: '../.fitl.json', adapter_override: nil, disable_osc_hooks: false)
+  def factory(adapter_override: nil, disable_osc_hooks: false)
     @factory ||= Factory.new(
-        filename: filename,
+        filename: config_filename,
         adapter_override: adapter_override,
         disable_osc_hooks: disable_osc_hooks
     )
   end
 
+  def config_filename
+    ENV['FITL_CONFIG'] || Factory::DEFAULT_CONFIG_FILE
+  end
 end

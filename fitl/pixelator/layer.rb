@@ -118,6 +118,7 @@ class Layer
     scroller.period = period if period
     scroller.oversample = oversample if oversample
     scroller.start
+    self
   end
 
   def stop_scroll

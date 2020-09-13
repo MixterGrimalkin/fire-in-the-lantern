@@ -3,21 +3,6 @@ require 'enumerator'
 require 'socket'
 
 module Utils
-
-  LOGO = %q{
-    ___
-   (_  '_ _   '  _// _   /  _  _/_ _
-   /  // (-  //) //)(-  (__(//)/(-/ /)
-
-       p  i  x  e  l  a  t  o  r
-
-
-}
-
-  def logo
-    puts LOGO
-  end
-
   def message(msg)
     puts "   #{msg}"
     puts
@@ -26,7 +11,7 @@ module Utils
   def wait_for_interrupt(msg = nil)
     message msg if msg
     while true
-      sleep 0.25
+      sleep 5
     end
   rescue Interrupt
     # ignored

@@ -21,12 +21,11 @@ class Pixelator
     clear
   end
 
-  attr_reader :neo_pixel, :frame_rate, :started, :base, :assets
-  private :base, :assets
-
   def pixel_count
     neo_pixel.pixel_count
   end
+
+  attr_reader :neo_pixel, :frame_rate, :started, :base, :assets
 
   attr_accessor :mode
   private :mode=
@@ -48,21 +47,21 @@ class Pixelator
   alias_method :get, :media
 
   def clear
-    self.media = assets.send("new_#{mode}".to_sym)
+    self.media = assets.send("new_#{mode}")
     render
     self
   end
 
   def build(name, config = {})
-    self.media = assets.send("build_#{mode}".to_sym, name, config)
+    self.media = assets.send("build_#{mode}", name, config)
   end
 
   def load_file(name)
-    self.media = assets.send("load_#{mode}".to_sym, name)
+    self.media = assets.send("load_#{mode}", name)
   end
 
   def save_file
-    assets.send("save_#{mode}".to_sym, media)
+    assets.send("save_#{mode}", media)
   end
 
   def buffer
@@ -115,6 +114,6 @@ class Pixelator
     assets.media_filename(mode, name)
   end
 
+  AlreadyStarted = Class.new(StandardError)
 end
 
-AlreadyStarted = Class.new(StandardError)

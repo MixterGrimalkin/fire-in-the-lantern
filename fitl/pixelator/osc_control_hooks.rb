@@ -2,7 +2,6 @@ class OscControlHooks
   include Utils
 
   def initialize(pixelator, port: '3333', assets: Assets.new)
-    @settings = settings
     @pixelator, @port = pixelator, port
     @server_ip = local_ip_address
     @assets = assets

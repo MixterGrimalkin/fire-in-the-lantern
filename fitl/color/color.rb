@@ -28,6 +28,15 @@ module Colors
       self
     end
 
+    def add(red: 0, green: 0, blue: 0, white: 0)
+      Color.new(
+          real_red + red,
+          real_green + green,
+          real_blue + blue,
+          real_white + white
+      )
+    end
+
     def +(other)
       Color.new(
           real_red + other.real_red,

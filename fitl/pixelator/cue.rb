@@ -16,6 +16,15 @@ class Cue
 
   def clear
     reset_layers
+    setup
+  end
+
+  def setup
+    # Setup
+  end
+
+  def loop
+    # Loop
   end
 
   def playing?
@@ -58,6 +67,7 @@ class Cue
     return unless playing?
 
     layers.each(&:update)
+    loop
   end
 
   def render_over(base_layer, alpha: 1.0)

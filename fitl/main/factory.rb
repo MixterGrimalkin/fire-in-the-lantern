@@ -1,14 +1,26 @@
 class Factory
   include Utils
 
-  def initialize(filename: '../.fitl.json', adapter_override: nil, disable_osc_hooks: false)
+  def initialize(filename: DEFAULT_CONFIG_FILE, adapter_override: nil, disable_osc_hooks: false)
     @filename = filename
-    @config = read_config
     @adapter_override = adapter_override
     @disable_osc_hooks = disable_osc_hooks
+    reload
   end
 
-  attr_reader :filename, :config, :adapter_override, :disable_osc_hooks
+  attr_reader :filename, :adapter_override, :disable_osc_hooks
+
+  attr_accessor :config
+  private :config=
+
+  InvalidCommand = Class.new(StandardError)
+
+  def reload
+    self.config = read_config
+    assets.reload_media_classes
+    message "Loaded configuration from: #{filename}"
+    self
+  end
 
   def neo
     @neo ||= neo_class.new(neo_config)
@@ -39,11 +51,9 @@ class Factory
   end
 
   def px_media(type)
-    if px.send("#{type}_mode?".to_sym)
-      px.get
-    else
-      puts "Pixelator is not in #{type} mode"
-    end
+    raise InvalidCommand, "Pixelator is not in #{type} mode" unless px.send("#{type}_mode?")
+
+    px.get
   end
 
   def assets
@@ -104,8 +114,9 @@ class Factory
         .merge(neo_pixel: neo, assets: assets)
   end
 
+  DEFAULT_CONFIG_FILE = 'fitl.json'
+
   DEFAULT_CONFIG = {
-      Adapter: 'WsNeoPixel',
       Pixelator: {
           frame_rate: 30,
           osc_control_port: 3333
@@ -114,6 +125,7 @@ class Factory
           pixel_count: 35,
           mode: :rgb,
       },
+      Adapter: 'OscNeoPixel',
       HttpNeoPixel: {
           host: 'localhost',
           port: 4567,
@@ -139,12 +151,9 @@ class Factory
           address: 'data'
       },
       Settings: {
-          media_locations: {
-              story: 'stories',
-              scene: 'scenes',
-              cue: 'cues',
-              layer: 'layers',
-          },
+          default_media_type: 'cue',
+          default_media_name: 'Daylight',
+          media_locations: Assets::DEFAULT_MEDIA_LOCATIONS,
           auto_play: true,
           max_oversample: 6,
           allow_remote_reboot: false
