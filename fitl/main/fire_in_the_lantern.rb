@@ -8,7 +8,7 @@ FITL = %{
 
 }
 
-require_relative 'requirer'
+require './main/requirer'
 
 module FireInTheLantern
   def self.included(base)
