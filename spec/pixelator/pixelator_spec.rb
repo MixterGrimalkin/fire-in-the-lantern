@@ -1,8 +1,4 @@
-require 'rspec'
-
-require_relative '../../fitl/neo_pixel/neo_pixel'
-require_relative '../../fitl/pixelator/pixelator'
-require_relative '../../fitl/color/tools'
+require_relative '../spec_helper'
 
 include Colors
 
@@ -52,7 +48,7 @@ RSpec.describe Pixelator do
 
     it 'loads layer' do
       expect(File)
-          .to receive(:read).with('layers/a_layer.json')
+          .to receive(:read).with('assets/layers/a_layer.json')
                   .and_return(File.read('./spec/fixtures/a_layer.json'))
 
       px.load_file 'a_layer'
@@ -69,7 +65,7 @@ RSpec.describe Pixelator do
 
     it 'saves layer' do
       expect(File)
-          .to receive(:write).with('layers/a_layer.json', File.read('./spec/fixtures/a_layer.json'))
+          .to receive(:write).with('assets/layers/a_layer.json', File.read('./spec/fixtures/a_layer.json'))
 
       px.build(Layer, {size: 2,
                 name: 'a_layer',
@@ -140,7 +136,7 @@ RSpec.describe Pixelator do
     end
     it 'raises error if already started' do
       px.start
-      expect { px.start }.to raise_error AlreadyStarted
+      expect { px.start }.to raise_error Pixelator::AlreadyStarted
     end
     it 'does not raise error if already stopped' do
       expect { px.stop }.to_not raise_error

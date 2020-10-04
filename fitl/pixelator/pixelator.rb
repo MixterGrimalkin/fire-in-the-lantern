@@ -1,9 +1,3 @@
-require_relative '../color/colors'
-require_relative '../lib/utils'
-require_relative 'assets'
-
-require 'json'
-
 class Pixelator
   include Colors
   include Utils

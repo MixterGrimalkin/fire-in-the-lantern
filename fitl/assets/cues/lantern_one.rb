@@ -8,9 +8,9 @@ class LanternOne < Cue
   UPPER_RING = (18..34)
   BOTH_RINGS = LOWER_RING.to_a + UPPER_RING.to_a
 
-  SWIRL_LEAD = WHITE * 0.8
-  SWIRL_UPPER = ColorA.new(Color.new(190,90,0),0.6)
-  SWIRL_LOWER = ColorA.new(Color.new(200,80,0),0.6)
+  SWIRL_LEAD = ColorA.new(WHITE * 0.5, 0.7)
+  SWIRL_UPPER = ColorA.new(Color.new(90,45,0),0.6)
+  SWIRL_LOWER = ColorA.new(Color.new(100,40,0),0.6)
 
   SWIRL_PERIOD = 0.08
   SWIRL_SIZE = 35
@@ -20,10 +20,10 @@ class LanternOne < Cue
   UPPER_SWIRL_TAIL_COLOR = SWIRL_UPPER
   LOWER_SWIRL_LEAD_COLOR = SWIRL_LEAD
   LOWER_SWIRL_TAIL_COLOR = SWIRL_LOWER
-  SWIRL_OPACITY = 0.7
+  SWIRL_OPACITY = 0.67
 
   FADE_1 = ORANGE.add(red:7)
-  FADE_2 = CYAN
+  FADE_2 = INDIGO
   FADE_3 = RED.add(blue: 30)
 
   UPPER_FADE_COLORS = [FADE_1, FADE_2, FADE_1, FADE_1, FADE_3]

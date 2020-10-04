@@ -1,10 +1,10 @@
 require_relative '../lib/utils'
 require_relative '../../fitl/color/colors'
 
-require_relative 'story'
-require_relative 'scene'
-require_relative 'cue'
-require_relative 'layer'
+require_relative '../pixelator/story'
+require_relative '../pixelator/scene'
+require_relative '../pixelator/cue'
+require_relative '../pixelator/layer'
 
 class Assets
   include Utils

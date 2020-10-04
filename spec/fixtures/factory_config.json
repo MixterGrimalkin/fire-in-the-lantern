@@ -1,5 +1,4 @@
 {
-  "Adapter": "OscNeoPixel",
   "Pixelator": {
     "frame_rate": 2
   },
@@ -7,6 +6,7 @@
     "pixel_count": 99,
     "mode": "grb"
   },
+  "Adapter": "OscNeoPixel",
   "HttpNeoPixel": {
     "host": "with.the.most",
     "port": 4567,
