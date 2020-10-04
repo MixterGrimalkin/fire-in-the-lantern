@@ -1,0 +1,48 @@
+{
+  "Pixelator": {
+    "frame_rate": 30,
+    "osc_control_port": 3333
+  },
+  "NeoPixel": {
+    "pixel_count": 35,
+    "mode": "rgb"
+  },
+  "Adapter": "OscNeoPixel",
+  "HttpNeoPixel": {
+    "host": "localhost",
+    "port": 4567,
+    "path": "data"
+  },
+  "OscNeoPixel": {
+    "host": "192.168.1.100",
+    "port": 3333,
+    "address": "data"
+  },
+  "WsNeoPixel": {
+    "pin": 18,
+    "brightness": 255,
+    "options": {
+      "freq": 800000,
+      "dma": 5,
+      "invert": false,
+      "channel": 0
+    }
+  },
+  "DirectOscServer": {
+    "port": 3333,
+    "address": "data"
+  },
+  "Settings": {
+    "default_media_type": "cue",
+    "default_media_name": "Daylight",
+    "media_locations": {
+      "story": "assets/stories",
+      "scene": "assets/scenes",
+      "cue": "assets/cues",
+      "layer": "assets/layers"
+    },
+    "auto_play": true,
+    "max_oversample": 6,
+    "allow_remote_reboot": false
+  }
+}

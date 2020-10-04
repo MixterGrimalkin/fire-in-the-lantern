@@ -1,77 +1,82 @@
-require_relative '../lib/color_tools'
+require_relative '../color/colors'
 
 class Scroller
-  include ColorTools
+  include Colors
 
-  def initialize(settings: OpenStruct.new)
-    @settings = settings
-    @over_sample = 1
+  def initialize(size:, period: 1, oversample: 1, active: false, assets: Assets.new)
+    @size = size
+    @period = period
+    @oversample = oversample
+    @active = active
+    @assets = assets
+
+    refresh_effectives
+
     @offset = 0
-    @period = nil
-    @effective_period = nil
-    @last_updated = nil
-  end
-
-  attr_reader :offset, :period, :effective_period, :last_updated, :over_sample
-
-  def over_sample=(value)
-    @over_sample = [value.to_i, max_over_sample].min
-    @offset = 0
-    start period if last_updated
-  end
-
-  def start(scroll_period)
-    @period = scroll_period.to_f
-    @effective_period = scroll_period.to_f / over_sample
     @last_updated = Time.now
-    self
   end
 
-  def resume
-    @last_updated = Time.now
-    self
+  attr_reader :offset, :size, :period, :oversample, :active,
+              :effective_size, :effective_period
+
+  def period=(value)
+    @period = value.to_f
+    refresh_effectives
+  end
+
+  def oversample=(value)
+    @offset = ((offset.to_f / oversample) * value).floor
+    @oversample = [1, [value.to_i, max_oversample].min].max
+    refresh_effectives
+  end
+
+  def refresh_effectives
+    @effective_period = period.to_f / oversample
+    @effective_size = size * oversample
+  end
+
+  def start
+    @active = true
   end
 
   def stop
-    @last_updated = nil
-    self
+    @active = false
   end
 
   def check_and_update
-    update(Time.now - last_updated) if last_updated
+    update(Time.now - last_updated) if active
   end
 
   def update(elapsed_seconds)
-    return unless period && last_updated
+    return unless active
 
     if elapsed_seconds >= effective_period.abs
-      @offset += (elapsed_seconds / effective_period)
+      @offset += (elapsed_seconds / effective_period).floor
+      @offset %= (offset > 0 ? effective_size : -effective_size)
       @last_updated = Time.now
     end
   end
 
-  def scroll(pattern)
-    @offset %= ((offset >= 0 ? pattern.size : -pattern.size) * over_sample)
-
-    over_sampled = [ColorA.new] * (pattern.size * over_sample)
+  def apply(pattern)
+    oversampled = [nil] * (pattern.size * oversample)
     pixel = 0
     pattern.each do |color_a|
-      over_sample.times do
-        p = (pixel + offset) % over_sampled.size
-        over_sampled[p] = color_a
+      oversample.times do
+        p = (pixel + offset) % oversampled.size
+        oversampled[p] = color_a
         pixel += 1
       end
     end
 
-    return over_sampled if over_sample == 1
+    return oversampled if oversample == 1
 
-    result = [ColorA.new] * pattern.size
+    result = [nil] * pattern.size
     average_buffer = []
     pixel = 0
-    over_sampled.each do |color_a|
+    oversampled.each do |color_a|
       average_buffer << color_a
-      if average_buffer.size == over_sample
-        result[pixel] = mix_color_as(average_buffer)
+      if average_buffer.size == oversample
+        result[pixel] = ColorA.mix(average_buffer)
         average_buffer = []
         pixel += 1
       end
@@ -79,28 +84,38 @@ class Scroller
     result
   end
 
-  def to_conf
+  def to_h
     {
         period: period,
-        over_sample: over_sample
+        oversample: oversample,
+        active: active
     }
   end
 
-  def from_conf(conf)
-    self.over_sample = conf[:over_sample]
-    start conf[:period]
+  def to_s
+    if active
+        if period > 0
+          '◁▶'
+        elsif period < 0
+          '◀▷'
+        else
+          '◁▷'
+        end
+    else
+      '⏸'
+    end
   end
 
-  def to_s
-    "#{period}x#{over_sample}"
+  def inspect
+    "<Scroller active=#{active} period=#{period}s oversample=#{oversample}>"
   end
-  alias :inspect :to_s
+
 
   private
 
-  def max_over_sample
-    settings.max_over_sample || 1000
-  end
+  attr_reader :last_updated, :assets
 
-  attr_reader :settings
+  def max_oversample
+    assets.settings.max_oversample || 30
+  end
 end

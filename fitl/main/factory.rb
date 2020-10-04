@@ -1,17 +1,25 @@
 class Factory
   include Utils
 
-  def initialize(filename: '../.fitl.json', adapter_override: nil, disable_osc_hooks: false)
+  def initialize(filename: DEFAULT_CONFIG_FILE, adapter_override: nil, disable_osc_hooks: false)
     @filename = filename
-    @config = read_config
     @adapter_override = adapter_override
     @disable_osc_hooks = disable_osc_hooks
+    reload
   end
 
-  attr_reader :filename, :config, :adapter_override, :disable_osc_hooks
+  attr_reader :filename, :adapter_override, :disable_osc_hooks
 
-  def settings
-    @settings ||= OpenStruct.new(config.fetch(:Settings, {}))
+  attr_accessor :config
+  private :config=
+
+  InvalidCommand = Class.new(StandardError)
+
+  def reload
+    self.config = read_config
+    assets.reload_media_classes
+    message "Loaded configuration from: #{filename}"
+    self
   end
 
   def neo
@@ -26,8 +34,37 @@ class Factory
     @osc ||= DirectOscServer.new(osc_config)
   end
 
-  def scn
-    px.scene
+  def layer
+    px_media :layer
+  end
+
+  def cue
+    px_media :cue
+  end
+
+  def scene
+    px_media :scene
+  end
+
+  def story
+    px_media :story
+  end
+
+  def px_media(type)
+    raise InvalidCommand, "Pixelator is not in #{type} mode" unless px.send("#{type}_mode?")
+
+    px.get
+  end
+
+  def assets
+    @assets ||= Assets.new(
+        pixel_count: neo.pixel_count,
+        settings: settings
+    )
+  end
+
+  def settings
+    @settings ||= OpenStruct.new(config.fetch(:Settings, {}))
   end
 
   def clear
@@ -62,21 +99,24 @@ class Factory
   end
 
   def neo_config
-    config.fetch(:NeoPixel).merge(config.fetch(neo_key, {}))
+    config.fetch(:NeoPixel)
+        .merge(config.fetch(neo_key, {}))
   end
 
   def px_config
     config.fetch(:Pixelator)
-        .merge(neo_pixel: neo, settings: settings)
+        .merge(neo_pixel: neo, assets: assets)
         .merge(disable_osc_hooks ? {osc_control_port: nil} : {})
   end
 
   def osc_config
-    config.fetch(:DirectOscServer).merge(neo_pixel: neo)
+    config.fetch(:DirectOscServer)
+        .merge(neo_pixel: neo, assets: assets)
   end
 
+  DEFAULT_CONFIG_FILE = 'fitl.json'
+
   DEFAULT_CONFIG = {
-      Adapter: 'WsNeoPixel',
       Pixelator: {
           frame_rate: 30,
           osc_control_port: 3333
@@ -85,6 +125,7 @@ class Factory
           pixel_count: 35,
           mode: :rgb,
       },
+      Adapter: 'OscNeoPixel',
       HttpNeoPixel: {
           host: 'localhost',
           port: 4567,
@@ -110,11 +151,11 @@ class Factory
           address: 'data'
       },
       Settings: {
-          scenes_dir: 'scenes',
-          monitor_fps: false,
-          max_over_sample: 6,
-          default_scene: 'day',
-          default_crossfade: 1,
+          default_media_type: 'cue',
+          default_media_name: 'Daylight',
+          media_locations: Assets::DEFAULT_MEDIA_LOCATIONS,
+          auto_play: true,
+          max_oversample: 6,
           allow_remote_reboot: false
       }
   }

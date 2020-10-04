@@ -1,5 +1,4 @@
 {
-  "Adapter": "OscNeoPixel",
   "Pixelator": {
     "frame_rate": 2
   },
@@ -7,6 +6,7 @@
     "pixel_count": 99,
     "mode": "grb"
   },
+  "Adapter": "OscNeoPixel",
   "HttpNeoPixel": {
     "host": "with.the.most",
     "port": 4567,
@@ -32,9 +32,12 @@
     "address": "no_fixed_abode"
   },
   "Settings": {
-    "scenes_dir": "making",
-    "monitor_fps": true,
-    "max_over_sample": 9,
-    "default_crossfade": 1.9
+    "media_locations": {
+      "story": "a/tall",
+      "scene": "making_a",
+      "cue": "credits",
+      "layer": "multiple"
+    },
+    "max_oversample": 9
   }
 }

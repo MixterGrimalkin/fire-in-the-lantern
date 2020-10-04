@@ -1,154 +1,133 @@
+require_relative '../../fitl/color/colors'
 require_relative '../../fitl/pixelator/layer'
-require_relative '../../fitl/pixelator/pixelator'
-require_relative '../../fitl/neo_pixel/neo_pixel'
-require_relative '../../fitl/lib/color_tools'
+
+include Colors
 
 RSpec.describe Layer do
 
-  let(:neo) { NeoPixel.new pixel_count: 8 }
-  let(:px) { Pixelator.new neo_pixel: neo }
-  let(:base_layer) { px.scene.base }
+  subject(:layer) { Layer.new size: 4 }
 
-  subject(:layer) { px.layer :new_layer, canvas: (2..5) }
+  let(:base) { [BLACK, BLACK, BLACK, BLACK] }
+  let(:blue_base) { [blue, blue, blue, blue] }
 
-  it 'initializes correctly' do
-    expect(layer).to be_a Layer
-    expect(layer).to eq px[:new_layer]
-    expect(layer).to eq px.scene.new_layer
-    expect(layer.opacity).to eq 1
-    expect(layer.color_array).to eq [nil, nil, nil, nil]
-    expect(layer.alpha_array).to eq [1, 1, 1, 1]
-  end
-
-  let(:blk) { Color.new }
   let(:red) { Color.new 200, 0, 0 }
   let(:dk_red) { Color.new 100, 0, 0 }
+  let(:dkr_red) { Color.new 50, 0, 0 }
+  let(:red_a) { ColorA.new(red) }
+  let(:red_a_50) { ColorA.new(red, 0.5) }
+  let(:red_a_25) { ColorA.new(red, 0.25) }
 
   let(:blue) { Color.new 0, 0, 200 }
   let(:dk_blue) { Color.new 0, 0, 100 }
   let(:dkr_blue) { Color.new 0, 0, 50 }
+  let(:blue_a) { ColorA.new(blue) }
 
   let(:purple) { Color.new 100, 0, 100 }
-  let(:red_purple) { Color.new 150, 0, 50 }
 
-
-  it 'fills with a single color' do
-    layer.fill red
-    px.render
-    expect(neo.contents)
-        .to eq [blk, blk, red, red, red, red, blk, blk]
+  it '.initialize' do
+    expect(layer.opacity).to eq 1
+    expect(layer.visible).to eq true
+    expect(layer.to_a).to eq [EMPTY, EMPTY, EMPTY, EMPTY]
+    expect(layer.color_array).to eq [nil, nil, nil, nil]
+    expect(layer.alpha_array).to eq [1, 1, 1, 1]
+    expect(layer.render_over(base)).to eq [BLACK, BLACK, BLACK, BLACK]
   end
 
-  it 'sets a range' do
-    base_layer.set_range (0..1), red
-    base_layer.set_range [3, 5, 6], blue
-    px.render
-    expect(neo.contents)
-        .to eq [red, red, blk, blue, blk, blue, blue, blk]
+  it '.[]' do
+    expect(layer[1]).to eq EMPTY
+    layer[0] = red
+    layer.set 1, red, 0.5
+    layer.set 2, red_a_50
+    layer.set 3, red_a_50, 0.5
+    expect(layer[1]).to eq red_a_50
+    expect(layer.to_a).to eq [red_a, red_a_50, red_a_50, red_a_25]
+    expect(layer.color_array).to eq [red, red, red, red]
+    expect(layer.alpha_array).to eq [1.0, 0.5, 0.5, 0.25]
+    expect(layer.render_over(base)).to eq [red, dk_red, dk_red, dkr_red]
   end
 
-  it 'applies layer opacity' do
-    layer.fill blue
-
-    layer.opacity = 0.5
-    px.render
-    expect(neo.contents)
-        .to eq [blk, blk, dk_blue, dk_blue, dk_blue, dk_blue, blk, blk]
-
-    layer.opacity = 0.25
-    px.render
-    expect(neo.contents)
-        .to eq [blk, blk, dkr_blue, dkr_blue, dkr_blue, dkr_blue, blk, blk]
-  end
-
-  it 'draws a gradient' do
-    layer.gradient red: [180, 0], green: [10, 100], blue: [7, 10]
-    px.render
-    expect(neo.contents)
-        .to eq([blk, blk,
-                Color.new(180, 10, 7),
-                Color.new(120, 40, 8),
-                Color.new(60, 70, 9),
-                Color.new(0, 100, 10),
-                blk, blk])
-  end
-
-  it 'draws a sym gradient with even size' do
-    px.base.gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
-    px.render
-    expect(neo.contents)
-        .to eq([Color.new(180, 10, 7),
-                Color.new(120, 40, 8),
-                Color.new(60, 70, 9),
-                Color.new(0, 100, 10),
-                Color.new(0, 100, 10),
-                Color.new(60, 70, 9),
-                Color.new(120, 40, 8),
-                Color.new(180, 10, 7)])
-  end
-
-  it 'draws a sym gradient with odd size' do
-    px.layer :a, canvas: (0..6)
-    px[:a].gradient red: [180, 0], green: [10, 100], blue: [7, 10], sym: true
-    px.render
-    expect(neo.contents)
-        .to eq([Color.new(180, 10, 7),
-                Color.new(120, 40, 8),
-                Color.new(60, 70, 9),
-                Color.new(0, 100, 10),
-                Color.new(60, 70, 9),
-                Color.new(120, 40, 8),
-                Color.new(180, 10, 7),
-                blk
-               ])
-
-  end
-
-  it 'draws a smaller gradient' do
-    px.base.gradient red: 100, green: [0, 30], start: 2, width: 4
-    px.render
-    expect(neo.contents)
-        .to eq([blk,
-                blk,
-                Color.new(100, 0, 0),
-                Color.new(100, 10, 0),
-                Color.new(100, 20, 0),
-                Color.new(100, 30, 0),
-                blk,
-                blk
-               ])
-  end
-
-  it 'draws a smaller sym gradient' do
-    px.base.gradient red: 100, green: [0, 30], start: 1, width: 5, sym: true
-    px.render
-    expect(neo.contents)
-        .to eq([blk,
-                Color.new(100, 0, 0),
-                Color.new(100, 15, 0),
-                Color.new(100, 30, 0),
-                Color.new(100, 15, 0),
-                Color.new(100, 0, 0),
-                blk,
-                blk
-               ])
-  end
-
-
-  it 'sets opacity by pixel' do
-    px.base.fill red
-    layer.set 0, blue, 0.0
-    layer.set 1, blue, 0.25
-    layer.set 2, blue, 0.5
-    layer.set 3, blue
-    px.render
-    expect(neo.contents)
-        .to eq [red, red, red, red_purple, purple, blue, red, red]
-  end
-
-  it 'throws an error when pixel out of range' do
-    expect { layer.set 4, red }.to raise_error(PixelOutOfRangeError)
+  it '.[] out of bounds' do
+    expect { layer[4] }.to raise_error(PixelOutOfRangeError)
     expect { layer[-1] = red }.to raise_error(PixelOutOfRangeError)
+    expect { layer.set 4, red }.to raise_error(PixelOutOfRangeError)
+  end
+
+  it '.fill Color' do
+    layer.fill(red)
+    expect(layer.to_a).to eq [red_a, red_a, red_a, red_a]
+    expect(layer.render_over(base)).to eq [red, red, red, red]
+  end
+
+  it '.fill ColorA' do
+    layer.fill(red_a)
+    expect(layer.to_a).to eq [red_a, red_a, red_a, red_a]
+    expect(layer.render_over(base)).to eq [red, red, red, red]
+  end
+
+  it '.fill faded ColorA' do
+    layer.fill(red_a_50)
+    expect(layer.to_a).to eq [red_a_50, red_a_50, red_a_50, red_a_50]
+    expect(layer.render_over(base)).to eq [dk_red, dk_red, dk_red, dk_red]
+  end
+
+  it '.fill Color with alpha' do
+    layer.fill(red, 0.5)
+    expect(layer.to_a).to eq [red_a_50, red_a_50, red_a_50, red_a_50]
+    expect(layer.render_over(base)).to eq [dk_red, dk_red, dk_red, dk_red]
+  end
+
+  it '.fill ColorA with alpha' do
+    layer.fill(red_a_50, 0.5)
+    expect(layer.to_a).to eq [red_a_25, red_a_25, red_a_25, red_a_25]
+    expect(layer.render_over(base)).to eq [dkr_red, dkr_red, dkr_red, dkr_red]
+  end
+
+  it '.hide and .show' do
+    layer.fill(red_a_50)
+    layer.hide
+    expect(layer.render_over(blue_base)).to eq [blue, blue, blue, blue]
+    layer.show
+    expect(layer.render_over(blue_base)).to eq [purple, purple, purple, purple]
+    layer.visible = false
+    expect(layer.render_over(blue_base)).to eq [blue, blue, blue, blue]
+  end
+
+  it '.opacity' do
+    layer.fill(red)
+    expect(layer.render_over(blue_base)).to eq [red, red, red, red]
+    layer.opacity = 0.5
+    expect(layer.render_over(blue_base)).to eq [purple, purple, purple, purple]
+  end
+
+  it '.draw and .clear' do
+    layer.draw [red_a, blue, blue, red]
+    expect(layer.render_over(base)).to eq [red, blue, blue, red]
+
+    layer.draw [dk_blue, dk_blue, blue], 2
+    expect(layer.render_over(base)).to eq [red, blue, dk_blue, dk_blue]
+
+    layer.draw [purple, purple, purple], -2
+    expect(layer.render_over(base)).to eq [purple, blue, dk_blue, dk_blue]
+
+    layer.clear
+    expect(layer.render_over(base)).to eq base
+  end
+
+  it 'pre-fills a layer' do
+    layer = Layer.new size: 3, fill: red
+    expect(layer.to_a).to eq [red_a, red_a, red_a]
+    layer = Layer.new size: 3, fill: blue_a
+    expect(layer.to_a).to eq [blue_a, blue_a, blue_a]
+  end
+
+  it 'renders with canvas' do
+    layer.fill red
+    expect(layer.render_over blue_base, canvas: [1, 2])
+        .to eq [blue, red, red, blue]
+    expect(layer.render_over blue_base, canvas: [0, 4, 5])
+        .to eq [red, blue, blue, blue]
+    expect(layer.render_over blue_base, canvas: [-2, 8])
+        .to eq [blue, blue, red, blue]
   end
 
 end

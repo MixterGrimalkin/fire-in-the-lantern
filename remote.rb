@@ -1,6 +1,6 @@
 require 'osc-ruby'
 
-target_ip = '192.168.0.34'
+target_ip = '192.168.1.100'
 target_port = '3333'
 target_address = ARGV[0] || 'scene'
 target_data = ARGV[1] || 'day'

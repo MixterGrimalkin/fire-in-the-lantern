@@ -1,0 +1,14 @@
+{
+  "name": "spinner",
+  "size": 35,
+  "layer_reg": [
+    {
+      "from_file": "blue_chase",
+      "canvas": null
+    },
+    {
+      "from_file": "red_swoosh",
+      "canvas": null
+    }
+  ]
+}

@@ -1,6 +1,4 @@
-require_relative '../lib/color'
-require_relative '../lib/colors'
-require_relative '../lib/color_tools'
+require_relative '../color/colors'
 
 class NeoPixel
   include Colors
@@ -53,6 +51,8 @@ class NeoPixel
       end
     end.flatten
 
+    log_render
+
     while buffer.size % 3 != 0
       buffer << 0
     end
@@ -69,6 +69,31 @@ class NeoPixel
   def close
     # --> Shutdown display here <-- #
   end
+
+  FPS_SAMPLE_WINDOW = 5
+
+  def log_render
+    @times ||= []
+    @fps ||= []
+    if @last_render
+      @times << (Time.now - @last_render)
+      if @times.size >= FPS_SAMPLE_WINDOW
+        avg_time = @times.sum.to_f / @times.size
+        @fps << (1.0 / avg_time)
+        @times = []
+      end
+    end
+    @last_render = Time.now
+  end
+
+  def fps
+    puts @fps[-20..-1].collect { |v| '%.2f' % v }.join(', ')
+  end
+
+  def to_s
+    "<#{self.class.name} #{mode.to_s.upcase}x#{pixel_count}>"
+  end
+  alias :inspect :to_s
 
   def rgb_count
     if mode == :rgbw

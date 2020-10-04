@@ -4,9 +4,10 @@ require 'osc-ruby/em_server'
 class DirectOscServer
   include Utils
 
-  def initialize(neo_pixel:, port:, address:)
+  def initialize(neo_pixel:, port:, address:, assets: Assets.new)
     @port, @address = port, address
     @server_ip = local_ip_address
+    @assets = assets
 
     server.add_method "/#{address}" do |message|
       log_client message
@@ -48,4 +49,5 @@ class DirectOscServer
     end
   end
 
+  attr_reader :assets
 end

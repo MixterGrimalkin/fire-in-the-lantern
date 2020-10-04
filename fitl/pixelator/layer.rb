@@ -1,57 +1,74 @@
-require_relative '../lib/color'
-require_relative '../lib/color_a'
-require_relative '../lib/colors'
-require_relative '../lib/color_tools'
+require_relative '../color/colors'
 require_relative '../lib/errors'
-require_relative 'layer_config'
+require_relative '../lib/utils'
+
 require_relative 'scroller'
-require_relative 'modifiers'
+
+require 'ostruct'
 
 class Layer
-  include LayerConfig
   include Colors
-  include ColorTools
+  include Utils
 
-  def initialize(canvas, background: nil, size: nil, settings: OpenStruct.new)
-    @settings = settings
-    @canvas = canvas
-    @background = background
-    @opacity = 1.0
-    @visible = true
-    @layer_scroller = Scroller.new settings: settings
-    @pattern_scroller = Scroller.new settings: settings
-    resize size || canvas.size
+  def initialize(
+      size:,
+      name: 'Layer',
+      visible: true,
+      opacity: 1.0,
+      fill: nil,
+      scroller: nil,
+      contents: nil,
+      assets: Assets.new
+  )
+    @name = name
+    @size = size
+    @visible = visible
+    @opacity = opacity
+    @assets = assets
+
+    if contents && contents.size == size
+      self.contents = contents.collect do |element|
+        case element
+          when ColorA
+            element
+          when String
+            ColorA.from_s element
+          else
+            ColorA.new
+        end
+      end
+    else
+      fill(fill)
+    end
+
+    @scroller =
+        case scroller
+          when Scroller
+            scroller
+          when Hash
+            Scroller.new(scroller.merge(size: size, assets: assets))
+          else
+            Scroller.new(size: size, assets: assets)
+        end
   end
 
-  def resize(size)
-    @pattern = [ColorA.new(background)] * (size || canvas.size)
-    @modifiers = Modifiers.new pattern.size
+  attr_reader :size, :scroller
+  attr_accessor :visible, :opacity, :name, :contents
+  private :contents=
+
+  # Drawing
+
+  def clear
+    fill ColorA.new
   end
 
-  attr_accessor :opacity
-
-  attr_reader :canvas, :visible, :pattern, :background,
-              :layer_scroller, :pattern_scroller, :modifiers
-
-  def color_array
-    pattern.collect(&:color)
-  end
-
-  def alpha_array
-    pattern.collect(&:alpha)
-  end
-
-  def hide
-    @visible = false
-  end
-
-  def show
-    @visible = true
+  def fill(color, alpha = 1.0)
+    self.contents = [ColorA.cast(color, alpha)] * size
   end
 
   def [](pixel)
-    check_pixel_number pixel
-    pattern[pixel]
+    check_pixel_number! pixel
+    contents[pixel]
   end
 
   def []=(pixel, color)
@@ -59,81 +76,122 @@ class Layer
   end
 
   def set(pixel, color, alpha = 1.0)
-    check_pixel_number pixel
-    pattern[pixel] = ColorA.new(color, alpha)
+    check_pixel_number! pixel
+    contents[pixel] = ColorA.cast(color, alpha)
   end
 
-  def set_range(range, color, alpha = 1.0)
-    range.each do |pixel|
-      set(pixel, color, alpha)
+  def draw(pattern, start = 0)
+    pattern.each_with_index do |entry, i|
+      if check_pixel_number(start + i)
+        contents[start + i] = ColorA.cast(entry)
+      end
     end
   end
 
-  def fill(color, alpha = 1.0)
-    @pattern = pattern.collect { ColorA.new(color, alpha) }
+  # Visibility
+
+  def show
+    self.visible = true
   end
 
-  def gradient(config)
-    @pattern = draw_gradient(pattern.size, config)
+  def hide
+    self.visible = false
+  end
+
+  # Contents
+
+  def to_a
+    contents
+  end
+
+  def color_array
+    contents.collect(&:color)
+  end
+
+  def alpha_array
+    contents.collect(&:alpha)
+  end
+
+  # Scroller
+
+  def scroll(period = nil, oversample = nil)
+    scroller.period = period if period
+    scroller.oversample = oversample if oversample
+    scroller.start
     self
   end
 
+  def stop_scroll
+    scroller.stop
+  end
+
+  # Save
+
+  def to_h
+    {
+        name: name,
+        size: size,
+        visible: visible,
+        opacity: opacity,
+        scroller: scroller.to_h,
+        contents: contents.collect(&:to_s)
+    }
+  end
+
   def inspect
-    "#<Layer(#{canvas.size}/#{pattern.size})#{visible ? '⭘' : '⭙'}  α=#{opacity} δl=#{layer_scroller} δp=#{pattern_scroller}>"
+    vis = visible ? '✔' : '✗'
+    sze = colorize(size, bold: true)
+    scr = "δ=#{scroller}"
+    opa = "α=#{opacity}"
+    "<Layer:#{name}[#{vis}] #{sze} #{scr} #{opa}>"
   end
 
-  def fade_in(time = 0, min: 0, max: 1, bounce: false)
-    fade time, start: min, target: max, bounce: bounce
-  end
-
-  def fade_out(time = 0, min: 0, max: 1, bounce: false)
-    fade time, start: max, target: min, bounce: bounce
-  end
-
-  def fade(time, start:, target:, bounce: false)
-    modifiers.fade time, start: start, target: target, bounce: bounce
-  end
+  # Update and Render
 
   def update
-    layer_scroller.check_and_update
-    pattern_scroller.check_and_update
-    modifiers.check_and_update
+    return unless visible
+
+    scroller.check_and_update
   end
 
-  def render_over(base_layer, alpha: 1.0)
-    return base_layer unless visible
-
-    build_buffer(base_layer.size).each_with_index do |color_a, i|
-      unless color_a.nil? || color_a.color.nil?
-        base_layer[i] = color_a.color.blend_over(base_layer[i], color_a.alpha * opacity * alpha)
-      end
-    end
-    base_layer
-  end
-
-  private
-
-  def build_buffer(size)
-    layer_scroller.scroll(expand_content size)
-  end
-
-  def expand_content(size)
-    result = [ColorA.new] * size
-    chop_pattern.each_with_index do |color_a, i|
-      result[canvas[i]] = color_a if canvas[i] < size
+  def render_over(base_layer, canvas: nil, alpha: 1.0)
+    return base_layer unless visible && alpha > 0.0
+    canvas = canvas&.to_a || default_canvas
+    result = []
+    expand_content(base_layer.size, canvas).each_with_index do |color_a, i|
+      result[i] =
+          if color_a.nil?
+            base_layer[i]
+          else
+            color_a.blend_over(base_layer[i], opacity * alpha)
+          end
     end
     result
   end
 
-  def chop_pattern
-    pattern_scroller.scroll(
-        modifiers.apply(pattern)
-    )[0..canvas.size-1]
+  private
+
+  def expand_content(view_size, canvas)
+    result = [nil] * view_size
+    chop_pattern(canvas).each_with_index do |color_a, i|
+      result[canvas[i]] = color_a if canvas[i] < view_size
+    end
+    result
+  end
+
+  def chop_pattern(canvas)
+    scroller.apply(contents)[0..canvas.size-1]
+  end
+
+  def default_canvas
+    @default_canvas ||= (0..(size-1)).to_a
   end
 
   def check_pixel_number(pixel)
-    raise PixelOutOfRangeError, pixel unless (0..(pattern.size-1)).include?(pixel)
+    0 <= pixel && pixel < size
   end
 
-  attr_reader :settings
+  def check_pixel_number!(pixel)
+    raise PixelOutOfRangeError, pixel unless check_pixel_number(pixel)
+  end
 end

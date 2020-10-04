@@ -3,21 +3,6 @@ require 'enumerator'
 require 'socket'
 
 module Utils
-
-  LOGO = %q{
-    ___
-   (_  '_ _   '  _// _   /  _  _/_ _
-   /  // (-  //) //)(-  (__(//)/(-/ /)
-
-       p  i  x  e  l  a  t  o  r
-
-
-}
-
-  def logo
-    puts LOGO
-  end
-
   def message(msg)
     puts "   #{msg}"
     puts
@@ -26,7 +11,7 @@ module Utils
   def wait_for_interrupt(msg = nil)
     message msg if msg
     while true
-      sleep 0.25
+      sleep 5
     end
   rescue Interrupt
     # ignored
@@ -145,6 +130,10 @@ module Utils
     }
   end
 
+  def read_json(filename)
+    symbolize_keys JSON.parse File.read filename
+  end
+
   def symbolize_keys(hash)
     result = {}
     hash.each do |key, value|
@@ -184,5 +173,34 @@ module Utils
     return zero if array.empty?
 
     sum_array(array, zero: zero) / array.size
+  end
+
+  def interpolate(x, y, progress)
+    return x.to_f if progress <= 0
+    return y.to_f if progress >= 1
+
+    x + ((y - x) * progress.to_f)
+  end
+
+  CONSOLE_FG_COLOURS = {
+      default: '38',
+      black: '30', dark_gray: '1;30', gray: '37', white: '1;37', brown: '33',
+      red: '31', green: '32', blue: '34', yellow: '1;33', purple: '35', cyan: '36',
+      light_red: '1;31', light_green: '1;32', light_blue: '1;34',
+      light_purple: '1;35', light_cyan: '1;36'
+  }.freeze
+
+  BG_COLOURS = {default: '0', black: '40', red: '41', green: '42', brown: '43', blue: '44',
+                purple: '45', cyan: '46', gray: '47', dark_gray: '100', light_red: '101', light_green: '102',
+                yellow: '103', light_blue: '104', light_purple: '105', light_cyan: '106', white: '107'}.freeze
+
+  FONT_OPTIONS = {bold: '1', dim: '2', italic: '3', underline: '4', reverse: '7', hidden: '8'}.freeze
+
+  def colorize(text, colour = :default, bg_colour = :default, **options)
+    colour_code = CONSOLE_FG_COLOURS[colour]
+    bg_colour_code = BG_COLOURS[bg_colour]
+    font_options = options.select { |k, v| v && FONT_OPTIONS.key?(k) }.keys
+    font_options = font_options.map { |e| FONT_OPTIONS[e] }.join(';').squeeze
+    "\e[#{bg_colour_code};#{font_options};#{colour_code}m#{text}\e[0m".squeeze(';')
   end
 end

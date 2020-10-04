@@ -1,4 +1,4 @@
-require_relative '../../fitl/main/fire_in_the_lantern'
+require_relative '../spec_helper'
 
 RSpec.describe Factory do
 
@@ -8,7 +8,7 @@ RSpec.describe Factory do
   let(:px) { factory.px }
   let(:scn) { factory.scn }
   let(:osc) { factory.osc }
-  let(:settings) { factory.settings }
+  let(:settings) { factory.assets.settings }
 
   let(:factory_with_override) do
     Factory.new filename: 'spec/fixtures/factory_config.json', adapter_override: :HttpNeoPixel
@@ -28,21 +28,25 @@ RSpec.describe Factory do
     expect(px.frame_rate).to eq 2
     expect(px.render_period).to eq 0.5
 
-    expect(scn).to be_a Scene
-    expect(scn.layers.size).to eq 1
-
     expect{ osc }.to output(anything).to_stderr   # Suppressing annoying warning
     expect(osc).to be_a DirectOscServer
     expect(osc.port).to eq 4224
     expect(osc.address).to eq 'no_fixed_abode'
 
     expect(px.neo_pixel).to eq neo
-    expect(px.scene).to eq scn
 
-    expect(px.scenes_dir).to eq 'making'
-    expect(px.default_crossfade).to eq 1.9
-    expect(settings.monitor_fps).to eq true
-    expect(settings.max_over_sample).to eq 9
+    expect(settings.max_oversample).to eq 9
+  end
+
+  it 'loads asset locations' do
+    px.story_mode
+    expect(px.filename('tale')).to eq 'a/tall/tale.json'
+    px.scene_mode
+    expect(px.filename('big_mess')).to eq 'making_a/big_mess.json'
+    px.cue_mode
+    expect(px.filename('where_due')).to eq 'credits/where_due.json'
+    px.layer_mode
+    expect(px.filename('orgasms')).to eq 'multiple/orgasms.json'
   end
 
   it 'overrides display adapter' do
