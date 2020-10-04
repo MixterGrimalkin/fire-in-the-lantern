@@ -1,4 +1,4 @@
-require_relative '../../fitl/color/tools'
+require_relative '../../fitl/color/pen'
 require_relative '../../fitl/pixelator/layer'
 
 include Colors

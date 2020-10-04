@@ -1,32 +1,33 @@
-require_relative '../spec_helper'
+require './neopixel/console_neopixel'
 
-include Colors
+include Fitl
+include Colours
 
-RSpec.describe TextNeoPixel do
+RSpec.describe Fitl::ConsoleNeopixel do
 
-  let(:neo_pixel) { TextNeoPixel.new pixel_count: 4 }
+  let(:neo) { described_class.new pixel_count: 4 }
 
   it 'renders' do
-    expect { neo_pixel.render }
+    expect { neo.render }
         .to output("\r[#{black}#{black}#{black}#{black}]")
                 .to_stdout
 
-    neo_pixel[1] = Color.new(80)
-    neo_pixel[2] = Color.new(180)
-    neo_pixel[3] = Color.new(255)
-    expect { neo_pixel.render }
+    neo[1] = Colour.new(80)
+    neo[2] = Colour.new(180)
+    neo[3] = Colour.new(255)
+    expect { neo.render }
         .to output("\r[#{black}#{grey}#{white}#{white}]")
                 .to_stdout
 
-    expect { neo_pixel.on }
+    expect { neo.on }
         .to output("\r[#{white}#{white}#{white}#{white}]")
                 .to_stdout
 
-    expect { neo_pixel.on RED }
+    expect { neo.on RED }
         .to output("\r[#{red}#{red}#{red}#{red}]")
                 .to_stdout
 
-    expect { neo_pixel.off }
+    expect { neo.off }
         .to output("\r[#{black}#{black}#{black}#{black}]")
                 .to_stdout
   end

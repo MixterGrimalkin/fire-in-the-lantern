@@ -1,4 +1,4 @@
-require './fitl/lib/colour'
+require './lib/colour'
 
 include Fitl
 

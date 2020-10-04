@@ -1,26 +1,24 @@
-require_relative 'colors'
+require './lib/colours'
 
-module Colors
-  class Tools
+module Fitl
+  class Pen
     class << self
 
-      def block(color, size)
-        [ColorA.cast(color)] * size
+      def block(colour, size)
+        [colour] * size
       end
 
-      def blocks(*color_size)
+      def blocks(*colour_size)
         result = []
-        color_size.each_slice(2) do |color, size|
-          result << block(color, size)
+        colour_size.each_slice(2) do |colour, size|
+          result << block(colour, size)
         end
         result.flatten
       end
 
       def gradient(from, to, size:, sym: false)
-        result = [ColorA.new] * size
+        result = [nil] * size
 
-        from = ColorA.cast(from)
-        to = ColorA.cast(to)
         arc_size = sym ? (size / 2.0).ceil : size
 
         current = {}
@@ -34,7 +32,7 @@ module Colors
         end
 
         arc_size.times do |i|
-          result[i] = ColorA.create(*RGBW_A.collect { |c| current[c] })
+          result[i] = Colour.new(*RGBW.collect { |c| current[c] }, alpha: current[:alpha])
           if sym
             mirror_i = size - i - 1
             result[mirror_i] = result[i]

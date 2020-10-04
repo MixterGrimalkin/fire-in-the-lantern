@@ -1,7 +1,7 @@
-require_relative '../../fitl/lib/utils'
+require './lib/utils'
 
 RSpec.describe 'Utils Module' do
-  include Utils
+  include Fitl::Utils
 
   context 'mathsy stuff' do
     it '.interpolate' do
