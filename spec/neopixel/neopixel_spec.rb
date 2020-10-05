@@ -14,6 +14,9 @@ RSpec.describe Fitl::Neopixel do
   let(:white) { Colour.new 255, 255, 255, 255 }
   let(:cyan) { Colour.new 0, 200, 255 }
 
+  let(:transparent_red) { Colour.new 200, 0, 0, alpha: 0.5 }
+  let(:faded_red) { Colour.new 100, 0, 0, alpha: 1.0 }
+
   let(:empty) { [black, black, black, black] }
   let(:pattern) { [white, cyan, black, yellow] }
 
@@ -26,7 +29,8 @@ RSpec.describe Fitl::Neopixel do
     expect(neo[2]).to eq black
     neo[2] = yellow
     expect(neo[2]).to eq yellow
-    expect(neo.contents).to eq [black, black, yellow, black]
+    neo[0] = transparent_red
+    expect(neo.contents).to eq [faded_red, black, yellow, black]
   end
 
   it '.[] out of bounds' do
@@ -46,11 +50,13 @@ RSpec.describe Fitl::Neopixel do
   end
 
   it '.on and .off' do
-    expect_any_instance_of(Neopixel).to receive(:show).exactly(3).times
+    expect_any_instance_of(Neopixel).to receive(:show).exactly(4).times
     neo.on
     expect(neo.contents).to eq [white, white, white, white]
     neo.on cyan
     expect(neo.contents).to eq [cyan, cyan, cyan, cyan]
+    neo.on transparent_red
+    expect(neo.contents).to eq [faded_red, faded_red, faded_red, faded_red]
     neo.off
     expect(neo.contents).to eq empty
   end
@@ -65,14 +71,14 @@ RSpec.describe Fitl::Neopixel do
   context 'valid output mode' do
     before do
       neo[0] = white
-      neo[1] = cyan
+      neo[1] = cyan.override(alpha: 0.5)
       neo[3] = yellow
       expect(neo).to receive(:show).with(buffer)
     end
     context 'RGB mode' do
       let(:mode) { :rgb }
       let(:buffer) do
-        [255, 255, 255, 0, 200, 255, 0, 0, 0, 200, 255, 0]
+        [255, 255, 255, 0, 100, 127, 0, 0, 0, 200, 255, 0]
       end
       it 'renders RGB' do
         expect(neo.rgb_count).to eq 4
@@ -82,7 +88,7 @@ RSpec.describe Fitl::Neopixel do
     context 'GRB mode' do
       let(:mode) { :grb }
       let(:buffer) do
-        [255, 255, 255, 200, 0, 255, 0, 0, 0, 255, 200, 0]
+        [255, 255, 255, 100, 0, 127, 0, 0, 0, 255, 200, 0]
       end
       it 'renders GRB' do
         expect(neo.rgb_count).to eq 4
@@ -92,7 +98,7 @@ RSpec.describe Fitl::Neopixel do
     context 'RGBW mode' do
       let(:mode) { :rgbw }
       let(:buffer) do
-        [255, 255, 255, 255, 0, 200, 255, 0, 0, 0, 0, 0, 200, 255, 0, 0, 0, 0]
+        [255, 255, 255, 255, 0, 100, 127, 0, 0, 0, 0, 0, 200, 255, 0, 0, 0, 0]
       end
       it 'renders RGBW' do
         expect(neo.rgb_count).to eq 6

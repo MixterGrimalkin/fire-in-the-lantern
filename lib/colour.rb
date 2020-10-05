@@ -26,6 +26,18 @@ module Fitl
       @components ||= [red, green, blue, white]
     end
 
+    def flat
+      return self if alpha == 1.0
+
+      Colour.new(
+          red * alpha,
+          green * alpha,
+          blue * alpha,
+          white * alpha,
+          alpha: 1.0
+      )
+    end
+
     def ==(other)
       red == other.red &&
           green == other.green &&

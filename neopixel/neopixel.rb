@@ -17,36 +17,36 @@ module Fitl
       contents[pixel]
     end
 
-    def []=(pixel, color)
+    def []=(pixel, colour)
       raise BadPixelNumber unless (0..pixel_count).include? pixel
-      contents[pixel] = color
+      contents[pixel] = colour.flat
     end
 
-    def on(color = FULL_WHITE)
-      @contents = [color] * pixel_count
+    def on(colour = FULL_WHITE)
+      write [colour] * pixel_count
       render
     end
 
     def off
-      @contents = [BLACK] * pixel_count
+      write [BLACK] * pixel_count
       render
     end
 
     def write(contents)
       raise BadPixelNumber unless contents.size == pixel_count
-      @contents = contents
+      @contents = contents.collect(&:flat)
       self
     end
 
     def render
-      buffer = contents.collect do |color|
+      buffer = contents.collect do |colour|
         case mode
           when :rgb
-            [color.red, color.green, color.blue]
+            [colour.red, colour.green, colour.blue]
           when :grb
-            [color.green, color.red, color.blue]
+            [colour.green, colour.red, colour.blue]
           when :rgbw
-            [color.red, color.green, color.blue, color.white]
+            [colour.red, colour.green, colour.blue, colour.white]
           else
             raise BadOutputMode, mode.to_s
         end

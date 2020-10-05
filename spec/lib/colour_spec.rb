@@ -70,6 +70,24 @@ RSpec.describe Colour do
     )
   end
 
+  it '.flat' do
+    expect(
+        Colour.new(100).flat
+    ).to(
+        eq Colour.new(100, 100, 100, 0, alpha: 1.0)
+    )
+    expect(
+        Colour.new(100, alpha: 0.8).flat
+    ).to(
+        eq Colour.new(80, 80, 80, 0, alpha: 1.0)
+    )
+    expect(
+        Colour.new(100, alpha: 0.0).flat
+    ).to(
+        eq Colour.new(0, 0, 0, 0, alpha: 1.0)
+    )
+  end
+
   # Addition
 
   it '.+ with one or both alphas == 1.0' do
