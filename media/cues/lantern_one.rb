@@ -32,13 +32,6 @@ class LanternOne < Cue
   FADE_PERIOD = 30
   FADE_OPACITY = 0.95
 
-  RIPPLE_PATTERN_SIZE = 1000
-  RIPPLE_PRESENCE_THRESHOLD = 0.9
-  RIPPLE_MAX_INTENSITY = 0.2
-  RIPPLE_SCROLL_PERIOD = -0.5
-  RIPPLE_OVERSAMPLE = 10
-  RIPPLE_OPACITY = 0.8
-
   def setup
     build_layer(
         FadeLayer,
@@ -57,14 +50,6 @@ class LanternOne < Cue
         },
         canvas: UPPER_RING
     ).opacity = FADE_OPACITY
-
-    ripple = build_layer config: { size: RIPPLE_PATTERN_SIZE }
-    RIPPLE_PATTERN_SIZE.times do |i|
-      if rand >= RIPPLE_PRESENCE_THRESHOLD
-        ripple[i] = BLACK.override alpha: rand * RIPPLE_MAX_INTENSITY
-      end
-    end
-    ripple.scroll(RIPPLE_SCROLL_PERIOD, RIPPLE_OVERSAMPLE).opacity = RIPPLE_OPACITY
 
     build_layer(
         GradientLayer,

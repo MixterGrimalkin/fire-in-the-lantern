@@ -12,6 +12,8 @@ module Fitl
 
     attr_reader :pixel_count, :mode, :contents
 
+    attr_accessor :fps_meter
+
     def [](pixel)
       raise BadPixelNumber unless (0..pixel_count).include? pixel
       contents[pixel]
@@ -52,7 +54,7 @@ module Fitl
         end
       end.flatten
 
-      log_render
+      fps_meter.log_render if fps_meter
 
       while buffer.size % 3 != 0
         buffer << 0
@@ -69,26 +71,6 @@ module Fitl
 
     def close
       # --> Shutdown display here <-- #
-    end
-
-    FPS_SAMPLE_WINDOW = 5
-
-    def log_render
-      @times ||= []
-      @fps ||= []
-      if @last_render
-        @times << (Time.now - @last_render)
-        if @times.size >= FPS_SAMPLE_WINDOW
-          avg_time = @times.sum.to_f / @times.size
-          @fps << (1.0 / avg_time)
-          @times = []
-        end
-      end
-      @last_render = Time.now
-    end
-
-    def fps
-      puts @fps[-20..-1].collect { |v| '%.2f' % v }.join(', ')
     end
 
     def to_s

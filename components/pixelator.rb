@@ -1,4 +1,5 @@
 require './components/assets'
+require './components/neopixel/fps_meter'
 require './components/osc/osc_control_hooks'
 require './lib/colours'
 require './lib/utils'
@@ -104,6 +105,10 @@ module Fitl
       @render_thread.join
 
       self
+    end
+
+    def attach_meter
+      neo_pixel.fps_meter = FpsMeter.new(frame_rate)
     end
 
     def inspect
