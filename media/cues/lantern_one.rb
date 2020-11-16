@@ -2,11 +2,8 @@ include Fitl
 
 class LanternOne < Cue
 
-  CANDLE_BACK = (0..3)
-  CANDLE_FRONT = (4..7)
-  CANDLE = (0..7)
-  LOWER_RING = (8..17)
-  UPPER_RING = (18..34)
+  LOWER_RING = (0..9)
+  UPPER_RING = (10..26)
   BOTH_RINGS = LOWER_RING.to_a + UPPER_RING.to_a
 
   SWIRL_LEAD = (WHITE * 0.5).override(alpha: 0.7)

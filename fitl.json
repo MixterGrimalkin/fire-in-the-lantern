@@ -1,6 +1,6 @@
 {
   "Pixelator": {
-    "frame_rate": 30,
+    "frame_rate": 60,
     "osc_control_port": 3333
   },
   "Neopixel": {
@@ -42,7 +42,7 @@
       "layer": "media/layers"
     },
     "auto_play": true,
-    "max_oversample": 6,
+    "max_oversample": 20,
     "allow_remote_reboot": false
   }
 }

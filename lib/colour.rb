@@ -153,17 +153,17 @@ module Fitl
         end
       end
 
-      def mix(colors)
-        return nil if colors.nil? || colors.empty?
+      def mix(colours)
+        return nil if colours.nil? || colours.empty?
 
         colour_sum = Colour.new
         alpha_sum = 0.0
         colour_count = 0
 
-        colors.each do |color|
-          if color
-            colour_sum += color
-            alpha_sum += color.alpha
+        colours.each do |colour|
+          if colour
+            colour_sum += colour
+            alpha_sum += colour.alpha
             colour_count += 1
           end
         end
@@ -171,7 +171,7 @@ module Fitl
         return nil if colour_count.zero?
 
         result_colour = colour_sum / colour_count
-        result_alpha = alpha_sum / colors.size
+        result_alpha = alpha_sum / colours.size
 
         Colour.new(*result_colour.components, alpha: result_alpha)
       end
