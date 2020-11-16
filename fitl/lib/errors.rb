@@ -1,2 +1,0 @@
-class PixelOutOfRangeError < StandardError;
-end
