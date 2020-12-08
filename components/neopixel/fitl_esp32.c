@@ -1,9 +1,9 @@
 #include <WiFi.h>
 #include <ArduinoOSC.h>
-#include <Adafruit_NeoPixel.h>
+#include "FastLED.h"
 
 #define PIN         22
-#define PIXEL_COUNT 8
+#define PIXEL_COUNT 24
 #define FRAME_CACHE_SIZE 100
 
 int frames[FRAME_CACHE_SIZE][PIXEL_COUNT][3];
@@ -11,7 +11,7 @@ int frames[FRAME_CACHE_SIZE][PIXEL_COUNT][3];
 int frameWriteIndex = 0;
 int frameReadIndex = 0;
 
-Adafruit_NeoPixel pixels(PIXEL_COUNT, PIN, NEO_GRB + NEO_KHZ800);
+CRGB neopixel[PIXEL_COUNT];
 
 const String ssid = "TotallyNotSkynet";
 const String password = "CabinetPolicySkipFir3$";
@@ -19,68 +19,127 @@ const String password = "CabinetPolicySkipFir3$";
 const int WIFI_TIMEOUT = 5000;
 bool connected = false;
 
-void setup() {
-  Serial.begin(115400);
-  pixels.begin();
-  pixels.clear();
-  startWiFi();
-  attachOscListener();
-}
+struct QNode {
+    String frame;
+    QNode* next;
+    QNode(String f)
+    {
+        frame = f;
+        next = NULL;
+    }
+};
+
+struct Queue {
+    QNode *front, *rear;
+    int size;
+    Queue()
+    {
+        front = rear = NULL;
+        size = 0;
+    }
+
+    void enQueue(String f)
+    {
+        size++;
+
+        // Create a new LL node
+        QNode* temp = new QNode(f);
+
+        // If queue is empty, then
+        // new node is front and rear both
+        if (rear == NULL) {
+            front = rear = temp;
+            return;
+        }
+
+        // Add the new node at
+        // the end of queue and change rear
+        rear->next = temp;
+        rear = temp;
+    }
+
+    // Function to remove
+    // a key from given queue q
+    String deQueue()
+    {
+      size--;
+        // If queue is empty, return NULL.
+        if (front == NULL)
+            return "";
+
+           String frame = front->frame;
+
+        // Store previous front and
+        // move front one node ahead
+        QNode* temp = front;
+        front = front->next;
+
+        // If front becomes NULL, then
+        // change rear also as NULL
+        if (front == NULL)
+            rear = NULL;
+
+        delete (temp);
+
+        return frame;
+    }
+};
+
+Queue queue;
+
 
 int frameStarted = millis();
 bool started = false;
 
+int pixelColours[PIXEL_COUNT][3];
+
+bool updating = false;
+
+int frameRate = 10;
+int frameDuration = 1000 / frameRate;
+
+
+void setup() {
+  Serial.begin(115400);
+  FastLED.addLeds<NEOPIXEL, 22>(neopixel, PIXEL_COUNT);
+
+  startWiFi();
+  attachOscListener();
+
+  FastLED.show();
+  frameStarted = millis();
+}
+
 void loop() {
   if ( connected ) OscWiFi.update();
 
-  if ( millis() - frameStarted >= 100 ) {
-    if ( started || frameWriteIndex++ >= 10 ) {
-      started = true;
-      if ( frameReadIndex++ >= FRAME_CACHE_SIZE ) {
-        frameReadIndex = 0;
-      }
-      for ( int i = 0; i < PIXEL_COUNT; i++ ) {
-        pixels.setPixelColor(i, pixels.Color(frames[frameReadIndex][i][0], frames[frameReadIndex][i][1], frames[frameReadIndex][i][2]));
-      }
-      pixels.show();
+  if ( queue.size > 10 ) {
+    if ( millis() - frameStarted >= frameDuration ) {
+      String frame = queue.deQueue();
+      displayFrame(queue.deQueue());
+      frameStarted = millis();
     }
-    frameStarted = millis();
   }
-//  delay(10);
 }
 
 void attachOscListener() {
   OscWiFi.subscribe(3333, "/data",
   [](const OscMessage & m) {
     String frame = m.arg<String>(0);
-//    Serial.println(frame);
-    saveFrame(frame);
-//    pixels.clear();
-//    int p = 0;
-//    for ( int i = 0; i < (PIXEL_COUNT * 3); i += 3 ) {
-//      int red = getValue(frame, ' ', i).toInt();
-//      int green = getValue(frame, ' ', i+1).toInt();
-//      int blue = getValue(frame, ' ', i+2).toInt();
-//      pixels.setPixelColor(p++, pixels.Color(red, green, blue));
-//    }
-//    pixels.show();
+    queue.enQueue(frame);
   });
 }
 
-void saveFrame(String frameStr) {
+void displayFrame(String frame) {
   int p = 0;
-  int frame[PIXEL_COUNT][3];
   for ( int i = 0; i < (PIXEL_COUNT * 3); i += 3 ) {
-    int red = getValue(frameStr, ' ', i).toInt();
-    int green = getValue(frameStr, ' ', i+1).toInt();
-    int blue = getValue(frameStr, ' ', i+2).toInt();
-    frames[frameWriteIndex][p][0] = red;
-    frames[frameWriteIndex][p][1] = green;
-    frames[frameWriteIndex][p][2] = blue;
+    int red = getValue(frame, ' ', i).toInt();
+    int green = getValue(frame, ' ', i+1).toInt();
+    int blue = getValue(frame, ' ', i+2).toInt();
+    neopixel[p] = CRGB(red, green, blue);
+    p++;
   }
-  if ( frameWriteIndex++ > FRAME_CACHE_SIZE ) {
-    frameWriteIndex = 0;
-  }
+  FastLED.show();
 }
 
 String getValue(String data, char separator, int index) {
