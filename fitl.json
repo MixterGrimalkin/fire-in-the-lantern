@@ -1,13 +1,13 @@
 {
   "Pixelator": {
-    "frame_rate": 20,
+    "frame_rate": 14,
     "osc_control_port": 3333
   },
   "Neopixel": {
-    "pixel_count": 24,
+    "pixel_count": 46,
     "mode": "rgb"
   },
-  "Adapter": "OscNeopixel",
+  "Adapter": "EspNeopixel",
   "HttpNeopixel": {
     "host": "localhost",
     "port": 4567,
@@ -44,5 +44,8 @@
     "auto_play": true,
     "max_oversample": 20,
     "allow_remote_reboot": false
+  },
+  "EspNeopixel": {
+    "ip_address": "192.168.1.251"
   }
 }
