@@ -19,7 +19,7 @@ module Fitl
     def show(buffer)
       message = ''
       buffer.each_slice(3) do |r,g,b|
-        message += "#{r},#{g},#{b} "
+        message += "#{r} #{g} #{b} "
       end
       send_ws_message message.strip
     end
@@ -30,6 +30,7 @@ module Fitl
 
     def send_ws_message(message)
       connect unless web_socket&.open?
+      puts message
       web_socket.send message
     end
 

@@ -1,6 +1,6 @@
 {
   "Pixelator": {
-    "frame_rate": 14,
+    "frame_rate": 10,
     "osc_control_port": 3333
   },
   "Neopixel": {
