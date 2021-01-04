@@ -33,16 +33,85 @@ CRGB neopixelTop[TOP_SIZE];
 
 int lastRender;
 
+#define RED 0
+#define GREEN 1
+#define BLUE 2
+
+struct Envelope {
+  int preDelay = 0;
+  double initialValue = 0.0;
+  int attackTime = 0;
+  double attackValue = 0.0;
+  int decayTime = 0;
+  int sustainTime = 0;
+  double sustainValue = 0.0;
+  int releaseTime = 0;
+  double endValue = 0.0;
+
+  int startedAt = -1;
+  bool repeat = false;
+
+  Envelope() {
+  }
+
+  void start() {
+    startedAt = millis();
+  }
+
+  double getAmount() {
+    if ( startedAt == -1 ) {
+      return -1;
+    }
+
+    int elapsed = millis() - startedAt;
+
+    if ( elapsed < preDelay ) {
+      return initialValue;
+    }
+
+    elapsed -= preDelay;
+
+    if ( elapsed < attackTime ) {
+      return initialValue + ((attackValue - initialValue) * ((double)elapsed / (double)attackTime));
+    }
+
+    elapsed -= attackTime;
+
+    if ( elapsed < decayTime ) {
+      return attackValue + ((sustainValue - attackValue) * ((double)elapsed / (double)decayTime));
+    }
+
+    elapsed -= decayTime;
+
+    if ( elapsed < sustainTime ) {
+      return sustainValue;
+    }
+
+    elapsed -= sustainTime;
+
+    if ( elapsed < releaseTime ) {
+      return sustainValue + ((endValue - sustainValue) * ((double)elapsed / (double)sustainTime));
+    }
+
+    if ( repeat ) {
+      startedAt = millis();
+    }
+
+    return endValue;
+  }
+};
+
 struct Pixel {
   int region;
   int number;
   int colourForeground[3];
   int colourBackground[3];
   double amount;
-  PixelData() {
-    PixelData(0, 0);
+  Envelope envelope = Envelope();
+  Pixel() {
+    Pixel(0, 0);
   }
-  PixelData(int r, int n) {
+  Pixel(int r, int n) {
     region = r;
     number = n;
     setForeground(0, 0, 0);
@@ -58,14 +127,14 @@ struct Pixel {
     amount = 0.0;
   }
   void setForeground(int r, int g, int b) {
-    colourForeground[0] = r;
-    colourForeground[1] = g;
-    colourForeground[2] = b;
+    colourForeground[RED] = r;
+    colourForeground[GREEN] = g;
+    colourForeground[BLUE] = b;
   }
   void setBackground(int r, int g, int b) {
-    colourBackground[0] = r;
-    colourBackground[1] = g;
-    colourBackground[2] = b;
+    colourBackground[RED] = r;
+    colourBackground[GREEN] = g;
+    colourBackground[BLUE] = b;
   }
   void setAmount(double a) {
     amount = a;
@@ -76,21 +145,64 @@ struct Pixel {
   int mixComponent(int c) {
     return colourBackground[c] + ((colourForeground[c] - colourBackground[c]) * amount);
   }
-};
 
-struct Region {
-  Pixel * pixels;
-  int size;
-  Region() {}
-  Region(Pixel * p, int s) {
-    pixels = p;
-    size = s;
+  void fadeEnvelope(int preDelay, double initialValue,
+                int attackTime, double attackValue,
+                int decayTime,
+                int sustainTime, double sustainValue,
+                int releaseTime, double endValue,
+                bool repeat
+  ) {
+    envelope = Envelope();
+    envelope.preDelay = preDelay;
+    envelope.initialValue = initialValue;
+    envelope.attackTime = attackTime;
+    envelope.attackValue = attackValue;
+    envelope.decayTime = decayTime;
+    envelope.sustainTime = sustainTime;
+    envelope.sustainValue = sustainValue;
+    envelope.releaseTime = releaseTime;
+    envelope.endValue = endValue;
+    envelope.repeat = repeat;
+    Serial.println(envelope.preDelay);
+    envelope.start();
   }
+
+
+  void fadeIn(int delayTime, int fadeInTime) {
+    envelope = Envelope();
+    envelope.initialValue = amount;
+    envelope.preDelay = delayTime;
+    envelope.attackTime = fadeInTime;
+    envelope.attackValue = 1.0;
+    envelope.endValue = 1.0;
+    envelope.start();
+  }
+
+  void update() {
+    double newAmount = envelope.getAmount();
+    if (newAmount >= 0) amount = newAmount;
+  }
+
 };
 
+Pixel allPixels[PIXEL_COUNT];
 Pixel pxTop[TOP_SIZE] ;
 Pixel pxInner[INNER_RING_SIZE];
 Pixel pxOuter[OUTER_RING_SIZE];
+
+void updatePixels() {
+  int i;
+  for ( i=0; i<TOP_SIZE; i++ ) {
+    pxTop[i].update();
+  }
+  for ( i=0; i<INNER_RING_SIZE; i++ ) {
+    pxInner[i].update();
+  }
+  for ( i=0; i<OUTER_RING_SIZE; i++ ) {
+    pxOuter[i].update();
+  }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -103,41 +215,95 @@ void setup() {
   initNeopixel();
   startWiFi();
 
+
+  waveringPattern(TOP,        127, 0, 255, 90, 0, 0);
+  waveringPattern(INNER_RING, 127, 64, 0, 0, 90, 90);
+  waveringPattern(OUTER_RING, 127, 90, 30, 0, 0, 0);
+
   render();
 }
 
+
+
+void waveringPattern(int region, int r1, int g1, int b1, int r2, int g2, int b2) {
+  Pixel * pixels = getPixelSet(region);
+  int pixelCount;
+  switch ( region ) {
+    case INNER_RING:
+      pixels = pxInner;
+      pixelCount = INNER_RING_SIZE;
+      break;
+    case OUTER_RING:
+      pixels = pxOuter;
+      pixelCount = OUTER_RING_SIZE;
+      break;
+    case TOP:
+      pixels = pxTop;
+      pixelCount = TOP_SIZE;
+      break;
+  }
+  for ( int i=0; i<pixelCount; i++ ) {
+    pixels[i].setForeground(r1, g1, b1);
+    pixels[i].setBackground(r2, g2, b2);
+    pixels[i].fadeEnvelope(abs(rand()) % 1000, 0.0, 1000, 1.0, 500, 2000, 0.7, 1000, 0.2, true);
+  }
+}
+
+Pixel * getPixelSet(int region) {
+  switch ( region ) {
+    case INNER_RING:
+      return pxInner;
+    case OUTER_RING:
+      return pxOuter;
+    case TOP:
+      return pxTop;
+  }
+}
+
+int getPixelCount(int region) {
+  switch ( region ) {
+    case INNER_RING:
+      return INNER_RING_SIZE;
+    case OUTER_RING:
+      return OUTER_RING_SIZE;
+    case TOP:
+      return TOP_SIZE;
+  }
+}
+
+
+int framePeriod = 1.0 / 10;
+
 void loop() {
-  for ( int i = 0; i < 100; i++ ) {
-    pxTop[position(TOP, i/100.0)].set(255, 0, 127);
-    pxInner[position(INNER_RING, i/100.0)].set(0, 0, 127);
-    pxOuter[position(OUTER_RING, i/100.0)].set(0, 50, 40);
-    render();
-    delay(10);
+  int now = millis();
+
+  updatePixels();
+  render();
+
+  int elapsed = millis() - now;
+  if ( elapsed < framePeriod ) {
+    delay(framePeriod - elapsed);
   }
-  delay(50);
-  for ( int i = 0; i < 100; i++ ) {
-    int topIndex = (i/100.0)*TOP_SIZE;
-    pxTop[position(TOP, i/100.0)].clear();
-    pxInner[position(INNER_RING, i/100.0)].clear();
-    pxOuter[position(OUTER_RING, i/100.0)].clear();
-    render();
-    delay(10);
-  }
-  delay(50);
+
+  delay(10);
 }
 
 void initNeopixel() {
   FastLED.addLeds<NEOPIXEL, TOP_PIN>(neopixelTop, TOP_FUDGE_SIZE);
   FastLED.addLeds<NEOPIXEL, RING_PIN>(neopixelRing, RING_SIZE);
   int i;
+  int j = 0;
   for ( i=0; i<TOP_SIZE; i++ ) {
     pxTop[i] = Pixel(TOP, i);
+//    allPixels[j++] = pxTop[i];
   }
   for ( i=0; i<INNER_RING_SIZE; i++ ) {
     pxInner[i] = Pixel(INNER_RING, i);
+//    allPixels[j++] = pxInner[i];
   }
   for ( i=0; i<OUTER_RING_SIZE; i++ ) {
     pxOuter[i] = Pixel(OUTER_RING, i);
+//    allPixels[j++] = pxOuter[i];
   }
 }
 
