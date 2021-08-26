@@ -4,7 +4,7 @@
 #include "FastLED.h"
 
 const String ssid = "TotallyNotSkynet";
-const String password = "CabinetPolicySkipFir3$";
+const String password = "";
 
 const int WIFI_TIMEOUT = 5000;
 bool connected = false;
@@ -14,6 +14,10 @@ AsyncWebServer server(80);
 #define INNER_RING 0
 #define OUTER_RING 1
 #define TOP 2
+
+int scrollOffsets[3];
+int scrollTicks[3];
+int scrollLastUpdated[3];
 
 #define RING_PIN  21
 #define TOP_PIN   22
@@ -122,6 +126,10 @@ struct Pixel {
     setForeground(r, g, b);
     amount = 1.0;
   }
+  void set(CRGB colour) {
+    setForeground(colour.r, colour.g, colour.b);
+    amount = 1.0;
+  }
   void clear() {
     setBackground(0, 0, 0);
     amount = 0.0;
@@ -213,39 +221,66 @@ void setup() {
   Serial.println();
 
   initNeopixel();
-  startWiFi();
+//  startWiFi();
 
 
-  waveringPattern(TOP,        127, 0, 255, 90, 0, 0);
-  waveringPattern(INNER_RING, 127, 64, 0, 0, 90, 90);
-  waveringPattern(OUTER_RING, 127, 90, 30, 0, 0, 0);
+  waveringPattern(OUTER_RING, 100, 30, 5, 5, 0, 0);
+
+  drawGradient(INNER_RING, CRGB(255, 100, 0), CRGB(100, 0, 0), 6);
+  scrollTicks[INNER_RING] = 250;
+
+  drawGradient(TOP, CRGB(255, 0, 90), CRGB(0, 0, 0), 3, false);
+  scrollTicks[TOP] = 100;
+
+
 
   render();
 }
+
+void drawGradient(int region, CRGB from, CRGB to, int width) {
+  drawGradient(region, from, to, width, true);
+}
+
+void drawGradient(int region, CRGB from, CRGB to, int width, bool repeat) {
+  CRGB gradient[width];
+  for ( int i=-0; i<width; i++ ) {
+    gradient[i] = mix(from, to, (double)i/width);
+  }
+  Pixel * pixels = getPixelSet(region);
+  for ( int i=0; i<getPixelCount(region); i++ ) {
+    if ( i > getPixelCount(region) && !repeat) {
+      pixels[i].set(0, 0, 0);
+    } else {
+      pixels[i].set(gradient[i % width]);
+    }
+  }
+
+}
+
+CRGB mix(CRGB colour1, CRGB colour2, double amount) {
+  if ( amount <= 0.0 ) {
+    return colour1;
+  } else if ( amount >= 1.0 ) {
+    return colour2;
+  } else {
+    return CRGB(
+      colour1.r + (( colour2.r - colour1.r ) * amount ),
+      colour1.g + (( colour2.g - colour1.g ) * amount ),
+      colour1.b + (( colour2.b - colour1.b ) * amount )
+    );
+  }
+}
+
 
 
 
 void waveringPattern(int region, int r1, int g1, int b1, int r2, int g2, int b2) {
   Pixel * pixels = getPixelSet(region);
-  int pixelCount;
-  switch ( region ) {
-    case INNER_RING:
-      pixels = pxInner;
-      pixelCount = INNER_RING_SIZE;
-      break;
-    case OUTER_RING:
-      pixels = pxOuter;
-      pixelCount = OUTER_RING_SIZE;
-      break;
-    case TOP:
-      pixels = pxTop;
-      pixelCount = TOP_SIZE;
-      break;
-  }
+  int pixelCount = getPixelCount(region);
   for ( int i=0; i<pixelCount; i++ ) {
     pixels[i].setForeground(r1, g1, b1);
     pixels[i].setBackground(r2, g2, b2);
-    pixels[i].fadeEnvelope(abs(rand()) % 1000, 0.0, 1000, 1.0, 500, 2000, 0.7, 1000, 0.2, true);
+    pixels[i].fadeEnvelope(1000 + (i*20), 0.0, 1000, 1.0, 500, 2000, 0.7, 1000, 0.2, true);
   }
 }
 
@@ -274,6 +309,12 @@ int getPixelCount(int region) {
 
 int framePeriod = 1.0 / 10;
 
+int minTopTick = 50;
+int maxTopTick = 2000;
+int topTickTick = 100;
+int lastTopTick = 0;
+int topTickDelta = 5;
+
 void loop() {
   int now = millis();
 
@@ -283,6 +324,18 @@ void loop() {
   int elapsed = millis() - now;
   if ( elapsed < framePeriod ) {
     delay(framePeriod - elapsed);
+  }
+
+  if ( millis() - lastTopTick >= topTickTick ) {
+    scrollTicks[TOP] += topTickDelta;
+    if ( scrollTicks[TOP] >= maxTopTick ) {
+      scrollTicks[TOP] = maxTopTick;
+      topTickDelta *= -1;
+    } else if ( scrollTicks[TOP] <= minTopTick ) {
+      scrollTicks[TOP] = minTopTick;
+      topTickDelta *= -1;
+    }
+    lastTopTick = millis();
   }
 
   delay(10);
@@ -295,29 +348,42 @@ void initNeopixel() {
   int j = 0;
   for ( i=0; i<TOP_SIZE; i++ ) {
     pxTop[i] = Pixel(TOP, i);
-//    allPixels[j++] = pxTop[i];
   }
   for ( i=0; i<INNER_RING_SIZE; i++ ) {
     pxInner[i] = Pixel(INNER_RING, i);
-//    allPixels[j++] = pxInner[i];
   }
   for ( i=0; i<OUTER_RING_SIZE; i++ ) {
     pxOuter[i] = Pixel(OUTER_RING, i);
-//    allPixels[j++] = pxOuter[i];
   }
 }
 
 void render() {
   int i;
-  for ( i=0; i<TOP_SIZE; i++ ) {
-    setPixel(pxTop[i].region, pxTop[i].number, pxTop[i].getColour());
+
+  for ( i=0; i<3; i++ ) {
+    if ( scrollTicks[i] > 0 && millis() - scrollLastUpdated[i] >= scrollTicks[i] ) {
+      scrollOffsets[i] = (scrollOffsets[i] + 1) % getPixelCount(i);
+      scrollLastUpdated[i] = millis();
+    }
+    int pixelCount = getPixelCount(i);
+    Pixel * pixels = getPixelSet(i);
+    for ( int j=0; j<pixelCount; j++ ) {
+      int p = (j + scrollOffsets[i]) % pixelCount;
+      setPixel(pixels[j].region, pixels[j].number, pixels[p].getColour());
+    }
+
   }
-  for ( i=0; i<INNER_RING_SIZE; i++ ) {
-    setPixel(pxInner[i].region, pxInner[i].number, pxInner[i].getColour());
-  }
-  for ( i=0; i<OUTER_RING_SIZE; i++ ) {
-    setPixel(pxOuter[i].region, pxOuter[i].number, pxOuter[i].getColour());
-  }
+//  for ( i=0; i<TOP_SIZE; i++ ) {
+//    int p = (i + scrollOffsets[TOP]) % TOP_SIZE;
+//  }
+//  for ( i=0; i<INNER_RING_SIZE; i++ ) {
+//    int p = (i + scrollOffsets[INNER_RING]) % INNER_RING_SIZE;
+//    setPixel(pxInner[i].region, pxInner[i].number, pxInner[p].getColour());
+//  }
+//  for ( i=0; i<OUTER_RING_SIZE; i++ ) {
+//    int p = (i + scrollOffsets[OUTER_RING]) % OUTER_RING_SIZE;
+//    setPixel(pxOuter[i].region, pxOuter[i].number, pxOuter[p].getColour());
+//  }
   FastLED.show();
   lastRender = millis();
 }

@@ -4,17 +4,17 @@
     "osc_control_port": 3333
   },
   "Neopixel": {
-    "pixel_count": 46,
+    "pixel_count": 35,
     "mode": "rgb"
   },
-  "Adapter": "EspNeopixel",
+  "Adapter": "OscNeopixel",
   "HttpNeopixel": {
     "host": "localhost",
     "port": 4567,
     "path": "data"
   },
   "OscNeopixel": {
-    "host": "192.168.1.251",
+    "host": "192.168.1.101",
     "port": 3333,
     "address": "data"
   },
